@@ -26,12 +26,12 @@ public class FrameworkLoader implements Loader
 			Map<String, ?> root = (Map<String, ?>)yamlParser.load(frameworkFile);
 			Map<String, ?> fw = (Map<String, ?>)root.get(EnvKey.Framework.FRAMEWORK);
 			
-			Map<String, String> scheduler = (Map<String, String>)fw.get(EnvKey.Framework.SCHEDULER);
+			Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
 			Properties sp = new Properties();
 			SystemSetting.getInstance().set(Setting.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
 			
 			Function.doIterator(scheduler.keySet(), (_key) -> {
-				String value = scheduler.get(_key);
+				Object value = scheduler.get(_key);
 				sp.put(_key, value);
 			});
 		}
