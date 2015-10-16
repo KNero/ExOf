@@ -1,6 +1,6 @@
 package balam.exof.util;
 
-public interface Callback
+public interface Callback<T>
 {
-	void execute(Object _t);
+	void execute(T _t);
 }

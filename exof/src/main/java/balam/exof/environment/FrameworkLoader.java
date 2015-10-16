@@ -31,7 +31,7 @@ public class FrameworkLoader implements Loader
 			SystemSetting.getInstance().set(Setting.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
 			
 			Function.doIterator(scheduler.keySet(), (_key) -> {
-				Object value = scheduler.get(_key);
+				String value = scheduler.get(_key);
 				sp.put(_key, value);
 			});
 		}
