@@ -1,4 +1,7 @@
 framework :
+   container :
+      #- a.b.c.Test
+   
    scheduler :
       org.quartz.scheduler.instanceName : SchedulerInit
       org.quartz.threadPool.threadCount : 5
