@@ -33,17 +33,23 @@ public class SystemSetting implements Setting
 	{
 		return this.setting.get(_prefix + _key);
 	}
+	
+	@Override
+	public Object getAndRemove(String _prefix, String _key)
+	{
+		return this.setting.remove(_prefix + _key);
+	}
 
 	@Override
 	public String getString(String _prefix, String _key) 
 	{
-		return (String)this.setting.get(_prefix + _key);
+		return this.setting.get(_prefix + _key).toString();
 	}
 
 	@Override
 	public String getStringAndRemove(String _prefix, String _key) 
 	{
-		return (String)this.setting.remove(_prefix + _key);
+		return this.setting.remove(_prefix + _key).toString();
 	}
 
 	@Override

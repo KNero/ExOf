@@ -10,6 +10,7 @@ public interface EnvKey
 	interface Framework
 	{
 		String FRAMEWORK = "framework";
+		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
 	}
 }

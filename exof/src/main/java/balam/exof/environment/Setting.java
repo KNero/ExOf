@@ -12,6 +12,7 @@ public interface Setting
 	
 	void set(String _prefix, String _key, Object _value);
 	Object get(String _prefix, String _key);
+	Object getAndRemove(String _prefix, String _key);
 	
 	String getString(String _prefix, String _key);
 	String getStringAndRemove(String _prefix, String _key);
