@@ -9,6 +9,8 @@ public class CircularList<T>
 	
 	public CircularList(List<T> _list)
 	{
+		if(_list == null || _list.size() == 0) return;
+		
 		this.first = new Content(_list.get(0));
 		
 		Content next = this.first;
@@ -33,6 +35,8 @@ public class CircularList<T>
 	
 	public T next()
 	{
+		if(this.current == null) return null;
+		
 		T t = this.current.t;
 		this.current = this.current.next;
 		
