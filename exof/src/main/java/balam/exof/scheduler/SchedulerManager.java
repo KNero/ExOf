@@ -46,44 +46,52 @@ public class SchedulerManager extends Observable implements Container
 	@Override
 	public void start() throws Exception
 	{
-		Properties pro = (Properties)SystemSetting.getInstance().getAndRemove(Setting.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER);
-		SchedulerFactory factory = new StdSchedulerFactory(pro);
-		this.scheduler = factory.getScheduler();
-		
 		List<ScheduleInfo> infoList = (List<ScheduleInfo>)SystemSetting.getInstance()
 				.get(Setting.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
 		
-		CollectionUtil.doIterator(infoList, _info -> {
-			try 
-			{
-				Class<SchedulerJob> jobClass = (Class<SchedulerJob>)Class.forName(_info.getClassName());
-				JobDetail jd = JobBuilder.newJob(jobClass).build();
-				jd.getJobDataMap().put("name", _info.getName());
-				jd.getJobDataMap().put(EnvKey.Service.DUPLICATE, _info.isDuplicateExecution());
-				jd.getJobDataMap().put(EnvKey.Service.PARAM_GROUP, _info.getParamList());
-				
-				CronExpression ce = new CronExpression(_info.getCronExpression());
-				CronTrigger t = TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.cronSchedule(ce)).build();
-				
-				this.scheduler.scheduleJob( jd, t );
-				
-				if(this.logger.isInfoEnabled())
+		if(infoList != null)
+		{
+			Properties pro = (Properties)SystemSetting.getInstance().getAndRemove(Setting.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER);
+			SchedulerFactory factory = new StdSchedulerFactory(pro);
+			this.scheduler = factory.getScheduler();
+			
+			CollectionUtil.doIterator(infoList, _info -> {
+				try 
 				{
-					this.logger.info("Loading schedule is successed.\n" + _info.toString());
+					Class<SchedulerJob> jobClass = (Class<SchedulerJob>)Class.forName(_info.getClassName());
+					JobDetail jd = JobBuilder.newJob(jobClass).build();
+					jd.getJobDataMap().put("name", _info.getName());
+					jd.getJobDataMap().put(EnvKey.Service.DUPLICATE, _info.isDuplicateExecution());
+					jd.getJobDataMap().put(EnvKey.Service.PARAM_GROUP, _info.getParamList());
+					
+					CronExpression ce = new CronExpression(_info.getCronExpression());
+					CronTrigger t = TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.cronSchedule(ce)).build();
+					
+					this.scheduler.scheduleJob( jd, t );
+					
+					if(this.logger.isDebugEnabled())
+					{
+						this.logger.debug("Loading schedule is successed.\n" + _info.toString());
+					}
+				} 
+				catch(Exception e) 
+				{
+					this.logger.error("Loading schedule is failed.[{}]", _info.getName(), e);
 				}
-			} 
-			catch(Exception e) 
+			});
+			
+			this.scheduler.start();
+			
+			if(this.logger.isInfoEnabled())
 			{
-				this.logger.error("Loading schedule is failed.[{}]", _info.getName(), e);
+				this.logger.info("Scheduler is Loaded. Schedule Count : {}", infoList.size());
 			}
-		});
-		
-		this.scheduler.start();
+		}
 	}
 
 	@Override
 	public void stop() throws Exception
 	{
-		this.scheduler.shutdown();
+		if(this.scheduler != null) this.scheduler.shutdown();
 	}
 }
