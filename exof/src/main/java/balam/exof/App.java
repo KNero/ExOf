@@ -14,7 +14,7 @@ public class App
 {
 	public static void start()
 	{
-		String envPath = System.getProperty("exofHome", "./env");
+		String envPath = System.getProperty("envPath", "./env");
 		SystemSetting.getInstance().set(Setting.PreFix.FRAMEWORK, "envPath", envPath);
 		
 		 try
