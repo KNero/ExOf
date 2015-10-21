@@ -2,6 +2,8 @@ package balam.exof;
 
 import balam.exof.environment.Loader;
 import balam.exof.environment.MainLoader;
+import balam.exof.environment.Setting;
+import balam.exof.environment.SystemSetting;
 
 /**
  * 
@@ -12,10 +14,13 @@ public class App
 {
 	public static void start()
 	{
+		String envPath = System.getProperty("exofHome", "./env");
+		SystemSetting.getInstance().set(Setting.PreFix.FRAMEWORK, "envPath", envPath);
+		
 		 try
 	        {
 	        	Loader mainLoader = new MainLoader();
-	        	mainLoader.load();
+	        	mainLoader.load(envPath);
 	        }
 	        catch(Exception e)
 	        {
