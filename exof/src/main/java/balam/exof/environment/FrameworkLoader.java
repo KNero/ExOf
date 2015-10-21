@@ -19,14 +19,13 @@ public class FrameworkLoader implements Loader
 {
 	@Override
 	@SuppressWarnings("unchecked")
-	public void load() throws LoadEnvException 
+	public void load(String _envPath) throws LoadEnvException 
 	{
 		FileInputStream frameworkFile = null;
 		
 		try
 		{
-			String home = SystemSetting.getInstance().getString(Setting.PreFix.FRAMEWORK, "home");
-			frameworkFile = new FileInputStream(home + "/" + "framework.yaml");
+			frameworkFile = new FileInputStream(_envPath + "/" + "framework.yaml");
 			
 			Yaml yamlParser = new Yaml();
 			Map<String, ?> root = (Map<String, ?>)yamlParser.load(frameworkFile);

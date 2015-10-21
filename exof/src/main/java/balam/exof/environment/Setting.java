@@ -8,6 +8,7 @@ public interface Setting
 	interface PreFix
 	{
 		String FRAMEWORK = "framework.";
+		String SERVICE = "service.";
 	}
 	
 	void set(String _prefix, String _key, Object _value);

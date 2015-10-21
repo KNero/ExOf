@@ -2,5 +2,5 @@ package balam.exof.environment;
 
 public interface Loader 
 {
-	void load() throws LoadEnvException;
+	void load(String _envPath) throws LoadEnvException;
 }

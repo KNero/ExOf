@@ -13,4 +13,16 @@ public interface EnvKey
 		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
 	}
+	
+	interface Service
+	{
+		String SCHEDULE = "schedule";
+		String SERVICE = "service";
+		
+		String CLASS = "class";
+		String CLON = "cronExpression";
+		String DUPLICATE = "duplicateExecution";
+		String PARAM_GROUP = "parameterGroup";
+		String PARAM = "parameter";
+	}
 }
