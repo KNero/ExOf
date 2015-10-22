@@ -7,7 +7,17 @@ public class CircularList<T>
 	private Content first;
 	private Content current;
 	
+	public CircularList()
+	{
+		
+	}
+	
 	public CircularList(List<T> _list)
+	{
+		this.set(_list);
+	}
+	
+	public void set(List<T> _list)
 	{
 		if(_list == null || _list.size() == 0) return;
 		
