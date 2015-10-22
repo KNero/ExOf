@@ -1,15 +1,22 @@
 package balam.exof.scheduler;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
@@ -20,12 +27,16 @@ import balam.exof.Container;
 import balam.exof.environment.EnvKey;
 import balam.exof.environment.Setting;
 import balam.exof.environment.SystemSetting;
+import balam.exof.util.CircularList;
 import balam.exof.util.CollectionUtil;
 
-public class SchedulerManager extends Observable implements Container
+public class SchedulerManager implements Container, Observer
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Scheduler scheduler;
+	private boolean isAutoReload;
+	
+	private Map<String, JobKey> jobKeyMap = new HashMap<String, JobKey>();
 	
 	private static SchedulerManager self = new SchedulerManager();
 	
@@ -60,14 +71,22 @@ public class SchedulerManager extends Observable implements Container
 				{
 					Class<SchedulerJob> jobClass = (Class<SchedulerJob>)Class.forName(_info.getClassName());
 					JobDetail jd = JobBuilder.newJob(jobClass).build();
-					jd.getJobDataMap().put("name", _info.getName());
+					jd.getJobDataMap().put(EnvKey.Service.NAME, _info.getName());
 					jd.getJobDataMap().put(EnvKey.Service.DUPLICATE, _info.isDuplicateExecution());
-					jd.getJobDataMap().put(EnvKey.Service.PARAM_GROUP, _info.getParamList());
+					jd.getJobDataMap().put(SchedulerJob.IS_RUNNING, new AtomicBoolean(false));
+					
+					List<Map<String, ?>> paramGroup = (List<Map<String, ?>>)_info.getParamList();
+					CircularList<Parameter> paramList = new CircularList<>(this._makeParamGroupToList(paramGroup));
+					
+					jd.getJobDataMap().put(EnvKey.Service.PARAM_GROUP, paramList);
+					
+					//파라미터 변경시 해당 job을 찾기위해서 사용.
+					this.jobKeyMap.put(_info.getName(), jd.getKey());
 					
 					CronExpression ce = new CronExpression(_info.getCronExpression());
 					CronTrigger t = TriggerBuilder.newTrigger().withSchedule(CronScheduleBuilder.cronSchedule(ce)).build();
 					
-					this.scheduler.scheduleJob( jd, t );
+					this.scheduler.scheduleJob(jd, t);
 					
 					if(this.logger.isDebugEnabled())
 					{
@@ -86,12 +105,66 @@ public class SchedulerManager extends Observable implements Container
 			{
 				this.logger.info("Scheduler is Loaded. Schedule Count : {}", infoList.size());
 			}
+			
+			String isAutoReload = pro.getProperty(EnvKey.Framework.AUTORELOAD_PARAM, "false");
+			this.isAutoReload = "true".equals(isAutoReload);
 		}
+	}
+	
+	private List<Parameter> _makeParamGroupToList(List<Map<String, ?>> _paramGroup)
+	{
+		List<Parameter> list = new LinkedList<>();
+		CollectionUtil.doIterator(_paramGroup, _param -> {
+			Parameter p = new Parameter();
+			list.add(p);
+			
+			CollectionUtil.doIterator(_param.keySet(), _key -> {
+				p.set(_key, _param.get(_key));
+			});
+		});
+		
+		return list;
 	}
 
 	@Override
 	public void stop() throws Exception
 	{
 		if(this.scheduler != null) this.scheduler.shutdown();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void update(Observable o, Object arg) 
+	{
+		if(this.isAutoReload)
+		{
+			Map<String, ?> schedule = (Map<String, ?>)((Map<String, ?>)arg).get(EnvKey.Service.SCHEDULE);
+			if(schedule != null)
+			{
+				CollectionUtil.doIterator(schedule.keySet(), _key -> {
+					Map<String, ?> info = (Map<String, ?>)schedule.get(_key);
+					JobKey jobkey = this.jobKeyMap.get(_key);
+					try 
+					{
+						List<Map<String, ?>> paramListMap = new LinkedList<>();
+						
+						List<Map<String, ?>> paramGroup = (List<Map<String, ?>>)info.get(EnvKey.Service.PARAM_GROUP);
+						CollectionUtil.doIterator(paramGroup, _param -> {
+							paramListMap.add((Map<String, ?>)_param.get(EnvKey.Service.PARAM));
+						});
+						
+						List<Parameter> paramList = this._makeParamGroupToList(paramListMap);
+						
+						JobDetail job = this.scheduler.getJobDetail(jobkey);
+						CircularList<Parameter> jobParam = (CircularList<Parameter>)job.getJobDataMap().get(EnvKey.Service.PARAM_GROUP);
+						jobParam.set(paramList);
+					} 
+					catch(SchedulerException e) 
+					{
+						this.logger.error("Can not get scheduler job.", e);
+					}
+				});
+			}
+		}
 	}
 }
