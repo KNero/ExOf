@@ -7,11 +7,15 @@ package balam.exof.environment;
  */
 public interface EnvKey 
 {
+	String HOME = "envPath";
+	
 	interface Framework
 	{
 		String FRAMEWORK = "framework";
 		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
+		
+		String AUTORELOAD_PARAM = "autoReloadParameter";
 	}
 	
 	interface Service
@@ -19,6 +23,7 @@ public interface EnvKey
 		String SCHEDULE = "schedule";
 		String SERVICE = "service";
 		
+		String NAME = "name";
 		String CLASS = "class";
 		String CLON = "cronExpression";
 		String DUPLICATE = "duplicateExecution";
