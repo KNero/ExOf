@@ -6,6 +6,12 @@ import java.util.Map;
 
 import balam.exof.util.CollectionUtil;
 
+/**
+ * FrameworkLoader에서 SchedulerManager로 
+ * 스케쥴에 대한 정보를 넘기기 위해서 사용한다.
+ * @author kwonsm
+ *
+ */
 public class ScheduleInfo 
 {
 	private String name;
