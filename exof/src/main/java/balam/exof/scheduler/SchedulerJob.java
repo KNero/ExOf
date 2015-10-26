@@ -16,8 +16,6 @@ public abstract class SchedulerJob implements Job
 {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	public static final String IS_RUNNING = "isRunning";
-	
 	abstract void execute(Parameter _param) throws SchedulerExecuteException;
 	
 	@Override
@@ -25,10 +23,18 @@ public abstract class SchedulerJob implements Job
 	{
 		JobDataMap jobData = _arg.getMergedJobDataMap();
 		
-		AtomicBoolean isRunning = (AtomicBoolean)jobData.get(SchedulerJob.IS_RUNNING);
+		AtomicBoolean isRunning = (AtomicBoolean)jobData.get("isRunning");
 		Boolean isDuplicateExecution = (Boolean)jobData.get(EnvKey.Service.DUPLICATE);
 		
-		if(! (isDuplicateExecution || isRunning.compareAndSet(false, true))) return;
+		if(! (isDuplicateExecution || isRunning.compareAndSet(false, true))) 
+		{
+			if(this.logger.isInfoEnabled())
+			{
+				this.logger.info("Skip schedule because the previous job is not finished.");
+			}
+			
+			return;
+		}
 		
 		@SuppressWarnings("unchecked")
 		CircularList<Parameter> paramGroup = (CircularList<Parameter>)jobData.get(EnvKey.Service.PARAM_GROUP);

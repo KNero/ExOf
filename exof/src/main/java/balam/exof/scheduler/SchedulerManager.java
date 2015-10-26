@@ -73,7 +73,7 @@ public class SchedulerManager implements Container, Observer
 					JobDetail jd = JobBuilder.newJob(jobClass).build();
 					jd.getJobDataMap().put(EnvKey.Service.NAME, _info.getName());
 					jd.getJobDataMap().put(EnvKey.Service.DUPLICATE, _info.isDuplicateExecution());
-					jd.getJobDataMap().put(SchedulerJob.IS_RUNNING, new AtomicBoolean(false));
+					jd.getJobDataMap().put("isRunning", new AtomicBoolean(false));
 					
 					List<Map<String, ?>> paramGroup = (List<Map<String, ?>>)_info.getParamList();
 					CircularList<Parameter> paramList = new CircularList<>(this._makeParamGroupToList(paramGroup));
