@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import balam.exof.environment.EnvKey;
-import balam.exof.environment.Setting;
 import balam.exof.environment.SystemSetting;
 import balam.exof.scheduler.SchedulerManager;
 import balam.exof.util.CollectionUtil;
@@ -29,7 +28,7 @@ public class Operator
 		containerList.add(SchedulerManager.getInstance());
 		
 		List<String> extraContainerList = (List<String>)SystemSetting.getInstance()
-				.getAndRemove(Setting.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
+				.getAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
 		CollectionUtil.doIterator(extraContainerList, _containerClass -> {
 			try 
 			{
