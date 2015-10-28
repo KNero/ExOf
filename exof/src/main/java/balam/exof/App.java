@@ -3,7 +3,6 @@ package balam.exof;
 import balam.exof.environment.EnvKey;
 import balam.exof.environment.Loader;
 import balam.exof.environment.MainLoader;
-import balam.exof.environment.Setting;
 import balam.exof.environment.SystemSetting;
 
 /**
@@ -16,20 +15,20 @@ public class App
 	public static void start()
 	{
 		String envPath = System.getProperty(EnvKey.HOME, "./env");
-		SystemSetting.getInstance().set(Setting.PreFix.FRAMEWORK, EnvKey.HOME, envPath);
+		SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.HOME, envPath);
 		
-		 try
-	        {
-	        	Loader mainLoader = new MainLoader();
-	        	mainLoader.load(envPath);
-	        }
-	        catch(Exception e)
-	        {
-	        	e.printStackTrace();
-	        }
+		try
+		{
+			Loader mainLoader = new MainLoader();
+			mainLoader.load(envPath);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	        
-	        Operator.init();
-	        Operator.start();
+        Operator.init();
+        Operator.start();
 	}
 	
 	public static void stop()
