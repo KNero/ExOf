@@ -9,6 +9,12 @@ public interface EnvKey
 {
 	String HOME = "envPath";
 	
+	interface PreFix
+	{
+		String FRAMEWORK = "framework.";
+		String SERVICE = "service.";
+	}
+	
 	interface Framework
 	{
 		String FRAMEWORK = "framework";
@@ -25,6 +31,7 @@ public interface EnvKey
 		
 		String NAME = "name";
 		String CLASS = "class";
+		
 		String CLON = "cronExpression";
 		String DUPLICATE = "duplicateExecution";
 		String PARAM_GROUP = "parameterGroup";
