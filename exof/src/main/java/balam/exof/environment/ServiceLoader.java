@@ -30,7 +30,7 @@ public class ServiceLoader implements Loader
 			if(schedule != null)
 			{
 				List<ScheduleInfo> scheduleList = new LinkedList<>();
-				SystemSetting.getInstance().set(Setting.PreFix.SERVICE, EnvKey.Service.SCHEDULE, scheduleList);
+				SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE, scheduleList);
 				
 				CollectionUtil.doIterator(schedule.keySet(), _key -> {
 					Map<String, ?> info = (Map<String, ?>)schedule.get(_key);
