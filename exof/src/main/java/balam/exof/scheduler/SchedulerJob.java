@@ -1,5 +1,7 @@
 package balam.exof.scheduler;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.quartz.Job;
@@ -24,7 +26,7 @@ public abstract class SchedulerJob implements Job
 		JobDataMap jobData = _arg.getMergedJobDataMap();
 		
 		AtomicBoolean isRunning = (AtomicBoolean)jobData.get("isRunning");
-		Boolean isDuplicateExecution = (Boolean)jobData.get(EnvKey.Service.DUPLICATE);
+		Boolean isDuplicateExecution = jobData.getBoolean(EnvKey.Service.DUPLICATE);
 		
 		if(! (isDuplicateExecution || isRunning.compareAndSet(false, true))) 
 		{
@@ -42,7 +44,24 @@ public abstract class SchedulerJob implements Job
 
 		try
 		{
+			String scheduleName = jobData.getString(EnvKey.Service.NAME);
+			long start = System.currentTimeMillis();
+			
+			if(this.logger.isDebugEnabled())
+			{
+				this.logger.debug("Schedule[{}] is started.", scheduleName);
+			}
+			
 			this.execute(param);
+			
+			if(this.logger.isInfoEnabled())
+			{
+				long end = System.currentTimeMillis();
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+				
+				this.logger.info("Schedule[{}] Start:{} / End:{} / Elapsed:{}ms", 
+						scheduleName, format.format(new Date(start)), format.format(new Date(end)), (end - start));
+			}
 		}
 		catch(SchedulerExecuteException e)
 		{
