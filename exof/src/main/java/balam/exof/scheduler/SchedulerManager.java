@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import balam.exof.Container;
 import balam.exof.environment.EnvKey;
-import balam.exof.environment.Setting;
 import balam.exof.environment.SystemSetting;
 import balam.exof.util.CircularList;
 import balam.exof.util.CollectionUtil;
@@ -58,11 +57,11 @@ public class SchedulerManager implements Container, Observer
 	public void start() throws Exception
 	{
 		List<ScheduleInfo> infoList = (List<ScheduleInfo>)SystemSetting.getInstance()
-				.get(Setting.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
+				.get(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
 		
 		if(infoList != null)
 		{
-			Properties pro = (Properties)SystemSetting.getInstance().getAndRemove(Setting.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER);
+			Properties pro = (Properties)SystemSetting.getInstance().getAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER);
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
 			this.scheduler = factory.getScheduler();
 			
