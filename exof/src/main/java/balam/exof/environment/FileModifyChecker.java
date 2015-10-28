@@ -31,7 +31,7 @@ public class FileModifyChecker extends Observable
 	public void start() throws Exception
 	{
 		//파일이 수정될 경우 모든 옵저버들에게 알려준다.
-		String envPath = SystemSetting.getInstance().getString(Setting.PreFix.FRAMEWORK, EnvKey.HOME);
+		String envPath = SystemSetting.getInstance().getString(EnvKey.PreFix.FRAMEWORK, EnvKey.HOME);
 		this.envDirPath = Paths.get(envPath);
 		
 		WatchService ws = FileSystems.getDefault().newWatchService();
