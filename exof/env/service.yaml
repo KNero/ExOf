@@ -1,15 +1,15 @@
 service :
 
 schedule :
-   name :
-      class : balam.exof.scheduler.TestJob
-      cronExpression : 0/1 * * * * ?
-      duplicateExecution : yes
-      parameterGroup :
-         - parameter :
-            a1 : b1
-            c1 : d1
-         - parameter : 
-            a2 : b2
-            c2 : d2
+   #test :
+      #class : balam.exof.scheduler.TestSchedule
+      #cronExpression : 0/5 * * * * ?
+      #duplicateExecution : no
+      #parameterGroup :
+         #- parameter :
+            #a1 : b34
+            #c1 : d34
+         #- parameter : 
+            #a2 : b2
+            #c2 : d2
       
