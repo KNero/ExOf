@@ -32,11 +32,11 @@ public class FrameworkLoader implements Loader
 			Map<String, ?> fw = (Map<String, ?>)root.get(EnvKey.Framework.FRAMEWORK);
 			
 			List<String> container = (List<String>)fw.get(EnvKey.Framework.CONTAINER);
-			SystemSetting.getInstance().set(Setting.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER, container);
+			SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER, container);
 			
 			Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
 			Properties sp = new Properties();
-			SystemSetting.getInstance().set(Setting.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
+			SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
 			
 			CollectionUtil.doIterator(scheduler.keySet(), _key -> {
 				Object value = scheduler.get(_key).toString();
