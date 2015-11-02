@@ -12,9 +12,9 @@ public interface Setting
 	String getString(String _prefix, String _key);
 	String getStringAndRemove(String _prefix, String _key);
 	
-	List<?> getList(String _prefix, String _key);
-	List<?> getListAndRemove(String _prefix, String _key);
+	<T> List<T> getList(String _prefix, String _key);
+	<T> List<T> getListAndRemove(String _prefix, String _key);
 	
-	Map<?, ?> getMap(String _prefix, String _key);
-	Map<?, ?> getMapAndRemove(String _prefix, String _key);
+	<K, V> Map<K, V> getMap(String _prefix, String _key);
+	<K, V> Map<K, V> getMapAndRemove(String _prefix, String _key);
 }

@@ -53,27 +53,31 @@ public class SystemSetting implements Setting
 	}
 
 	@Override
-	public List<?> getList(String _prefix, String _key) 
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getList(String _prefix, String _key) 
 	{
-		return (List<?>)this.setting.get(_prefix + _key);
+		return (List<T>)this.setting.get(_prefix + _key);
 	}
 
 	@Override
-	public List<?> getListAndRemove(String _prefix, String _key) 
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getListAndRemove(String _prefix, String _key) 
 	{
-		return (List<?>)this.setting.remove(_prefix + _key);
+		return (List<T>)this.setting.remove(_prefix + _key);
 	}
 
 	@Override
-	public Map<?, ?> getMap(String _prefix, String _key) 
+	@SuppressWarnings("unchecked")
+	public <K, V> Map<K, V> getMap(String _prefix, String _key) 
 	{
-		return (Map<?, ?>)this.setting.get(_prefix + _key);
+		return (Map<K, V>)this.setting.get(_prefix + _key);
 	}
 
 	@Override
-	public Map<?, ?> getMapAndRemove(String _prefix, String _key) 
+	@SuppressWarnings("unchecked")
+	public <K, V> Map<K, V> getMapAndRemove(String _prefix, String _key) 
 	{
-		return (Map<?, ?>)this.setting.remove(_prefix + _key);
+		return (Map<K, V>)this.setting.remove(_prefix + _key);
 	}
 	
 	@Override
