@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+	<category>
+		<serviceDirectory class="balam.exof.test.SchedulerTest" path="/test/scheduler">
+			<serviceVariale serviceName="execute">
+				<variable name="a" value="a1"/>
+				<variable name="b" value="b1"/>
+				<variable name="c" value="c1"/>
+			</serviceVariale>
+		</serviceDirectory>
+	</category>
+	
+	<category>
+		<scheduler servicePath="/testA/test1" cronExpression="0/5 * * * * ?" duplicateExecution="yes"/>
+	</category>
+</services>
