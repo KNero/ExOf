@@ -1,73 +1,128 @@
 package balam.exof.environment;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import org.yaml.snakeyaml.Yaml;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
-import balam.exof.scheduler.ScheduleInfo;
-import balam.exof.util.CollectionUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+
+import balam.exof.scheduler.SchedulerInfo;
+import balam.exof.service.ServiceDirectoryInfo;
 
 public class ServiceLoader implements Loader
 {
-	@SuppressWarnings("unchecked")
 	@Override
 	public void load(String _envPath) throws LoadEnvException 
 	{
-		FileInputStream serviceFile = null;
+		String serviceFileName = "service.xml";
+		
+		List<ServiceDirectoryInfo> serviceDirectoryList = new LinkedList<>();
+		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE, serviceDirectoryList);
+		
+		List<SchedulerInfo> schedulerList = new LinkedList<>();
+		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE, schedulerList);
 		
 		try
 		{
-			serviceFile = new FileInputStream(_envPath + "/" + "service.yaml");
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document doc = builder.parse(new File(_envPath + "/" + serviceFileName));
 			
-			Yaml yamlParser = new Yaml();
-			Map<String, ?> root = (Map<String, ?>)yamlParser.load(serviceFile);
-			
-			Map<String, ?> schedule = (Map<String, ?>)root.get(EnvKey.Service.SCHEDULE);
-			if(schedule != null)
+			Node servicesNode = doc.getFirstChild();
+			if(this._equalsNodeName(servicesNode, "services"))
 			{
-				List<ScheduleInfo> scheduleList = new LinkedList<>();
-				SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE, scheduleList);
-				
-				CollectionUtil.doIterator(schedule.keySet(), _key -> {
-					Map<String, ?> info = (Map<String, ?>)schedule.get(_key);
-					
-					ScheduleInfo scheduleInfo = new ScheduleInfo();
-					scheduleInfo.setName(_key);
-					scheduleInfo.setClassName((String)info.get(EnvKey.Service.CLASS));
-					scheduleInfo.setCronExpression((String)info.get(EnvKey.Service.CLON));
-					scheduleInfo.setDuplicateExecution((Boolean)info.get(EnvKey.Service.DUPLICATE));
-					
-					List<?> paramGroup = (List<?>)info.get(EnvKey.Service.PARAM_GROUP);
-					if(paramGroup != null)
+				Node categoryNode = servicesNode.getFirstChild();
+				while(categoryNode != null)
+				{
+					if(this._equalsNodeName(categoryNode, "category"))
 					{
-						CollectionUtil.doIterator(paramGroup, _param -> {
-							Map<String, ?> param = (Map<String, ?>)((Map<String, ?>)_param).get(EnvKey.Service.PARAM);
-							scheduleInfo.addParam(param);
-						});
+						Node serviceNode = categoryNode.getFirstChild();
+						while(serviceNode != null)
+						{
+							if(this._equalsNodeName(serviceNode, "serviceDirectory"))
+							{
+								ServiceDirectoryInfo info = this._makeServiceDirectory(serviceNode);
+								serviceDirectoryList.add(info);
+							}
+							else if(this._equalsNodeName(serviceNode, "scheduler"))
+							{
+								SchedulerInfo info = this._makeSchedulerInfo(serviceNode);
+								schedulerList.add(info);
+							}
+							
+							serviceNode = serviceNode.getNextSibling();
+						}
 					}
 					
-					scheduleList.add(scheduleInfo);
-				});
+					categoryNode = categoryNode.getNextSibling();
+				}
 			}
 		}
 		catch(Exception e)
 		{
-			throw new LoadEnvException("service.yaml", e);
+			throw new LoadEnvException(serviceFileName, e);
 		}
-		finally
+	}
+	
+	private boolean _equalsNodeName(Node _node, String _name)
+	{
+		return _node != null && _name.equals(_node.getNodeName());
+	}
+	
+	private ServiceDirectoryInfo _makeServiceDirectory(Node _node)
+	{
+		NamedNodeMap attr = _node.getAttributes();
+		
+		ServiceDirectoryInfo info = new ServiceDirectoryInfo();
+		info.setClassName(attr.getNamedItem("class").getNodeValue());
+		info.setPath(attr.getNamedItem("path").getNodeValue());
+		
+		Node serviceVariableNode = _node.getFirstChild();
+		while(serviceVariableNode != null)
 		{
-			try
+			if(this._equalsNodeName(serviceVariableNode, "serviceVariale"))
 			{
-				if(serviceFile != null) serviceFile.close();
+				NamedNodeMap serVariAttr = serviceVariableNode.getAttributes();
+				String serviceName = serVariAttr.getNamedItem("serviceName").getNodeValue();
+				LinkedHashMap<String, String> variable = new LinkedHashMap<>();
+				
+				info.setVariable(serviceName, variable);
+				
+				Node variableNode = serviceVariableNode.getFirstChild();
+				while(variableNode != null)
+				{
+					if(this._equalsNodeName(variableNode, "variable"))
+					{
+						NamedNodeMap variAttr = variableNode.getAttributes();
+						String name = variAttr.getNamedItem("name").getNodeValue();
+						String value = variAttr.getNamedItem("value").getNodeValue();
+						
+						variable.put(name, value);
+					}
+					
+					variableNode = variableNode.getNextSibling();
+				}
 			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
+			
+			serviceVariableNode = serviceVariableNode.getNextSibling();
 		}
+		
+		return info;
+	}
+	
+	private SchedulerInfo _makeSchedulerInfo(Node _node)
+	{
+		NamedNodeMap attr = _node.getAttributes();
+		
+		SchedulerInfo info = new SchedulerInfo();
+		info.setServicePath(attr.getNamedItem("servicePath").getNodeValue());
+		info.setCronExpression(attr.getNamedItem("cronExpression").getNodeValue());
+		info.setDuplicateExecution("yes".equals(attr.getNamedItem("duplicateExecution").getNodeValue()));
+		return info;
 	}
 }
