@@ -62,7 +62,7 @@ public class ServiceProvider implements Module
 		}
 	}
 	
-	public static Service lookup(String _path)
+	public static Service lookup(String _path) throws Exception
 	{
 		if(_path == null || _path.length() == 0) throw new IllegalArgumentException("Path is null : " + _path);
 			
@@ -73,13 +73,13 @@ public class ServiceProvider implements Module
 		String dirPath = _path.substring(0, splitIdx);
 		String serviceName = _path.substring(splitIdx + 1);
 		
-//		ServiceDirectory serviceDir = this.serviceDirMap.get(dirPath);
-//		if(serviceDir == null) throw new ServiceNotFoundException(_path);
-//		
-//		Service service = serviceDir.getService(serviceName);
-//		if(service == null) throw new ServiceNotFoundException(_path);
+		ServiceDirectory serviceDir = self.serviceDirectory.get(dirPath);
+		if(serviceDir == null) throw new ServiceNotFoundException(_path);
 		
-		return null;
+		Service service = serviceDir.getService(serviceName);
+		if(service == null) throw new ServiceNotFoundException(_path);
+		
+		return service;
 	}
 
 	@Override

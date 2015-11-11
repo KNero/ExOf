@@ -42,6 +42,8 @@ public class ServiceImpl implements Service
 	@Override
 	public void call(ServiceObject _so) throws Exception
 	{
+		_so.setVariables(this.variable);
 		
+		this.method.invoke(this.host, _so.getServiceParameter());
 	}
 }

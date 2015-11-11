@@ -17,4 +17,9 @@ public class ServiceDirectory
 		
 		this.serviceMap.put(_serviceName, service);
 	}
+	
+	public Service getService(String _serviceName)
+	{
+		return this.serviceMap.get(_serviceName);
+	}
 }
