@@ -11,6 +11,6 @@
 	</category>
 	
 	<category>
-		<scheduler servicePath="/testA/test1" cronExpression="0/5 * * * * ?" duplicateExecution="yes"/>
+		<scheduler servicePath="/test/scheduler/execute" cronExpression="0/5 * * * * ?" duplicateExecution="yes"/>
 	</category>
 </services>
