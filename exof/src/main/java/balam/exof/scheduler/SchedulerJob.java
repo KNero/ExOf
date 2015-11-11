@@ -11,6 +11,10 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import balam.exof.service.Service;
+import balam.exof.service.ServiceObject;
+import balam.exof.service.ServiceProvider;
+
 public class SchedulerJob implements Job
 {
 	private static Logger logger = LoggerFactory.getLogger(SchedulerJob.class);
@@ -43,8 +47,10 @@ public class SchedulerJob implements Job
 				logger.debug("Schedule[{}] is started.", info.getServicePath());
 			}
 			
-			logger.info("Call Service : {}", info.getServicePath());
+			ServiceObject so = new ServiceObject(info.getServicePath());
+			Service service = ServiceProvider.lookup(so.getServicePath());
 			
+			service.call(so);
 			
 			if(logger.isInfoEnabled())
 			{
