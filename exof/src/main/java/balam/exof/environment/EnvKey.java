@@ -28,13 +28,5 @@ public interface EnvKey
 	{
 		String SCHEDULE = "schedule";
 		String SERVICE = "service";
-		
-		String NAME = "name";
-		String CLASS = "class";
-		
-		String CLON = "cronExpression";
-		String DUPLICATE = "duplicateExecution";
-		String PARAM_GROUP = "parameterGroup";
-		String PARAM = "parameter";
 	}
 }
