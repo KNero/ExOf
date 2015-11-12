@@ -8,7 +8,6 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
-import java.util.Observable;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -16,14 +15,16 @@ import org.slf4j.LoggerFactory;
 
 import balam.exof.scheduler.SchedulerManager;
 
-public class FileModifyChecker extends Observable
+public class FileModifyChecker
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Path envDirPath;
 	
+	private FileObservable serviceChecker = new FileObservable();
+	
 	public FileModifyChecker()
 	{
-		this.addObserver(SchedulerManager.getInstance());
+		this.serviceChecker.addObserver(SchedulerManager.getInstance());
 	}
 	
 	public void start() throws Exception
@@ -57,8 +58,7 @@ public class FileModifyChecker extends Observable
 									Loader loader = new ServiceLoader();
 									loader.load(envHome);
 									
-									this.setChanged();
-									this.notifyObservers();
+									this.serviceChecker.updateObservers();
 								}
 								catch(Exception e)
 								{
