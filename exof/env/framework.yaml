@@ -3,10 +3,9 @@ framework :
       #- a.b.c.Test
       
    autoReload :
-      schedulerUse : yes
+      scheduler : yes
    
    scheduler :
-      autoReloadParameter : yes
       org.quartz.scheduler.instanceName : SchedulerInit
       org.quartz.threadPool.threadCount : 5
       org.quartz.jobStore.class : org.quartz.simpl.RAMJobStore

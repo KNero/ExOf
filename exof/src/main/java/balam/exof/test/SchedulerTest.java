@@ -15,6 +15,6 @@ public class SchedulerTest
 		Logger logger = LoggerFactory.getLogger(this.getClass());
 		logger.info("Scheduler execute : {} / {} / {}", _a, _b, _c);
 		
-		Thread.sleep(100000);
+//		Thread.sleep(100000);
 	}
 }
