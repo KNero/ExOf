@@ -1,6 +1,5 @@
 package balam.exof.environment;
 
-import java.io.FileInputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import balam.exof.scheduler.SchedulerManager;
 
@@ -40,41 +38,43 @@ public class FileModifyChecker extends Observable
 		Thread t = new Thread(() -> {
 			while(true)
 			{
+				WatchKey wk = null;
+				
 				try
 				{
-					final WatchKey wk = ws.poll(1, TimeUnit.SECONDS);
+					wk = ws.poll(1, TimeUnit.SECONDS);
 					if(wk != null)
 					{
 						List<WatchEvent<?>> events = wk.pollEvents();
 						for(WatchEvent<?> event : events)
 						{
 							final Path changed = (Path)event.context();
-							if(changed.endsWith("service.yaml"))
+							if(changed.endsWith("service.xml"))
 							{
-								FileInputStream fis = null;
-								
 								try
 								{
-									fis = new FileInputStream(envPath + "/" + "service.yaml");
-									Yaml yaml = new Yaml();
-									Object contents = yaml.load(fis);
+									String envHome = SystemSetting.getInstance().getString(EnvKey.PreFix.FRAMEWORK, EnvKey.HOME);
+									Loader loader = new ServiceLoader();
+									loader.load(envHome);
 									
 									this.setChanged();
-									this.notifyObservers(contents);
+									this.notifyObservers();
 								}
-								finally
+								catch(Exception e)
 								{
-									if(fis != null) fis.close();
+									this.logger.error("", e);
 								}
 							}
 						}
-						
-						wk.reset();
 					}
 				}
 				catch(Exception e)
 				{
 					this.logger.error("Can not check file.", e);
+				}
+				finally
+				{
+					if(wk != null) wk.reset();
 				}
 			}
 		});
