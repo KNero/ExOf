@@ -9,10 +9,12 @@ import balam.exof.service.annotation.ServiceDirectory;
 @ServiceDirectory
 public class SchedulerTest
 {
-	@Service
-	public void execute(String _a, String _b, String _c)
+	@Service(name="testScheduler")
+	public void execute(String _a, String _b, String _c) throws Exception
 	{
 		Logger logger = LoggerFactory.getLogger(this.getClass());
 		logger.info("Scheduler execute : {} / {} / {}", _a, _b, _c);
+		
+		Thread.sleep(100000);
 	}
 }
