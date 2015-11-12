@@ -121,8 +121,10 @@ public class ServiceLoader implements Loader
 		
 		SchedulerInfo info = new SchedulerInfo();
 		info.setServicePath(attr.getNamedItem("servicePath").getNodeValue());
-		info.setCronExpression(attr.getNamedItem("cronExpression").getNodeValue());
+		info.setCronExpression(attr.getNamedItem("cron").getNodeValue());
 		info.setDuplicateExecution("yes".equals(attr.getNamedItem("duplicateExecution").getNodeValue()));
+		info.setUse("yes".equals(attr.getNamedItem("use").getNodeValue()));
+		
 		return info;
 	}
 }
