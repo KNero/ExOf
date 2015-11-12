@@ -27,6 +27,7 @@ public class SchedulerManager implements Container, Observer
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Scheduler scheduler;
+	private boolean isAutoReload;
 	
 	private Map<String, JobKey> jobKeyMap = new HashMap<>();
 	private int idCount;
@@ -49,6 +50,9 @@ public class SchedulerManager implements Container, Observer
 	@Override
 	public void start() throws Exception
 	{
+		this.isAutoReload = (Boolean)SystemSetting.getInstance()
+				.get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER);
+		
 		List<SchedulerInfo> infoList = SystemSetting.getInstance()
 				.getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
 		
@@ -110,6 +114,8 @@ public class SchedulerManager implements Container, Observer
 	{
 		List<SchedulerInfo> infoList = SystemSetting.getInstance()
 				.getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
+		
+		if(! this.isAutoReload) return;
 		
 		this.idCount = 0;
 		

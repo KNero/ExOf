@@ -34,10 +34,16 @@ public class FrameworkLoader implements Loader
 			List<String> container = (List<String>)fw.get(EnvKey.Framework.CONTAINER);
 			SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER, container);
 			
-			Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
+			Map<String, ?> autoReloadList = (Map<String, ?>)fw.get(EnvKey.Framework.AUTORELOAD);
+			CollectionUtil.doIterator(autoReloadList.keySet(), _key -> {
+				Boolean value = (Boolean)autoReloadList.get(_key);
+				SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER, value);
+			});
+			
 			Properties sp = new Properties();
 			SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
 			
+			Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
 			CollectionUtil.doIterator(scheduler.keySet(), _key -> {
 				Object value = scheduler.get(_key).toString();
 				sp.put(_key, value);

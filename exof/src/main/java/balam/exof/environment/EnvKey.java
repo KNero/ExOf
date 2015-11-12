@@ -21,7 +21,8 @@ public interface EnvKey
 		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
 		
-		String AUTORELOAD_PARAM = "autoReloadParameter";
+		String AUTORELOAD = "autoReload";
+		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
 	}
 	
 	interface Service
