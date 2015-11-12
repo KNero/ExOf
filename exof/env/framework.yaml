@@ -1,6 +1,9 @@
 framework :
    container :
       #- a.b.c.Test
+      
+   autoReload :
+      schedulerUse : yes
    
    scheduler :
       autoReloadParameter : yes
