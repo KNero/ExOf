@@ -14,6 +14,7 @@ public class SchedulerInfo
 	private String servicePath;
 	private String cronExpression;
 	private boolean isDuplicateExecution;
+	private boolean isUse;
 	private AtomicBoolean isRunning = new AtomicBoolean(false);
 	
 	public String getServicePath()
@@ -51,13 +52,23 @@ public class SchedulerInfo
 		return isRunning;
 	}
 	
+	public boolean isUse()
+	{
+		return isUse;
+	}
+
+	public void setUse(boolean isUse)
+	{
+		this.isUse = isUse;
+	}
+	
 	@Override
 	public String toString()
 	{
 		StringBuilder str = new StringBuilder();
 		str.append("ServicePath : ").append(this.servicePath);
-		str.append(" / cron : ").append(this.cronExpression);
-		str.append(" / DuplicateExecution : ").append(this.isDuplicateExecution);
+		str.append(" , cron : ").append(this.cronExpression);
+		str.append(" , DuplicateExecution : ").append(this.isDuplicateExecution);
 		
 		return str.toString();
 	}
