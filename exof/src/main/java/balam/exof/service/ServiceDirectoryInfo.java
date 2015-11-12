@@ -37,6 +37,34 @@ public class ServiceDirectoryInfo
 	
 	public Map<String, String> getVariable(String _serviceName)
 	{
-		return this.variableMap.get(_serviceName);
+		return this.variableMap.remove(_serviceName);
+	}
+	
+	public int getServiceVariableSize()
+	{
+		return this.variableMap.size();
+	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuilder str = new StringBuilder();
+		str.append("Class : ").append(this.className);
+		str.append("\nPath : ").append(this.path);
+		str.append("\n- Variable List");
+		
+		for(String serviceName : this.variableMap.keySet())
+		{
+			str.append("\n-- Service Name : ").append(serviceName);
+
+			Map<String, String> variable = this.variableMap.get(serviceName);
+			for(String variableName : variable.keySet())
+			{
+				str.append("\n--- [").append(variableName).append("] = [");
+				str.append(variable.get(variableName)).append("]");
+			}
+		}
+		
+		return str.toString();
 	}
 }

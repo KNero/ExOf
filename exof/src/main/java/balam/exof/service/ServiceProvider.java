@@ -92,6 +92,11 @@ public class ServiceProvider implements Module
 			try
 			{
 				ServiceProvider.register(_info);
+				
+				if(_info.getServiceVariableSize() > 0)
+				{
+					this.logger.warn("Unused service variable list\n{}", _info.toString());
+				}
 			}
 			catch(Exception e)
 			{
