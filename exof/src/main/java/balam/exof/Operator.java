@@ -21,14 +21,14 @@ public class Operator
 	private static Logger logger = LoggerFactory.getLogger(Operator.class);
 	private static List<Container> containerList = new LinkedList<Container>();
 	
-	@SuppressWarnings("unchecked")
 	public static void init()
 	{
 		containerList.add(new Framework());
 		containerList.add(SchedulerManager.getInstance());
 		
-		List<String> extraContainerList = (List<String>)SystemSetting.getInstance()
-				.getAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
+		List<String> extraContainerList = SystemSetting.getInstance()
+				.getListAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
+		
 		CollectionUtil.doIterator(extraContainerList, _containerClass -> {
 			try 
 			{
