@@ -3,7 +3,7 @@ framework :
       #- a.b.c.Test
       
    autoReload :
-      schedulerUse : yes
+      scheduler : yes
    
    scheduler :
       autoReloadParameter : yes
