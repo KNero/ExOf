@@ -11,12 +11,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SchedulerInfo 
 {
+	private String id;
 	private String servicePath;
 	private String cronExpression;
 	private boolean isDuplicateExecution;
 	private boolean isUse;
 	private AtomicBoolean isRunning = new AtomicBoolean(false);
 	
+	public String getId()
+	{
+		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
 	public String getServicePath()
 	{
 		return servicePath;
@@ -66,7 +77,8 @@ public class SchedulerInfo
 	public String toString()
 	{
 		StringBuilder str = new StringBuilder();
-		str.append("ServicePath : ").append(this.servicePath);
+		str.append("ID : ").append(this.id);
+		str.append(" , ServicePath : ").append(this.servicePath);
 		str.append(" , cron : ").append(this.cronExpression);
 		str.append(" , DuplicateExecution : ").append(this.isDuplicateExecution);
 		
