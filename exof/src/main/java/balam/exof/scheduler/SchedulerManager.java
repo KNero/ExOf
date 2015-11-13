@@ -30,7 +30,6 @@ public class SchedulerManager implements Container, Observer
 	private boolean isAutoReload;
 	
 	private Map<String, JobKey> jobKeyMap = new HashMap<>();
-	private int idCount;
 	
 	private static SchedulerManager self = new SchedulerManager();
 	
@@ -63,11 +62,14 @@ public class SchedulerManager implements Container, Observer
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
 			this.scheduler = factory.getScheduler();
 			
-			this.idCount = 0;
-			
 			CollectionUtil.doIterator(infoList, _info -> {
 				try
 				{
+					if(this.jobKeyMap.containsKey(_info.getId()))
+					{
+						throw new SchedulerAlreadyExists(_info.getId());
+					}
+					
 					JobDetail jd = JobBuilder.newJob(SchedulerJob.class).build();
 					jd.getJobDataMap().put("info", _info);
 					
@@ -76,10 +78,7 @@ public class SchedulerManager implements Container, Observer
 					
 					this.scheduler.scheduleJob(jd, t);
 					
-					String scheduleId = _info.getServicePath() + _info.getCronExpression() + this.idCount;
-					this.jobKeyMap.put(scheduleId, jd.getKey());
-					
-					++this.idCount;
+					this.jobKeyMap.put(_info.getId(), jd.getKey());
 					
 					if(! _info.isUse()) this.scheduler.pauseJob(jd.getKey());
 					
@@ -117,11 +116,8 @@ public class SchedulerManager implements Container, Observer
 		
 		if(! this.isAutoReload) return;
 		
-		this.idCount = 0;
-		
 		CollectionUtil.doIterator(infoList, _info -> {
-			String scheduleId = _info.getServicePath() + _info.getCronExpression() + this.idCount;
-			JobKey jobkey = this.jobKeyMap.get(scheduleId);
+			JobKey jobkey = this.jobKeyMap.get(_info.getId());
 			
 			try
 			{
@@ -140,8 +136,6 @@ public class SchedulerManager implements Container, Observer
 			{
 				this.logger.error("Can not update scheduler. [{}]", _info.toString(), e);
 			}
-			
-			++this.idCount;
 		});
 	}
 }
