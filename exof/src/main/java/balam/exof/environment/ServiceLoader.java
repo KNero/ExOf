@@ -120,6 +120,7 @@ public class ServiceLoader implements Loader
 		NamedNodeMap attr = _node.getAttributes();
 		
 		SchedulerInfo info = new SchedulerInfo();
+		info.setId(attr.getNamedItem("id").getNodeValue());
 		info.setServicePath(attr.getNamedItem("servicePath").getNodeValue());
 		info.setCronExpression(attr.getNamedItem("cron").getNodeValue());
 		info.setDuplicateExecution("yes".equals(attr.getNamedItem("duplicateExecution").getNodeValue()));

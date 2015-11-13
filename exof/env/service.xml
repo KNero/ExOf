@@ -11,6 +11,6 @@
 	</category>
 	
 	<category>
-		<scheduler servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
+		<scheduler id="1" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
 	</category>
 </services>
