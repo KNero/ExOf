@@ -6,7 +6,6 @@ framework :
       scheduler : yes
    
    scheduler :
-      autoReloadParameter : yes
       org.quartz.scheduler.instanceName : SchedulerInit
       org.quartz.threadPool.threadCount : 5
       org.quartz.jobStore.class : org.quartz.simpl.RAMJobStore
