@@ -8,7 +8,7 @@ public class ServiceDirectory
 {
 	private Map<String, Service> serviceMap = new HashMap<>();
 	
-	public void register(String _serviceName, Object _host, Method _method, Map<String, String> _variable)
+	public ServiceImpl register(String _serviceName, Object _host, Method _method, Map<String, String> _variable)
 	{
 		ServiceImpl service = new ServiceImpl();
 		service.setHost(_host);
@@ -16,6 +16,8 @@ public class ServiceDirectory
 		service.setVariable(_variable);
 		
 		this.serviceMap.put(_serviceName, service);
+		
+		return service;
 	}
 	
 	public Service getService(String _serviceName)

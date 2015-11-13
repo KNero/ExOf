@@ -1,4 +1,4 @@
-package balam.exof.service;
+package balam.exof.service.component;
 
 public class InboundExecuteException extends Exception 
 {

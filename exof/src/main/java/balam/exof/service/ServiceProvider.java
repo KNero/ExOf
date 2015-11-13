@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import balam.exof.Module;
 import balam.exof.environment.EnvKey;
 import balam.exof.environment.SystemSetting;
+import balam.exof.service.component.Inbound;
+import balam.exof.service.component.Outbound;
 import balam.exof.util.CollectionUtil;
 
 public class ServiceProvider implements Module
@@ -56,7 +58,37 @@ public class ServiceProvider implements Module
 					String serviceName = serviceAnn.name();
 					if(serviceName.length() == 0) serviceName = m.getName();
 					
-					serdir.register(serviceName, host, m, _info.getVariable(serviceName));
+					ServiceImpl service = serdir.register(serviceName, host, m, _info.getVariable(serviceName));
+					
+					balam.exof.service.annotation.Inbound inboundAnn = 
+							m.getAnnotation(balam.exof.service.annotation.Inbound.class);
+					
+					if(inboundAnn != null && inboundAnn.className().trim().length() > 0)
+					{
+						String[] inList = inboundAnn.className().split(",");
+						for(String inClass : inList)
+						{
+							if(inClass.trim().length() > 0)
+							{
+								service.addInbound((Inbound)Class.forName(inClass.trim()).newInstance());
+							}
+						}
+					}
+					
+					balam.exof.service.annotation.Outbound outboundAnn = 
+							m.getAnnotation(balam.exof.service.annotation.Outbound.class);
+					
+					if(outboundAnn != null)
+					{
+						String[] outList = outboundAnn.className().split(",");
+						for(String outClass : outList)
+						{
+							if(outClass.trim().length() > 0)
+							{
+								service.addOutbound((Outbound)Class.forName(outClass.trim()).newInstance());
+							}
+						}
+					}
 				}
 			}
 		}
