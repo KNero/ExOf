@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +17,12 @@ import balam.exof.service.component.Inbound;
 import balam.exof.service.component.Outbound;
 import balam.exof.util.CollectionUtil;
 
-public class ServiceProvider implements Module
+public class ServiceProvider implements Module, Observer
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private Map<String, ServiceDirectory> serviceDirectory = new HashMap<>();
+	private boolean isAutoReload;
 	
 	private static ServiceProvider self = new ServiceProvider();
 	
@@ -117,9 +120,11 @@ public class ServiceProvider implements Module
 	@Override
 	public void start() throws Exception
 	{
+		this.isAutoReload = (Boolean)SystemSetting.getInstance().
+				get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
+		
 		List<ServiceDirectoryInfo> directoryInfoList = 
 				SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
-		
 		CollectionUtil.doIterator(directoryInfoList, _info -> {
 			try
 			{
@@ -141,5 +146,14 @@ public class ServiceProvider implements Module
 	public void stop() throws Exception
 	{
 		
+	}
+
+	@Override
+	public void update(Observable o, Object arg)
+	{
+		List<ServiceDirectoryInfo> directoryInfoList = 
+				SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
+		
+		if(! this.isAutoReload) return;
 	}
 }
