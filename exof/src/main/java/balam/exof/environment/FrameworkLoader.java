@@ -37,7 +37,8 @@ public class FrameworkLoader implements Loader
 			Map<String, ?> autoReloadList = (Map<String, ?>)fw.get(EnvKey.Framework.AUTORELOAD);
 			CollectionUtil.doIterator(autoReloadList.keySet(), _key -> {
 				Boolean value = (Boolean)autoReloadList.get(_key);
-				SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER, value);
+				String key = EnvKey.Framework.AUTORELOAD + "." + _key;
+				SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, key, value);
 			});
 			
 			Properties sp = new Properties();

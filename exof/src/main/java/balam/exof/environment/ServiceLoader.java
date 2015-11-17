@@ -97,7 +97,7 @@ public class ServiceLoader implements Loader
 		Node serviceVariableNode = _node.getFirstChild();
 		while(serviceVariableNode != null)
 		{
-			if(this._equalsNodeName(serviceVariableNode, "serviceVariale"))
+			if(this._equalsNodeName(serviceVariableNode, "serviceVariable"))
 			{
 				NamedNodeMap serVariAttr = serviceVariableNode.getAttributes();
 				String serviceName = serVariAttr.getNamedItem("serviceName").getNodeValue();

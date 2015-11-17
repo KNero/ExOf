@@ -4,6 +4,7 @@ framework :
       
    autoReload :
       scheduler : yes
+      serviceVariable : yes
    
    scheduler :
       org.quartz.scheduler.instanceName : SchedulerInit

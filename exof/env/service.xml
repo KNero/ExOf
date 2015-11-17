@@ -3,12 +3,12 @@
 	<resource file="C:/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/>
 	
 	<serviceDirectory class="balam.exof.test.SchedulerTest" path="/test/scheduler">
-		<serviceVariale serviceName="testScheduler">
+		<serviceVariable serviceName="testScheduler">
 			<variable name="a" value="a1"/>
 			<variable name="b" value="b1"/>
 			<variable name="c" value="c1"/>
-		</serviceVariale>
+		</serviceVariable>
 	</serviceDirectory>
 		
-	<scheduler id="" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
+	<scheduler id="" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="no"/>
 </services>

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import balam.exof.scheduler.SchedulerManager;
+import balam.exof.service.ServiceProvider;
 
 public class FileModifyChecker
 {
@@ -25,6 +26,7 @@ public class FileModifyChecker
 	public FileModifyChecker()
 	{
 		this.serviceChecker.addObserver(SchedulerManager.getInstance());
+		this.serviceChecker.addObserver(ServiceProvider.getInstance());
 	}
 	
 	public void start() throws Exception
