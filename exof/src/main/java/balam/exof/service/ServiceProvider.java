@@ -43,7 +43,7 @@ public class ServiceProvider implements Module
 			ServiceDirectory serdir = self.serviceDirectory.get(_info.getPath());
 			if(serdir == null)
 			{
-				serdir = new ServiceDirectory();
+				serdir = new ServiceDirectory(_info.getPath());
 				self.serviceDirectory.put(_info.getPath(), serdir);
 			}
 			
@@ -78,7 +78,7 @@ public class ServiceProvider implements Module
 					balam.exof.service.annotation.Outbound outboundAnn = 
 							m.getAnnotation(balam.exof.service.annotation.Outbound.class);
 					
-					if(outboundAnn != null)
+					if(outboundAnn != null && outboundAnn.className().trim().length() > 0)
 					{
 						String[] outList = outboundAnn.className().split(",");
 						for(String outClass : outList)
