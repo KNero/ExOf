@@ -50,7 +50,7 @@ public class FileModifyChecker
 						for(WatchEvent<?> event : events)
 						{
 							final Path changed = (Path)event.context();
-							if(changed.endsWith("service.xml"))
+							if(changed.toString().endsWith("service.xml"))
 							{
 								try
 								{

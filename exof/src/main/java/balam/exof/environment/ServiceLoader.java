@@ -1,6 +1,7 @@
 package balam.exof.environment;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,52 +21,63 @@ public class ServiceLoader implements Loader
 	@Override
 	public void load(String _envPath) throws LoadEnvException 
 	{
-		String serviceFileName = "service.xml";
-		
 		List<ServiceDirectoryInfo> serviceDirectoryList = new LinkedList<>();
 		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE, serviceDirectoryList);
 		
 		List<SchedulerInfo> schedulerList = new LinkedList<>();
 		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE, schedulerList);
 		
+		this._loadServiceAndScheduler(_envPath + "/service.xml", serviceDirectoryList, schedulerList);
+	}
+	
+	private void _loadServiceAndScheduler(String _filePath, 
+			List<ServiceDirectoryInfo> _serviceDirectoryList, List<SchedulerInfo> _schedulerList) throws LoadEnvException
+	{
 		try
 		{
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document doc = builder.parse(new File(_envPath + "/" + serviceFileName));
+			Document doc = builder.parse(new File( _filePath));
 			
 			Node servicesNode = doc.getFirstChild();
 			if(this._equalsNodeName(servicesNode, "services"))
 			{
-				Node categoryNode = servicesNode.getFirstChild();
-				while(categoryNode != null)
+				int idIndex = 0;
+				
+				Node serviceNode = servicesNode.getFirstChild();
+				while(serviceNode != null)
 				{
-					if(this._equalsNodeName(categoryNode, "category"))
+					if(this._equalsNodeName(serviceNode, "serviceDirectory"))
 					{
-						Node serviceNode = categoryNode.getFirstChild();
-						while(serviceNode != null)
+						ServiceDirectoryInfo info = this._makeServiceDirectory(serviceNode);
+						_serviceDirectoryList.add(info);
+					}
+					else if(this._equalsNodeName(serviceNode, "scheduler"))
+					{
+						String[] pathArr = _filePath.split("/");
+						String fileName = pathArr[pathArr.length - 1];
+						
+						SchedulerInfo info = this._makeSchedulerInfo(fileName, idIndex++, serviceNode);
+						_schedulerList.add(info);
+					}
+					else if(this._equalsNodeName(serviceNode, "resource"))
+					{
+						String serviceFile = serviceNode.getAttributes().getNamedItem("file").getNodeValue();
+						File file = new File(serviceFile);
+						if(! file.exists())
 						{
-							if(this._equalsNodeName(serviceNode, "serviceDirectory"))
-							{
-								ServiceDirectoryInfo info = this._makeServiceDirectory(serviceNode);
-								serviceDirectoryList.add(info);
-							}
-							else if(this._equalsNodeName(serviceNode, "scheduler"))
-							{
-								SchedulerInfo info = this._makeSchedulerInfo(serviceNode);
-								schedulerList.add(info);
-							}
-							
-							serviceNode = serviceNode.getNextSibling();
+							throw new FileNotFoundException("input file path : [" + serviceFile + "]");
 						}
+						
+						this._loadServiceAndScheduler(serviceFile, _serviceDirectoryList, _schedulerList);
 					}
 					
-					categoryNode = categoryNode.getNextSibling();
+					serviceNode = serviceNode.getNextSibling();
 				}
 			}
 		}
 		catch(Exception e)
 		{
-			throw new LoadEnvException(serviceFileName, e);
+			throw new LoadEnvException(_filePath, e);
 		}
 	}
 	
@@ -115,16 +127,35 @@ public class ServiceLoader implements Loader
 		return info;
 	}
 	
-	private SchedulerInfo _makeSchedulerInfo(Node _node)
+	/**
+	 * xml의 정보를 통해 스케쥴러를 생성한다.
+	 * @param _fileName 스케쥴러 자동 아이디 생성을 위해서 prefix로 사용된다.
+	 * @param _count 스케쥴러 자동 아이디 생성을 위해서 prefix로 사용된다.
+	 * @param _node 스케쥴러 정보를 갖고있는 xml node
+	 * @return 생성된 스케쥴러 정보 객체
+	 */
+	private SchedulerInfo _makeSchedulerInfo(String _fileName, int _count, Node _node)
 	{
 		NamedNodeMap attr = _node.getAttributes();
 		
 		SchedulerInfo info = new SchedulerInfo();
-		info.setId(attr.getNamedItem("id").getNodeValue());
 		info.setServicePath(attr.getNamedItem("servicePath").getNodeValue());
 		info.setCronExpression(attr.getNamedItem("cron").getNodeValue());
 		info.setDuplicateExecution("yes".equals(attr.getNamedItem("duplicateExecution").getNodeValue()));
 		info.setUse("yes".equals(attr.getNamedItem("use").getNodeValue()));
+		
+		String id = null;
+		Node idAttr = attr.getNamedItem("id"); 
+		if(idAttr != null && idAttr.getNodeValue().trim().length() > 0)
+		{
+			id = idAttr.getNodeValue();
+		}
+		else
+		{
+			id = _fileName + "-scheduler-" + _count;
+		}
+		
+		info.setId(id);
 		
 		return info;
 	}

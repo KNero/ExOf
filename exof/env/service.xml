@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
-	<category>
-		<serviceDirectory class="balam.exof.test.SchedulerTest" path="/test/scheduler">
-			<serviceVariale serviceName="testScheduler">
-				<variable name="a" value="a1&amp;a"/>
-				<variable name="b" value="b1"/>
-				<variable name="c" value="c1"/>
-			</serviceVariale>
-		</serviceDirectory>
-	</category>
+	<resource file="C:/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/>
 	
-	<category>
-		<scheduler id="1" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
-	</category>
+	<serviceDirectory class="balam.exof.test.SchedulerTest" path="/test/scheduler">
+		<serviceVariale serviceName="testScheduler">
+			<variable name="a" value="a1"/>
+			<variable name="b" value="b1"/>
+			<variable name="c" value="c1"/>
+		</serviceVariale>
+	</serviceDirectory>
+		
+	<scheduler id="" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
 </services>
