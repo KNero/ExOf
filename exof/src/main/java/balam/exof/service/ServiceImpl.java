@@ -21,7 +21,7 @@ public class ServiceImpl implements Service
 	private Map<String, String> variable;
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
-	private List<Outbound> outbound = new ArrayList<>(5);
+	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
 	
 	public Method getMethod()
 	{
@@ -58,11 +58,12 @@ public class ServiceImpl implements Service
 		this.inbound.add(_in);
 	}
 	
-	public void addOutbound(Outbound _out)
+	public void addOutbound(Outbound<?, ?> _out)
 	{
 		this.outbound.add(_out);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void call(ServiceObject _so) throws Exception
 	{
@@ -83,16 +84,17 @@ public class ServiceImpl implements Service
 		
 		if(result != null)
 		{
-			CollectionUtil.doIterator(this.outbound, _out -> {
-				try
+			try
+			{
+				for(Outbound outbound : this.outbound)
 				{
-					_out.execute(result);
+					result = outbound.execute(result);
 				}
-				catch(Exception e)
-				{
-					this.logger.error("Outbound error.", e);
-				}
-			});
+			}
+			catch(Exception e)
+			{
+				this.logger.error("Outbound error.", e);
+			}
 		}
 	}
 }

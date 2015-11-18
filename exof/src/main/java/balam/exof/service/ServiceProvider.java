@@ -88,7 +88,7 @@ public class ServiceProvider implements Module, Observer
 						{
 							if(outClass.trim().length() > 0)
 							{
-								service.addOutbound((Outbound)Class.forName(outClass.trim()).newInstance());
+								service.addOutbound((Outbound<?, ?>)Class.forName(outClass.trim()).newInstance());
 							}
 						}
 					}

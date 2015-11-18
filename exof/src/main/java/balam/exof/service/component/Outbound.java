@@ -1,6 +1,6 @@
 package balam.exof.service.component;
 
-public interface Outbound
+public interface Outbound<I, O>
 {
-	void execute(Object _result) throws OutboundExecuteException;
+	O execute(I _result) throws OutboundExecuteException;
 }
