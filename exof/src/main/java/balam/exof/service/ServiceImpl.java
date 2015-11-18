@@ -20,8 +20,8 @@ public class ServiceImpl implements Service
 	private Object host;
 	private Map<String, String> variable;
 	
-	private List<Inbound> inbound = new ArrayList<Inbound>(5);
-	private List<Outbound> outbound = new ArrayList<Outbound>(5);
+	private List<Inbound> inbound = new ArrayList<>(5);
+	private List<Outbound> outbound = new ArrayList<>(5);
 	
 	public Method getMethod()
 	{
