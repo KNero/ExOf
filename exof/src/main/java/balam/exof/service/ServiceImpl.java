@@ -18,6 +18,7 @@ public class ServiceImpl implements Service
 			
 	private Method method;
 	private Object host;
+	private int methodParamCount;
 	private Map<String, String> variable;
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
@@ -31,6 +32,7 @@ public class ServiceImpl implements Service
 	public void setMethod(Method method)
 	{
 		this.method = method;
+		this.methodParamCount = this.method.getParameterTypes().length;
 	}
 
 	public Object getHost()
@@ -80,7 +82,10 @@ public class ServiceImpl implements Service
 			}
 		});
 		
-		Object result = this.method.invoke(this.host, _so.getServiceParameter());
+		Object[] methodParameter = null;
+		if(this.methodParamCount > 0) methodParameter = _so.getServiceParameter();
+		
+		Object result = this.method.invoke(this.host, methodParameter);
 		
 		if(result != null)
 		{
