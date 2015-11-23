@@ -36,4 +36,13 @@ public class ServiceDirectory
 	{
 		return this.serviceMap.get(_serviceName);
 	}
+	
+	public void reloadVariable(String _serviceName, Map<String, String> _variable)
+	{
+		ServiceImpl service = (ServiceImpl)this.serviceMap.get(_serviceName);
+		if(service != null)
+		{
+			service.setVariable(_variable);
+		}
+	}
 }

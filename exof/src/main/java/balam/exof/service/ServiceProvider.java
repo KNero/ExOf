@@ -155,5 +155,35 @@ public class ServiceProvider implements Module, Observer
 				SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
 		
 		if(! this.isAutoReload) return;
+		
+		CollectionUtil.doIterator(directoryInfoList, _info -> {
+			try
+			{
+				Class<?> clazz = Class.forName(_info.getClassName());
+				Method[] methods = clazz.getMethods();
+				
+				for(Method m : methods)
+				{
+					balam.exof.service.annotation.Service serviceAnn = 
+							m.getAnnotation(balam.exof.service.annotation.Service.class);
+					
+					if(serviceAnn != null)
+					{
+						String serviceName = serviceAnn.name();
+						if(serviceName.length() == 0) serviceName = m.getName();
+						
+						Map<String, String> serviceVariable = _info.getVariable(serviceName);
+						
+						this.serviceDirectory.get(_info.getPath()).reloadVariable(serviceName, serviceVariable);
+						
+						this.logger.warn("Complete reloading service. [{}]", _info.getPath() + "/" + serviceName);
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				this.logger.error("Can not reload the ServiceVariable. Class : {}", _info.getClassName());
+			}
+		});
 	}
 }
