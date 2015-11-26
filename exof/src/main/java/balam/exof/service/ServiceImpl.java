@@ -69,7 +69,7 @@ public class ServiceImpl implements Service
 	@Override
 	public void call(ServiceObject _so) throws Exception
 	{
-		_so.setVariables(this.variable);
+		_so.setServiceVariables(this.variable);
 		
 		CollectionUtil.doIterator(this.inbound, _in -> {
 			try

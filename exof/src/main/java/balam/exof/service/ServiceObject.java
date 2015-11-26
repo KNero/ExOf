@@ -4,34 +4,34 @@ import java.util.Map;
 
 public class ServiceObject
 {
-	private Object request;
-	protected String servicePath;
-	protected Map<String, String> variables;
-	protected Object[] parameter;
+	protected Object request;
+	private String servicePath;
+	protected Map<String, String> serviceVariables;
+	protected Object[] serviceParameter;
 	
 	public ServiceObject(String _path)
 	{
 		this.servicePath = _path;
 	}
 	
-	public String getServicePath()
+	final public String getServicePath()
 	{
 		return this.servicePath;
 	}
 	
-	public void setVariables(Map<String, String> _variable)
+	public void setServiceVariables(Map<String, String> _variable)
 	{
-		this.variables = _variable;
+		this.serviceVariables = _variable;
 	}
 	
-	public Map<String, String> getVariables()
+	public Map<String, String> getServiceVariables()
 	{
-		return this.variables;
+		return this.serviceVariables;
 	}
 	
 	public void setServiceParameter(Object[] _parameter)
 	{
-		this.parameter = _parameter;
+		this.serviceParameter = _parameter;
 	}
 	
 	public void setRequest(Object _request) 
@@ -53,33 +53,33 @@ public class ServiceObject
 	 * 4. 서비스 변수만 있을 경우 : 변수1, 변수2 ...<br/>
 	 * @return 메소드를 호출할 때 사용될 파라미터
 	 */
-	public Object[] getServiceParameter()
+	final public Object[] getServiceParameter()
 	{
-		if(this.parameter != null) return this.parameter;
+		if(this.serviceParameter != null) return this.serviceParameter;
 		
-		if(this.request != null && this.variables != null)
+		if(this.request != null && this.serviceVariables != null)
 		{
-			Object[] param = new Object[this.variables.size() + 1];
+			Object[] param = new Object[this.serviceVariables.size() + 1];
 			param[0] = this.request;
 			
 			int i = 1;
-			for(String value : this.variables.values())
+			for(String value : this.serviceVariables.values())
 			{
 				param[i++] = value;
 			}
 			
 			return param;
 		}
-		else if(this.request != null && this.variables == null)
+		else if(this.request != null && this.serviceVariables == null)
 		{
 			return new Object[]{this.request};
 		}
-		else if(this.request == null && this.variables != null)
+		else if(this.request == null && this.serviceVariables != null)
 		{
-			Object[] param = new Object[this.variables.size()];
+			Object[] param = new Object[this.serviceVariables.size()];
 			
 			int i = 0;
-			for(String value : this.variables.values())
+			for(String value : this.serviceVariables.values())
 			{
 				param[i++] = value;
 			}
