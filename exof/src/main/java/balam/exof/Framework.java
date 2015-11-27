@@ -1,13 +1,14 @@
 package balam.exof;
 
 import balam.exof.environment.FileModifyChecker;
+import balam.exof.listener.Listener;
 import balam.exof.service.ServiceProvider;
 
 
 
 public class Framework implements Container
 {
-	private Module[] moduleList = new Module[]{ServiceProvider.getInstance()};
+	private Module[] moduleList = new Module[]{Listener.getInstance(), ServiceProvider.getInstance()};
 	private FileModifyChecker fileModifyChecker;
 	
 	@Override

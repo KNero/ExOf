@@ -5,10 +5,10 @@
 	<serviceDirectory class="balam.exof.test.SchedulerTest" path="/test/scheduler">
 		<serviceVariable serviceName="testScheduler">
 			<variable name="a" value="a1"/>
-			<variable name="b" value="b1"/>
-			<variable name="c" value="c1"/>
+			<variable name="b" value="b2"/>
+			<variable name="c" value="c3"/>
 		</serviceVariable>
 	</serviceDirectory>
 		
-	<scheduler id="" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="no"/>
+	<scheduler id="" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
 </services>

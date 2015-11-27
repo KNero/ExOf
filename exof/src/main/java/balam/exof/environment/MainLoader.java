@@ -2,7 +2,7 @@ package balam.exof.environment;
 
 public class MainLoader implements Loader
 {
-	private Loader[] loaders = new Loader[]{new FrameworkLoader(), new ServiceLoader()};
+	private Loader[] loaders = new Loader[]{new FrameworkLoader(), new ListenerLoader(), new ServiceLoader()};
 	
 	@Override
 	public void load(String _envPath) throws LoadEnvException 

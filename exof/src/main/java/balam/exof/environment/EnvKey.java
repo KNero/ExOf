@@ -13,6 +13,7 @@ public interface EnvKey
 	{
 		String FRAMEWORK = "framework.";
 		String SERVICE = "service.";
+		String LISTENER = "listener.";
 	}
 	
 	interface Framework
@@ -30,5 +31,10 @@ public interface EnvKey
 	{
 		String SCHEDULE = "schedule";
 		String SERVICE = "service";
+	}
+	
+	interface Listener
+	{
+		String PORT = "port";
 	}
 }
