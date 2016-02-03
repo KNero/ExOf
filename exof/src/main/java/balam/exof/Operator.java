@@ -37,7 +37,16 @@ public class Operator
 			} 
 			catch (Exception e) 
 			{
-				logger.error("Container[{}] can not create.", _containerClass, e);
+				if(e instanceof InitializeFatalException)
+				{
+					logger.error("Init fatal error occurred by init container[{}].", _containerClass, e);
+					
+					System.exit(0);
+				}
+				else
+				{
+					logger.error("Container[{}] can not create.", _containerClass, e);
+				}
 			}
 		});
 	}
@@ -49,7 +58,19 @@ public class Operator
 			{
 				_container.start();
 			}
-			catch(Exception e) { logger.error("Container[{}] can not start.", _container.getName(), e); }
+			catch(Exception e) 
+			{ 
+				if(e instanceof InitializeFatalException)
+				{
+					logger.error("Init fatal error occurred by starting container[{}].", _container.getName(), e);
+					
+					System.exit(0);
+				}
+				else
+				{
+					logger.error("Container[{}] can not start.", _container.getName(), e);
+				}
+			}
 		});
 	}
 	

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
-	<resource file="C:/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/>
+	<resource file="/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/>
 	
 	<serviceDirectory class="balam.exof.test.SchedulerTest" path="/test/scheduler">
 		<serviceVariable serviceName="testScheduler">
