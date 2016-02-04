@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import balam.exof.listener.handler.ChannelHandlerArray;
+import balam.exof.listener.handler.LengthFieldByteCodec;
 import balam.exof.listener.handler.RequestServiceHandler;
 import balam.exof.listener.handler.SessionEventHandler;
 import balam.exof.listener.handler.transform.ServiceObjectTransform;
@@ -40,9 +41,6 @@ public class ServerPort
 	
 	public void open() throws Exception
 	{
-		int maxLength = this.portInfo.getMaxLength() == 0 ? DEFAULT_MAX_LENGTH : this.portInfo.getMaxLength();
-		this.portInfo.setMaxLength(maxLength);
-		
 		RequestServiceHandler requestHandler = new RequestServiceHandler();
 		
 		if(this.portInfo.getChannelHandler() != null)
@@ -50,6 +48,16 @@ public class ServerPort
 			this.channelHandlerArray = 
 					(ChannelHandlerArray)Class.forName(this.portInfo.getChannelHandler()).newInstance(); 
 		}
+		else
+		{
+			this.channelHandlerArray = new LengthFieldByteCodec();
+		}
+		
+		int maxLength = this.portInfo.getAttributeToInt("maxLength", ServerPort.DEFAULT_MAX_LENGTH);
+		if(maxLength <= 0) maxLength = ServerPort.DEFAULT_MAX_LENGTH;
+		
+		this.channelHandlerArray.setMaxLength(maxLength);
+		this.channelHandlerArray.init(this.portInfo);
 		
 		if(this.portInfo.getMessageTransform() != null)
 		{
