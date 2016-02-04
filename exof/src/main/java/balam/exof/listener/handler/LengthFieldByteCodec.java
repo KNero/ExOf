@@ -3,9 +3,12 @@ package balam.exof.listener.handler;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
+import balam.exof.listener.PortInfo;
 
 public class LengthFieldByteCodec extends ChannelHandlerArray
 {
+	protected int maxLength;
+	
 	protected int lengthFieldOffset;
 	protected int lengthFieldLength;
 	protected int lengthAdjustment;
@@ -28,16 +31,17 @@ public class LengthFieldByteCodec extends ChannelHandlerArray
 	}
 	
 	@Override
+	public void init(PortInfo _info)
+	{
+		this.lengthFieldOffset = _info.getAttributeToInt("legthOffset", 0);
+		this.lengthFieldLength = _info.getAttributeToInt("lengthSize", 0);
+	}
+	
+	@Override
 	public ChannelHandler[] make()
 	{
-		if(this.portInfo.getLengthSize() > 0)
-		{
-			this.lengthFieldOffset = this.portInfo.getLengthOffset();
-			this.lengthFieldLength = this.portInfo.getLengthSize();
-		}
-		
 		ChannelHandler[] pipe = new ChannelHandler[]{
-				new LengthFieldBasedFrameDecoder(this.portInfo.getMaxLength(), 
+				new LengthFieldBasedFrameDecoder(this.maxLength, 
 						this.lengthFieldOffset, this.lengthFieldLength, this.lengthAdjustment, this.initialBytesToStrip),
 				new ByteArrayDecoder()
 		};
