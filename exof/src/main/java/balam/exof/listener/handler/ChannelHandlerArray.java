@@ -5,12 +5,14 @@ import balam.exof.listener.PortInfo;
 
 public abstract class ChannelHandlerArray
 {
-	protected PortInfo portInfo;
+	protected int maxLength;
 	
-	public void setPortInfo(PortInfo _info)
+	public void setMaxLength(int _length)
 	{
-		this.portInfo = _info;
+		this.maxLength = _length;
 	}
+	
+	public abstract void init(PortInfo _info);
 	
 	public abstract ChannelHandler[] make();
 }
