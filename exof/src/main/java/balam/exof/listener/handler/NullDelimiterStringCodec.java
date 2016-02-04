@@ -2,6 +2,7 @@ package balam.exof.listener.handler;
 
 import java.nio.charset.Charset;
 
+import balam.exof.ConstantKey;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
@@ -14,7 +15,7 @@ public class NullDelimiterStringCodec extends ChannelHandlerArray
 	{
 		ChannelHandler[] pipe = new ChannelHandler[]{
 				new DelimiterBasedFrameDecoder(this.portInfo.getMaxLength(), Delimiters.nulDelimiter()),
-				new StringDecoder(Charset.forName("UTF-8"))
+				new StringDecoder(Charset.forName(ConstantKey.NETWORK_CHARSET))
 		};
 		
 		return pipe;
