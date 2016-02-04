@@ -7,6 +7,11 @@ public abstract class ChannelHandlerArray
 {
 	protected int maxLength;
 	
+	public ChannelHandlerArray()
+	{
+		
+	}
+	
 	public void setMaxLength(int _length)
 	{
 		this.maxLength = _length;
