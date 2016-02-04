@@ -41,22 +41,14 @@ public class ListenerLoader implements Loader
 						
 						PortInfo info = new PortInfo(Integer.parseInt(number));
 						
-						if(attr.getNamedItem("legthOffset") != null)
+						for(int a = 0; a < attr.getLength(); ++a)
 						{
-							String legthOffset = attr.getNamedItem("legthOffset").getNodeValue();
-							info.setLengthOffset(Integer.parseInt(legthOffset));
-						}
-						
-						if(attr.getNamedItem("lengthSize") != null)
-						{
-							String lengthSize = attr.getNamedItem("lengthSize").getNodeValue();
-							info.setLengthSize(Integer.parseInt(lengthSize));
-						}
-						
-						if(attr.getNamedItem("maxLength") != null)
-						{
-							String maxLength = attr.getNamedItem("maxLength").getNodeValue();
-							info.setMaxLength(Integer.parseInt(maxLength));
+							Node attrNode = attr.item(a);
+							String attrName = attrNode.getNodeName();
+							String attrValue = attrNode.getNodeValue();
+							
+							info.addAttribute(attrName, attrValue);
+							
 						}
 						
 						Node portChildNode = portNode.getFirstChild();
@@ -64,15 +56,15 @@ public class ListenerLoader implements Loader
 						{
 							if(this._equalsNodeName(portChildNode, "sessionHandler"))
 							{
-								info.setSessionHandler(portChildNode.getTextContent());
+								info.setSessionHandler(portChildNode.getTextContent().trim());
 							}
 							else if(this._equalsNodeName(portChildNode, "channelHandler"))
 							{
-								info.setChannelHandler(portChildNode.getTextContent());
+								info.setChannelHandler(portChildNode.getTextContent().trim());
 							}
 							else if(this._equalsNodeName(portChildNode, "messageTransform"))
 							{
-								info.setMessageTransform(portChildNode.getTextContent());
+								info.setMessageTransform(portChildNode.getTextContent().trim());
 							}
 							
 							portChildNode = portChildNode.getNextSibling();

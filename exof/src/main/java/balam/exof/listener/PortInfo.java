@@ -1,15 +1,16 @@
 package balam.exof.listener;
 
+import java.util.Properties;
+
 public class PortInfo
 {
 	private int number;
-	private int maxLength;
-	private int lengthOffset;
-	private int lengthSize;
 	
 	private String sessionHandler;
 	private String channelHandler;
 	private String messageTransform;
+	
+	private Properties attr = new Properties();
 	
 	public PortInfo(int _number)
 	{
@@ -20,37 +21,6 @@ public class PortInfo
 	{
 		return this.number;
 	}
-	
-	public int getMaxLength()
-	{
-		return maxLength;
-	}
-
-	public void setMaxLength(int maxLength)
-	{
-		this.maxLength = maxLength;
-	}
-
-	public int getLengthOffset()
-	{
-		return lengthOffset;
-	}
-
-	public void setLengthOffset(int legthOffset)
-	{
-		this.lengthOffset = legthOffset;
-	}
-
-	public int getLengthSize()
-	{
-		return lengthSize;
-	}
-
-	public void setLengthSize(int lengthSize)
-	{
-		if(lengthSize > 0) this.lengthSize = lengthSize;
-	}
-
 	public String getSessionHandler()
 	{
 		return sessionHandler;
@@ -80,14 +50,34 @@ public class PortInfo
 	{
 		if(messageTransform.trim().length() > 0) this.messageTransform = messageTransform;
 	}
+	
+	public void addAttribute(String _key, String _value)
+	{
+		this.attr.setProperty(_key, _value);
+	}
+	
+	public String getAttribute(String _key)
+	{
+		return this.attr.getProperty(_key);
+	}
+	
+	public int getAttributeToInt(String _key, int _default)
+	{
+		String value = this.attr.getProperty(_key);
+		
+		if(value != null) return Integer.parseInt(value);
+		else return _default;
+	}
 
 	@Override
 	public String toString()
 	{
 		StringBuilder str = new StringBuilder("Port Info : " + this.number);
-		str.append("\nMax Length : ").append(this.maxLength);
-		str.append("\nLegth Offset : ").append(this.lengthOffset);
-		str.append("\nLength Size : ").append(this.lengthSize);
+		
+		for(Object key : this.attr.keySet())
+		{
+			str.append("\n").append(key).append(" : ").append(this.attr.get(key));
+		}
 		
 		if(this.sessionHandler != null) str.append("\nSession Handler : ").append(this.sessionHandler);
 		if(this.channelHandler != null) str.append("\nChannel Handler : ").append(this.channelHandler);
