@@ -72,11 +72,11 @@ public class PortInfo
 	@Override
 	public String toString()
 	{
-		StringBuilder str = new StringBuilder("Port Info : " + this.number);
+		StringBuilder str = new StringBuilder("Number[" + this.number + "]");
 		
 		for(Object key : this.attr.keySet())
 		{
-			str.append("\n").append(key).append(" : ").append(this.attr.get(key));
+			str.append(" ").append(key).append("[").append(this.attr.get(key)).append("]");
 		}
 		
 		if(this.sessionHandler != null) str.append("\nSession Handler : ").append(this.sessionHandler);

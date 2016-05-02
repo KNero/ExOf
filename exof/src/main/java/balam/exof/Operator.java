@@ -1,5 +1,7 @@
 package balam.exof;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,6 +50,8 @@ public class Operator
 					logger.error("Container[{}] can not create.", _containerClass, e);
 				}
 			}
+			
+			_showSystemInfo();
 		});
 	}
 	
@@ -74,6 +78,47 @@ public class Operator
 		});
 	}
 	
+	private static void _showSystemInfo()
+	{
+		long maxHeap = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+		int cpu = Runtime.getRuntime().availableProcessors();
+		
+		try
+		{
+			String ip = InetAddress.getLocalHost().getHostAddress();
+			
+			NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+			StringBuilder sb = new StringBuilder();
+			
+			if(network != null)
+			{
+				byte[] mac = network.getHardwareAddress();
+				for (int i = 0; i < mac.length; i++) 
+				{
+					sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));		
+				}
+			}
+			
+			logger.error("*************************************");
+			logger.error("   The server is running normally.");
+			logger.error("  ---------------------------------  ");
+			logger.error("   CPU : " + cpu);
+			logger.error("   Max Heap : " + maxHeap + " MB");
+			logger.error("   IP : " + ip);
+			logger.error("   MAC address : " + sb.toString());
+			logger.error("*************************************");
+		}
+		catch(Exception e)
+		{
+			logger.error("*************************************");
+			logger.error("   The server is running normally.");
+			logger.error("  ---------------------------------  ");
+			logger.error("   CPU : " + cpu);
+			logger.error("   Max Heap : " + maxHeap + " MB");
+			logger.error("*************************************");
+		}
+	}
+	
 	public static void stop()
 	{
 		CollectionUtil.doIterator(containerList, _container -> {
@@ -83,5 +128,9 @@ public class Operator
 			}
 			catch(Exception e) { logger.error("Container[{}] can not stop.", _container.getName(), e); }
 		});
+		
+		logger.error("*************************************");
+		logger.error("   The server has been shut down.");
+		logger.error("*************************************");
 	}
 }
