@@ -10,6 +10,12 @@
 				<property name="url" value="${url}" />
 				<property name="username" value="${username}" />
 				<property name="password" value="${password}" />
+				<property name="poolMaximumIdleConnections" value="20"/> <!-- 유휴상태에서 최대 커넥션 수 -->
+				<property name="poolMaximumCheckoutTime" value="20000"/> <!-- 최대 커넥션 획득 시간(ms) -->
+				<property name="poolPingEnabled" value="true"/> <!-- 커넥션이 살아있는지 ping 테스트 여부 -->
+				<property name="poolPingQuery" value="select 1 from dual"/> <!-- 커넥션 ping 테스트 쿼리 (DB 종류에 따라 적절하게 수정) -->
+				<property name="poolPingConnectionsNotUsedFor" value="10000"/> <!-- 유휴상태의 커넥션이 닫히는지 판단할 시간(ms) -->
+				<property name="poolTimeToWait" value="15000"/> <!-- 사용된 커넥션을 기다리는 시간 -->
 			</dataSource>
 		</environment>
 	</environments-->
