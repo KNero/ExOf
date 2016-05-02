@@ -1,9 +1,9 @@
 package team.balam.exof.listener;
 
 import team.balam.exof.listener.handler.ChannelHandlerArray;
-import team.balam.exof.listener.handler.LengthFieldByteCodec;
 import team.balam.exof.listener.handler.RequestServiceHandler;
 import team.balam.exof.listener.handler.SessionEventHandler;
+import team.balam.exof.listener.handler.codec.LengthFieldByteCodec;
 import team.balam.exof.listener.handler.transform.ServiceObjectTransform;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -62,9 +62,9 @@ public class ServerPort
 		if(this.portInfo.getMessageTransform() != null)
 		{
 			@SuppressWarnings("rawtypes")
-			ServiceObjectTransform sessionHandler = 
+			ServiceObjectTransform messageTransform = 
 					(ServiceObjectTransform)Class.forName(this.portInfo.getMessageTransform()).newInstance();
-			requestHandler.setServiceObjectTransform(sessionHandler);
+			requestHandler.setServiceObjectTransform(messageTransform);
 		}
 		
 		if(this.portInfo.getSessionHandler() != null)

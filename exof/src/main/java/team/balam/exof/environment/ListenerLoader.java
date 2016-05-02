@@ -54,17 +54,28 @@ public class ListenerLoader implements Loader
 						Node portChildNode = portNode.getFirstChild();
 						while(portChildNode != null)
 						{
-							if(this._equalsNodeName(portChildNode, "sessionHandler"))
+							if(portChildNode.getNodeType() == Node.ELEMENT_NODE)
 							{
-								info.setSessionHandler(portChildNode.getTextContent().trim());
-							}
-							else if(this._equalsNodeName(portChildNode, "channelHandler"))
-							{
-								info.setChannelHandler(portChildNode.getTextContent().trim());
-							}
-							else if(this._equalsNodeName(portChildNode, "messageTransform"))
-							{
-								info.setMessageTransform(portChildNode.getTextContent().trim());
+								NamedNodeMap childAttr = portChildNode.getAttributes();
+								Node classAttr = childAttr.getNamedItem("class");
+								
+								if(classAttr != null)
+								{
+									String className = classAttr.getNodeValue().trim();
+									
+									if(this._equalsNodeName(portChildNode, "sessionHandler"))
+									{
+										info.setSessionHandler(className);
+									}
+									else if(this._equalsNodeName(portChildNode, "channelHandler"))
+									{
+										info.setChannelHandler(className);
+									}
+									else if(this._equalsNodeName(portChildNode, "messageTransform"))
+									{
+										info.setMessageTransform(className);
+									}
+								}
 							}
 							
 							portChildNode = portChildNode.getNextSibling();

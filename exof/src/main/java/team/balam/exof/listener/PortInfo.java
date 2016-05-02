@@ -28,7 +28,7 @@ public class PortInfo
 
 	public void setSessionHandler(String sessionHandler)
 	{
-		if(sessionHandler.trim().length() > 0) this.sessionHandler = sessionHandler;
+		if(sessionHandler.length() > 0) this.sessionHandler = sessionHandler;
 	}
 
 	public String getChannelHandler()
@@ -38,7 +38,7 @@ public class PortInfo
 
 	public void setChannelHandler(String channelHandler)
 	{
-		if(channelHandler.trim().length() > 0) this.channelHandler = channelHandler;
+		if(channelHandler.length() > 0) this.channelHandler = channelHandler;
 	}
 
 	public String getMessageTransform()
@@ -48,7 +48,7 @@ public class PortInfo
 
 	public void setMessageTransform(String messageTransform)
 	{
-		if(messageTransform.trim().length() > 0) this.messageTransform = messageTransform;
+		if(messageTransform.length() > 0) this.messageTransform = messageTransform;
 	}
 	
 	public void addAttribute(String _key, String _value)

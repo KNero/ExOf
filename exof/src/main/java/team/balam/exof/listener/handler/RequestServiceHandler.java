@@ -1,5 +1,6 @@
 package team.balam.exof.listener.handler;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -13,6 +14,7 @@ import team.balam.exof.service.Service;
 import team.balam.exof.service.ServiceObject;
 import team.balam.exof.service.ServiceProvider;
 
+@Sharable
 public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -31,7 +33,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 		this.sessionEventHandler = sessionEventHandler;
 	}
 
-	@Override
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) 
     {
     	try 

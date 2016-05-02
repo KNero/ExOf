@@ -50,8 +50,20 @@ public class RequestContext
 			ByteBuf buf = channelContext.alloc().buffer(_msg.length);
 			buf.writeBytes(_msg);
 			
-			channelContext.write(buf);
-			channelContext.flush();
+			channelContext.writeAndFlush(buf);
+		}
+		else
+		{
+			throw new NullPointerException("Session");
+		}
+	}
+	
+	public static void writeResponse(Object _res)
+	{
+		ChannelHandlerContext channelContext = (ChannelHandlerContext)get(CHANNEL_CONTEXT);
+		if(channelContext != null)
+		{
+			channelContext.writeAndFlush(_res);
 		}
 		else
 		{
