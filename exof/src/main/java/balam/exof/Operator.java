@@ -50,8 +50,6 @@ public class Operator
 					logger.error("Container[{}] can not create.", _containerClass, e);
 				}
 			}
-			
-			_showSystemInfo();
 		});
 	}
 	
@@ -76,6 +74,8 @@ public class Operator
 				}
 			}
 		});
+		
+		_showSystemInfo();
 	}
 	
 	private static void _showSystemInfo()
