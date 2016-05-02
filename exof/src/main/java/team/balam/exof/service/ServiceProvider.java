@@ -174,7 +174,13 @@ public class ServiceProvider implements Module, Observer
 						
 						Map<String, String> serviceVariable = _info.getVariable(serviceName);
 						
-						this.serviceDirectory.get(_info.getPath()).reloadVariable(serviceName, serviceVariable);
+						ServiceDirectory serviceDir = this.serviceDirectory.get(_info.getPath());
+						if(serviceDir != null)
+						{
+							serviceDir.reloadVariable(serviceName, serviceVariable);
+							
+							this.logger.warn("Complete reloading ServiceVariable. [{}]", _info.getPath() + "/" + serviceName);
+						}
 						
 						this.logger.warn("Complete reloading service. [{}]", _info.getPath() + "/" + serviceName);
 					}
