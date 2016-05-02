@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listener>
-	<port number="2000" type="byte" legthOffset="0" lengthSize="4" maxLength="1000">
-		<sessionHandler></sessionHandler>
-		<channelHandler></channelHandler>
-		<messageTransform></messageTransform>
+	<port number="2000" legthOffset="0" lengthSize="4" maxLength="1000">
+		<sessionHandler class=""/>
+		<channelHandler class=""/>
+		<messageTransform class=""/>
 	</port>
 </listener>
