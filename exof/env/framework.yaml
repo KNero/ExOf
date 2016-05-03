@@ -1,4 +1,5 @@
 framework :
+   initLog : yes
    container :
       #- a.b.c.Test
       

@@ -22,6 +22,7 @@ public interface EnvKey
 		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
 		
+		String INIT_LOG = "initLog";
 		String AUTORELOAD = "autoReload";
 		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
 		String AUTORELOAD_SERVICE_VARIABLE = "autoReload.serviceVariable";

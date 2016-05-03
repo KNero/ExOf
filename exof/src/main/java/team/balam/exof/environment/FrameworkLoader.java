@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.xml.DOMConfigurator;
 import org.yaml.snakeyaml.Yaml;
 
 import team.balam.exof.util.CollectionUtil;
@@ -30,6 +31,12 @@ public class FrameworkLoader implements Loader
 			Yaml yamlParser = new Yaml();
 			Map<String, ?> root = (Map<String, ?>)yamlParser.load(frameworkFile);
 			Map<String, ?> fw = (Map<String, ?>)root.get(EnvKey.Framework.FRAMEWORK);
+			
+			boolean isInitLog = (boolean)fw.get(EnvKey.Framework.INIT_LOG);
+			if(isInitLog)
+			{
+				DOMConfigurator.configure(_envPath + "/" + "Log4j.xml");
+			}
 			
 			List<String> container = (List<String>)fw.get(EnvKey.Framework.CONTAINER);
 			SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER, container);
