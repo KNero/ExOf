@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import team.balam.exof.service.component.Inbound;
+import team.balam.exof.service.component.MapToVoConverter;
 import team.balam.exof.service.component.Outbound;
 import team.balam.exof.util.CollectionUtil;
 
@@ -23,6 +24,7 @@ public class ServiceImpl implements Service
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
+	private MapToVoConverter mapToVoConverter;
 	
 	public Method getMethod()
 	{
@@ -64,12 +66,24 @@ public class ServiceImpl implements Service
 	{
 		this.outbound.add(_out);
 	}
+	
+	public void setMapToVoConverter(String _class) throws Exception
+	{
+		this.mapToVoConverter = new MapToVoConverter();
+		this.mapToVoConverter.init(_class);
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void call(ServiceObject _so) throws Exception
 	{
 		_so.setServiceVariables(this.variable);
+		
+		if(this.mapToVoConverter != null)
+		{
+			Object vo = this.mapToVoConverter.convert(_so.getRequest());
+			_so.setRequest(vo);
+		}
 		
 		CollectionUtil.doIterator(this.inbound, _in -> {
 			try

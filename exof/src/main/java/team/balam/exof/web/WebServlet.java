@@ -50,6 +50,53 @@ public class WebServlet extends HttpServlet
 		this._executeService(req, resp);
 	}
 	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+	{
+		super.doGet(req, resp);
+		
+		this._executeService(req, resp);
+	}
+	
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+	{
+		super.doDelete(req, resp);
+		
+		this._executeService(req, resp);
+	}
+	
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+	{
+		super.doPut(req, resp);
+		
+		this._executeService(req, resp);
+	}
+	
+	@Override
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+	{
+		super.doHead(req, resp);
+		
+		this._executeService(req, resp);
+	}
+	
+	@Override
+	protected void doOptions(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException 
+	{
+		super.doOptions(arg0, arg1);
+		
+		this._executeService(arg0, arg1);
+	}
+	
+	@Override
+	protected void doTrace(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException 
+	{
+		super.doTrace(arg0, arg1);
+		
+		this._executeService(arg0, arg1);
+	}
 	private void _executeService(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		HttpServletMessage msg = new HttpServletMessage();

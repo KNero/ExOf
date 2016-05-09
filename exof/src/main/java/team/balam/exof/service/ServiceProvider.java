@@ -63,37 +63,60 @@ public class ServiceProvider implements Module, Observer
 					
 					ServiceImpl service = serdir.register(serviceName, host, m, _info.getVariable(serviceName));
 					
-					team.balam.exof.service.annotation.Inbound inboundAnn = 
-							m.getAnnotation(team.balam.exof.service.annotation.Inbound.class);
+					_checkInboundAnnotation(m, service);
 					
-					if(inboundAnn != null && inboundAnn.className().trim().length() > 0)
-					{
-						String[] inList = inboundAnn.className().split(",");
-						for(String inClass : inList)
-						{
-							if(inClass.trim().length() > 0)
-							{
-								service.addInbound((Inbound)Class.forName(inClass.trim()).newInstance());
-							}
-						}
-					}
+					_checkOutboundAnnotation(m, service);
 					
-					team.balam.exof.service.annotation.Outbound outboundAnn = 
-							m.getAnnotation(team.balam.exof.service.annotation.Outbound.class);
-					
-					if(outboundAnn != null && outboundAnn.className().trim().length() > 0)
-					{
-						String[] outList = outboundAnn.className().split(",");
-						for(String outClass : outList)
-						{
-							if(outClass.trim().length() > 0)
-							{
-								service.addOutbound((Outbound<?, ?>)Class.forName(outClass.trim()).newInstance());
-							}
-						}
-					}
+					_checkMapToVoAnnotation(m, service);
 				}
 			}
+		}
+	}
+	
+	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception
+	{
+		team.balam.exof.service.annotation.Inbound inboundAnn = 
+				_method.getAnnotation(team.balam.exof.service.annotation.Inbound.class);
+		
+		if(inboundAnn != null && inboundAnn.className().trim().length() > 0)
+		{
+			String[] inList = inboundAnn.className().split(",");
+			for(String inClass : inList)
+			{
+				if(inClass.trim().length() > 0)
+				{
+					_service.addInbound((Inbound)Class.forName(inClass.trim()).newInstance());
+				}
+			}
+		}
+	}
+	
+	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception
+	{
+		team.balam.exof.service.annotation.Outbound outboundAnn = 
+				_method.getAnnotation(team.balam.exof.service.annotation.Outbound.class);
+		
+		if(outboundAnn != null && outboundAnn.className().trim().length() > 0)
+		{
+			String[] outList = outboundAnn.className().split(",");
+			for(String outClass : outList)
+			{
+				if(outClass.trim().length() > 0)
+				{
+					_service.addOutbound((Outbound<?, ?>)Class.forName(outClass.trim()).newInstance());
+				}
+			}
+		}
+	}
+	
+	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception
+	{
+		team.balam.exof.service.annotation.MapToVo mapTovoAnn = 
+				_method.getAnnotation(team.balam.exof.service.annotation.MapToVo.class);
+		
+		if(mapTovoAnn != null && mapTovoAnn.className().trim().length() > 0)
+		{
+			_service.setMapToVoConverter(mapTovoAnn.className());
 		}
 	}
 	

@@ -27,4 +27,14 @@ public class HttpServletMessage
 	{
 		this.response = response;
 	}
+	
+	public String getMethod()
+	{
+		return this.request.getMethod();
+	}
+	
+	public String getRequestPath()
+	{
+		return this.request.getPathInfo();
+	}
 }
