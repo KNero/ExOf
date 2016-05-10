@@ -8,4 +8,9 @@ public class OutboundExecuteException extends Exception
 	{
 		super(_e);
 	}
+	
+	public OutboundExecuteException(String _msg, Exception _e)
+	{
+		super(_msg, _e);
+	}
 }

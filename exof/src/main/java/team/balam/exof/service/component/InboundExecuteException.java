@@ -8,4 +8,9 @@ public class InboundExecuteException extends Exception
 	{
 		super(_e);
 	}
+	
+	public InboundExecuteException(String _msg, Exception _e)
+	{
+		super(_msg, _e);
+	}
 }
