@@ -114,6 +114,8 @@ public class WebServlet extends HttpServlet
 			catch(Exception e) 
 			{
 				this.logger.error("Can not transform http message.", e);
+				
+				throw new ServletException(e);
 			}
 		}
 		else
@@ -130,6 +132,8 @@ public class WebServlet extends HttpServlet
 		catch(Exception e)
 		{
 			this.logger.error("Can not execute service.", e);
+			
+			throw new ServletException(e);
 		}
 	}
 }
