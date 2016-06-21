@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
-	<serviceDirectory class="balam.exof.test.SchedulerTest" path="/test/scheduler2">
+	<serviceDirectory class="team.balam.exof.test.SchedulerTest" path="/test/scheduler2">
 		<serviceVariable serviceName="testScheduler">
 			<variable name="a" value="aaaaaaaaaaaaaa"/>
 			<variable name="b" value="bbbbbbbbbbbbbb"/>
