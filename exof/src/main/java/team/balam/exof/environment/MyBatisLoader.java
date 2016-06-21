@@ -13,16 +13,28 @@ public class MyBatisLoader implements Loader
 	@Override
 	public void load(String _envPath) throws LoadEnvException 
 	{
+		org.apache.ibatis.session.SqlSessionFactory defaultSqlSessionFactory = this.loadSqlSessionFactory(_envPath, null);
+		
+		SqlSessionFactory.getInstance().setDefaultSqlSessionFactory(defaultSqlSessionFactory);
+	}
+	
+	public org.apache.ibatis.session.SqlSessionFactory loadSqlSessionFactory(String _envPath, String _datasource) throws LoadEnvException
+	{
 		InputStream inputStream = null;
 		
 		try
 		{
 			String resource = _envPath + "/mybatis-config.xml";
 			inputStream = new FileInputStream(new File(resource));
-			org.apache.ibatis.session.SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
 			
-			SqlSessionFactory.getInstance().setSqlSessionFactory(sqlSessionFactory);
-			
+			if(_datasource != null)
+			{
+				return new SqlSessionFactoryBuilder().build(inputStream, _datasource);
+			}
+			else
+			{
+				return new SqlSessionFactoryBuilder().build(inputStream);
+			}
 		}
 		catch(Exception e)
 		{
