@@ -48,7 +48,7 @@ public class SqlSessionFactory
 	
 	public org.apache.ibatis.session.SqlSession getDefaultSqlSession()
 	{
-		return this.defaultSqlSessionFactory.openSession();
+		return this.defaultSqlSessionFactory.openSession(false);
 	}
 	
 	public void setDefaultSqlSessionFactory(org.apache.ibatis.session.SqlSessionFactory _factory)
