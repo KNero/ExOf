@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Loader에서 ServiceProvider로 정보를 전달하기 위해 사용
+ * @author kwonsm
+ *
+ */
 public class ServiceDirectoryInfo
 {
 	private String className;

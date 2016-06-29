@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.service.annotation.Startup;
+import team.balam.exof.service.annotation.Shutdown;
 import team.balam.exof.service.component.Inbound;
 import team.balam.exof.service.component.Outbound;
 import team.balam.exof.util.CollectionUtil;
@@ -47,6 +49,8 @@ public class ServiceProvider implements Module, Observer
 			if(serdir == null)
 			{
 				serdir = new ServiceDirectory(_info.getPath());
+				serdir.setHost(host);
+				
 				self.serviceDirectory.put(_info.getPath(), serdir);
 			}
 			
@@ -68,6 +72,18 @@ public class ServiceProvider implements Module, Observer
 					_checkOutboundAnnotation(m, service);
 					
 					_checkMapToVoAnnotation(m, service);
+				}
+				
+				Startup startupAnn = m.getAnnotation(Startup.class);
+				if(startupAnn != null)
+				{
+					serdir.setStartup(m);
+				}
+				
+				Shutdown shutdown = m.getAnnotation(Shutdown.class);
+				if(shutdown != null)
+				{
+					serdir.setShutdown(m);
 				}
 			}
 		}
@@ -148,6 +164,7 @@ public class ServiceProvider implements Module, Observer
 		
 		List<ServiceDirectoryInfo> directoryInfoList = 
 				SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
+		
 		CollectionUtil.doIterator(directoryInfoList, _info -> {
 			try
 			{
@@ -163,12 +180,32 @@ public class ServiceProvider implements Module, Observer
 				this.logger.error("Can not register the service. Class : {}", _info.getClassName());
 			}
 		});
+		
+		CollectionUtil.doIterator(this.serviceDirectory.values(), _serviceDir -> {
+			try
+			{
+				_serviceDir.startup();
+			}
+			catch(Exception e)
+			{
+				this.logger.error("Can not start the service. Service class : {}", _serviceDir.getClass().toString());
+			}
+		});
 	}
 
 	@Override
 	public void stop() throws Exception
 	{
-		
+		CollectionUtil.doIterator(this.serviceDirectory.values(), _serviceDir -> {
+			try
+			{
+				_serviceDir.shutdown();
+			}
+			catch(Exception e)
+			{
+				this.logger.error("Can not stop the service. Service class : {}", _serviceDir.getClass().toString());
+			}
+		});
 	}
 
 	@Override
