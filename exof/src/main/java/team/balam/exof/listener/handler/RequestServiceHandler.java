@@ -40,8 +40,18 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     	{
     		RequestContext.set(RequestContext.CHANNEL_CONTEXT, ctx);
     		
+    		if(this.transform == null)
+    		{
+    			throw new Exception("messageTransform setting is empty.");
+    		}
+    		
     		@SuppressWarnings("unchecked")
 			ServiceObject serviceObject = this.transform.transform(msg);
+    		
+    		if(serviceObject == null)
+    		{
+    			throw new Exception("serviceObject is null.");
+    		}
     		
 			String servicePath = serviceObject.getServicePath();
 			Service service = ServiceProvider.lookup(servicePath);
