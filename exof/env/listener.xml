@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listener>
+	<!-- <port number="2000" legthOffset="0" lengthSize="4" maxLength="1000">
+		<sessionHandler class=""/>
+		<channelHandler class="team.balam.exof.listener.handler.codec.HttpServerCodec"/>
+		<messageTransform class=""/>
+	</port> -->
+	<port number="2000" ssl="yes">
+		<channelHandler class="team.balam.exof.listener.handler.codec.HttpServerCodec"/>
+		<messageTransform class="team.balam.exof.listener.handler.transform.HttpTransform"/>
+	</port>
+</listener>
