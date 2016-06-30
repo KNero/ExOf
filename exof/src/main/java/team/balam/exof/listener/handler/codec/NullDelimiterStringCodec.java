@@ -1,6 +1,7 @@
 package team.balam.exof.listener.handler.codec;
 
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
@@ -20,7 +21,7 @@ public class NullDelimiterStringCodec extends ChannelHandlerArray
 	}
 	
 	@Override
-	public ChannelHandler[] make() 
+	public ChannelHandler[] make(SocketChannel _socketChannel) 
 	{
 		ChannelHandler[] pipe = new ChannelHandler[]{
 				new DelimiterBasedFrameDecoder(this.maxLength, Delimiters.nulDelimiter()),

@@ -1,10 +1,11 @@
 package team.balam.exof.listener.handler.codec;
 
-import team.balam.exof.listener.PortInfo;
-import team.balam.exof.listener.handler.ChannelHandlerArray;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
+import team.balam.exof.listener.PortInfo;
+import team.balam.exof.listener.handler.ChannelHandlerArray;
 
 public class LengthFieldByteCodec extends ChannelHandlerArray
 {
@@ -39,7 +40,7 @@ public class LengthFieldByteCodec extends ChannelHandlerArray
 	}
 	
 	@Override
-	public ChannelHandler[] make()
+	public ChannelHandler[] make(SocketChannel _socketChannel)
 	{
 		ChannelHandler[] pipe = new ChannelHandler[]{
 				new LengthFieldBasedFrameDecoder(this.maxLength, 

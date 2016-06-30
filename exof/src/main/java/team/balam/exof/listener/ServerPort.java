@@ -84,9 +84,9 @@ public class ServerPort
 			.childHandler(new ChannelInitializer<SocketChannel>()
 			{
 				@Override
-				protected void initChannel(SocketChannel arg0) throws Exception 
+				protected void initChannel(SocketChannel _socketChannel) throws Exception 
 				{
-					arg0.pipeline().addLast(self.channelHandlerArray.make()).addLast(requestHandler);
+					_socketChannel.pipeline().addLast(self.channelHandlerArray.make(_socketChannel)).addLast(requestHandler);
 				}
 			})
 			.childOption(ChannelOption.SO_KEEPALIVE, true)
