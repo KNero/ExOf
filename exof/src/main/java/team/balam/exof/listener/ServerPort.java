@@ -97,6 +97,8 @@ public class ServerPort
 	
 	public void close() throws Exception
 	{
+		this.channelHandlerArray.destroy();
+		
 		this.channel.close();
 		
 		this.workerGroup.shutdownGracefully();
