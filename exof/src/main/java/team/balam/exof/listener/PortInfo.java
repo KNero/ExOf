@@ -61,6 +61,14 @@ public class PortInfo
 		return this.attr.getProperty(_key);
 	}
 	
+	public String getAttribute(String _key, String _default)
+	{
+		String value = this.attr.getProperty(_key);
+		
+		if(value != null) return value;
+		else return _default;
+	}
+	
 	public int getAttributeToInt(String _key, int _default)
 	{
 		String value = this.attr.getProperty(_key);
