@@ -1,30 +1,18 @@
 package team.balam.exof.listener.handler.transform;
 
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.FullHttpRequest;
 import team.balam.exof.service.ServiceObject;
 
-public class HttpTransform implements ServiceObjectTransform<Object>
+public class HttpTransform implements ServiceObjectTransform<FullHttpRequest>
 {
 	@Override
-	public ServiceObject transform(Object _msg) throws Exception 
+	public ServiceObject transform(FullHttpRequest _msg) throws Exception 
 	{
-		if(_msg instanceof HttpRequest)
-		{
-			HttpRequest httpRequest = (HttpRequest)_msg;
-		}
+		FullHttpRequest httpRequest = (FullHttpRequest)_msg;
 		
-		if(_msg instanceof HttpContent)
-		{
-			HttpContent httpContent = (HttpContent)_msg;
-			
-			if(_msg instanceof LastHttpContent)
-			{
-				
-			}
-		}
+		ServiceObject serviceObject = new ServiceObject(httpRequest.getUri());
+		serviceObject.setRequest(httpRequest);
 
-		return null;
+		return serviceObject;
 	}
 }
