@@ -20,5 +20,7 @@ public abstract class ChannelHandlerArray
 	
 	public abstract void init(PortInfo _info);
 	
+	public abstract void destroy();
+	
 	public abstract ChannelHandler[] make(SocketChannel _socketChannel);
 }

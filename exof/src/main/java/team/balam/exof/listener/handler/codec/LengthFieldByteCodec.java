@@ -40,6 +40,12 @@ public class LengthFieldByteCodec extends ChannelHandlerArray
 	}
 	
 	@Override
+	public void destroy() 
+	{
+		
+	}
+	
+	@Override
 	public ChannelHandler[] make(SocketChannel _socketChannel)
 	{
 		ChannelHandler[] pipe = new ChannelHandler[]{
