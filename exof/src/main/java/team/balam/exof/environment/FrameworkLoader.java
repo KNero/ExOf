@@ -2,7 +2,6 @@ package team.balam.exof.environment;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,29 +31,44 @@ public class FrameworkLoader implements Loader
 			Map<String, ?> root = (Map<String, ?>)yamlParser.load(frameworkFile);
 			Map<String, ?> fw = (Map<String, ?>)root.get(EnvKey.Framework.FRAMEWORK);
 			
-			boolean isInitLog = (boolean)fw.get(EnvKey.Framework.INIT_LOG);
-			if(isInitLog)
-			{
-				DOMConfigurator.configure(_envPath + "/" + "Log4j.xml");
-			}
-			
-			List<String> container = (List<String>)fw.get(EnvKey.Framework.CONTAINER);
-			SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER, container);
-			
-			Map<String, ?> autoReloadList = (Map<String, ?>)fw.get(EnvKey.Framework.AUTORELOAD);
-			CollectionUtil.doIterator(autoReloadList.keySet(), _key -> {
-				Boolean value = (Boolean)autoReloadList.get(_key);
-				String key = EnvKey.Framework.AUTORELOAD + "." + _key;
-				SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, key, value);
-			});
-			
-			Properties sp = new Properties();
-			SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
-			
-			Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
-			CollectionUtil.doIterator(scheduler.keySet(), _key -> {
-				Object value = scheduler.get(_key).toString();
-				sp.put(_key, value);
+			CollectionUtil.doIterator(fw.keySet(), _key -> {
+				if(_key.equals(EnvKey.Framework.INIT_LOG))
+				{
+					boolean isInitLog = (boolean)fw.get(EnvKey.Framework.INIT_LOG);
+					if(isInitLog)
+					{
+						DOMConfigurator.configure(_envPath + "/" + "Log4j.xml");
+					}
+				}
+				else if(_key.equals(EnvKey.Framework.SCHEDULER))
+				{
+					Properties sp = new Properties();
+					SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
+					
+					Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
+					CollectionUtil.doIterator(scheduler.keySet(), _quartzKey -> {
+						Object value = scheduler.get(_quartzKey).toString();
+						sp.put(_quartzKey, value);
+					});
+				}
+				else
+				{
+					Object values = fw.get(_key);
+					
+					if(values instanceof Map)
+					{
+						Map<String, ?> mapValues = (Map<String, ?>)values;
+						CollectionUtil.doIterator(mapValues.keySet(), _mapKey -> {
+							String key = _key + "." + _mapKey;
+							Object value = mapValues.get(_mapKey);
+							SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, key, value);
+						});
+					}
+					else
+					{
+						SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, _key, values);
+					}
+				}
 			});
 		}
 		catch(Exception e)
