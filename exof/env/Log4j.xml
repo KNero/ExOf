@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration>
+	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %5p [%C{1}(%M:%L)] : %m%n" />
+				<!-- value="[%d{yyyy-MM-dd HH:mm}] %5p [%C{1}(%M:%L)] :%m%n%n" /> -->
+		</layout>
+	</appender>
+	
+	<appender name="FrameworkFileLog" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/ASF.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+		<!-- 
+			<param name="ConversionPattern"
+				value="[slf5s.start]%d{DATE}[slf5s.DATE]%n %p[slf5s.PRIORITY]%n%x[slf5s.NDC]%n%t[slf5s.THREAD]%n
+   						  %c[slf5s.CATEGORY]%n%l[slf5s.LOCATION]%n%m[slf5s.MESSAGE]%n%n" />
+   						  -->
+		  <param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %5p [%C{1}(%M:%L)] : %m%n" />
+		</layout>
+	</appender>
+
+	<root>
+		<priority value="DEBUG" />
+		<!-- <appender-ref ref="FrameworkFileLog"/> -->
+		<appender-ref ref="stdout"/>
+	</root>
+	
+</log4j:configuration>
