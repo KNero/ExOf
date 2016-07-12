@@ -75,6 +75,12 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.eclipse.jetty.aggregate</groupId>
+			<artifactId>jetty-all-server</artifactId>
+			<version>8.1.19.v20160209</version>
+		</dependency>
 	</dependencies>
 	
 	<build>
