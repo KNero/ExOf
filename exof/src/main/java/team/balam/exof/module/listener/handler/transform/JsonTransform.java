@@ -1,11 +1,11 @@
-package team.balam.exof.listener.handler.transform;
+package team.balam.exof.module.listener.handler.transform;
 
 import java.util.HashMap;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
-import team.balam.exof.service.ServiceObject;
+import team.balam.exof.module.service.ServiceObject;
 
 public class JsonTransform implements ServiceObjectTransform<String>
 {

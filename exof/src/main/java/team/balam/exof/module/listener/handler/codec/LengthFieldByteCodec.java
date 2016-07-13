@@ -1,11 +1,11 @@
-package team.balam.exof.listener.handler.codec;
+package team.balam.exof.module.listener.handler.codec;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
-import team.balam.exof.listener.PortInfo;
-import team.balam.exof.listener.handler.ChannelHandlerArray;
+import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
 public class LengthFieldByteCodec extends ChannelHandlerArray
 {

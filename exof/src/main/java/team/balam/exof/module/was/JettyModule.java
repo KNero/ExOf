@@ -1,4 +1,4 @@
-package team.balam.exof.was;
+package team.balam.exof.module.was;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;

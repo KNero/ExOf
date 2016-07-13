@@ -3,10 +3,10 @@ package team.balam.exof.test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.service.annotation.Inbound;
-import team.balam.exof.service.annotation.Outbound;
-import team.balam.exof.service.annotation.Service;
-import team.balam.exof.service.annotation.ServiceDirectory;
+import team.balam.exof.module.service.annotation.Inbound;
+import team.balam.exof.module.service.annotation.Outbound;
+import team.balam.exof.module.service.annotation.Service;
+import team.balam.exof.module.service.annotation.ServiceDirectory;
 
 @ServiceDirectory
 public class SchedulerTest

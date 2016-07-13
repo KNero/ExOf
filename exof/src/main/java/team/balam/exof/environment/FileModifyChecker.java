@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.scheduler.SchedulerManager;
-import team.balam.exof.service.ServiceProvider;
+import team.balam.exof.container.SchedulerManager;
+import team.balam.exof.module.service.ServiceProvider;
 
 public class FileModifyChecker
 {

@@ -13,8 +13,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import team.balam.exof.scheduler.SchedulerInfo;
-import team.balam.exof.service.ServiceDirectoryInfo;
+import team.balam.exof.container.scheduler.SchedulerInfo;
+import team.balam.exof.module.service.ServiceDirectoryInfo;
 
 public class ServiceLoader implements Loader
 {

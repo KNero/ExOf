@@ -1,7 +1,7 @@
 package team.balam.exof.test;
 
-import team.balam.exof.service.component.Outbound;
-import team.balam.exof.service.component.OutboundExecuteException;
+import team.balam.exof.module.service.component.Outbound;
+import team.balam.exof.module.service.component.OutboundExecuteException;
 
 public class TestOutbound implements Outbound<String, Void>
 {

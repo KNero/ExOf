@@ -1,4 +1,4 @@
-package team.balam.exof.listener.handler.codec;
+package team.balam.exof.module.listener.handler.codec;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.socket.SocketChannel;
@@ -9,8 +9,8 @@ import io.netty.handler.codec.string.StringDecoder;
 import java.nio.charset.Charset;
 
 import team.balam.exof.ConstantKey;
-import team.balam.exof.listener.PortInfo;
-import team.balam.exof.listener.handler.ChannelHandlerArray;
+import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
 public class NullDelimiterStringCodec extends ChannelHandlerArray
 {

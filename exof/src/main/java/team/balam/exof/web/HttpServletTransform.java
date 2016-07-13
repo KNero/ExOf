@@ -1,7 +1,7 @@
 package team.balam.exof.web;
 
-import team.balam.exof.listener.handler.transform.ServiceObjectTransform;
-import team.balam.exof.service.ServiceObject;
+import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
+import team.balam.exof.module.service.ServiceObject;
 
 public abstract class HttpServletTransform implements ServiceObjectTransform<HttpServletMessage>
 {

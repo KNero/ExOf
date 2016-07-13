@@ -1,4 +1,4 @@
-package team.balam.exof.service.annotation;
+package team.balam.exof.module.service.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

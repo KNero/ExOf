@@ -1,4 +1,4 @@
-package team.balam.exof.scheduler;
+package team.balam.exof.container.scheduler;
 
 public class SchedulerAlreadyExists extends Exception
 {

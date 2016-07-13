@@ -1,8 +1,8 @@
-package team.balam.exof.listener.handler;
+package team.balam.exof.module.listener.handler;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.socket.SocketChannel;
-import team.balam.exof.listener.PortInfo;
+import team.balam.exof.module.listener.PortInfo;
 
 public abstract class ChannelHandlerArray
 {

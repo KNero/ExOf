@@ -1,4 +1,4 @@
-package team.balam.exof.service.component;
+package team.balam.exof.module.service.component;
 
 public interface Outbound<I, O>
 {

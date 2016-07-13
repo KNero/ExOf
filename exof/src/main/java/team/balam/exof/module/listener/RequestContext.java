@@ -1,4 +1,4 @@
-package team.balam.exof.listener;
+package team.balam.exof.module.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

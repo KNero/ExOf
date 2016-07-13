@@ -1,6 +1,6 @@
-package team.balam.exof.listener.handler.transform;
+package team.balam.exof.module.listener.handler.transform;
 
-import team.balam.exof.service.ServiceObject;
+import team.balam.exof.module.service.ServiceObject;
 
 public interface ServiceObjectTransform<T>
 {

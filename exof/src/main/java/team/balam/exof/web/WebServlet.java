@@ -11,9 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.service.Service;
-import team.balam.exof.service.ServiceObject;
-import team.balam.exof.service.ServiceProvider;
+import team.balam.exof.module.service.Service;
+import team.balam.exof.module.service.ServiceObject;
+import team.balam.exof.module.service.ServiceProvider;
 
 public class WebServlet extends HttpServlet
 {

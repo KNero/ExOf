@@ -1,8 +1,8 @@
 package team.balam.exof.test;
 
-import team.balam.exof.service.ServiceObject;
-import team.balam.exof.service.component.Inbound;
-import team.balam.exof.service.component.InboundExecuteException;
+import team.balam.exof.module.service.ServiceObject;
+import team.balam.exof.module.service.component.Inbound;
+import team.balam.exof.module.service.component.InboundExecuteException;
 
 public class TestInbound implements Inbound
 {

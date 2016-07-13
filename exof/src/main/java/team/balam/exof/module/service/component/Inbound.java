@@ -1,6 +1,6 @@
-package team.balam.exof.service.component;
+package team.balam.exof.module.service.component;
 
-import team.balam.exof.service.ServiceObject;
+import team.balam.exof.module.service.ServiceObject;
 
 public interface Inbound
 {

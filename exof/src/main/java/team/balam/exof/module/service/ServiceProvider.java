@@ -1,4 +1,4 @@
-package team.balam.exof.service;
+package team.balam.exof.module.service;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -13,10 +13,9 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.service.annotation.Startup;
-import team.balam.exof.service.annotation.Shutdown;
-import team.balam.exof.service.component.Inbound;
-import team.balam.exof.service.component.Outbound;
+import team.balam.exof.module.service.annotation.Startup;
+import team.balam.exof.module.service.component.Inbound;
+import team.balam.exof.module.service.component.Outbound;
 import team.balam.exof.util.CollectionUtil;
 
 public class ServiceProvider implements Module, Observer
@@ -38,8 +37,8 @@ public class ServiceProvider implements Module, Observer
 	synchronized public static void register(ServiceDirectoryInfo _info) throws Exception
 	{
 		Class<?> clazz = Class.forName(_info.getClassName());
-		team.balam.exof.service.annotation.ServiceDirectory serviceDirAnn = 
-				clazz.getAnnotation(team.balam.exof.service.annotation.ServiceDirectory.class);
+		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn = 
+				clazz.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
 		
 		if(serviceDirAnn != null)
 		{
@@ -57,8 +56,8 @@ public class ServiceProvider implements Module, Observer
 			Method[] method = clazz.getMethods();
 			for(Method m : method)
 			{
-				team.balam.exof.service.annotation.Service serviceAnn = 
-						m.getAnnotation(team.balam.exof.service.annotation.Service.class);
+				team.balam.exof.module.service.annotation.Service serviceAnn = 
+						m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
 				
 				if(serviceAnn != null)
 				{
@@ -80,7 +79,8 @@ public class ServiceProvider implements Module, Observer
 					serdir.setStartup(m);
 				}
 				
-				Shutdown shutdown = m.getAnnotation(Shutdown.class);
+				team.balam.exof.module.service.annotation.Shutdown shutdown = 
+						m.getAnnotation(team.balam.exof.module.service.annotation.Shutdown.class);
 				if(shutdown != null)
 				{
 					serdir.setShutdown(m);
@@ -91,8 +91,8 @@ public class ServiceProvider implements Module, Observer
 	
 	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception
 	{
-		team.balam.exof.service.annotation.Inbound inboundAnn = 
-				_method.getAnnotation(team.balam.exof.service.annotation.Inbound.class);
+		team.balam.exof.module.service.annotation.Inbound inboundAnn = 
+				_method.getAnnotation(team.balam.exof.module.service.annotation.Inbound.class);
 		
 		if(inboundAnn != null && inboundAnn.className().trim().length() > 0)
 		{
@@ -109,8 +109,8 @@ public class ServiceProvider implements Module, Observer
 	
 	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception
 	{
-		team.balam.exof.service.annotation.Outbound outboundAnn = 
-				_method.getAnnotation(team.balam.exof.service.annotation.Outbound.class);
+		team.balam.exof.module.service.annotation.Outbound outboundAnn = 
+				_method.getAnnotation(team.balam.exof.module.service.annotation.Outbound.class);
 		
 		if(outboundAnn != null && outboundAnn.className().trim().length() > 0)
 		{
@@ -127,8 +127,8 @@ public class ServiceProvider implements Module, Observer
 	
 	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception
 	{
-		team.balam.exof.service.annotation.MapToVo mapTovoAnn = 
-				_method.getAnnotation(team.balam.exof.service.annotation.MapToVo.class);
+		team.balam.exof.module.service.annotation.MapToVo mapTovoAnn = 
+				_method.getAnnotation(team.balam.exof.module.service.annotation.MapToVo.class);
 		
 		if(mapTovoAnn != null && mapTovoAnn.className().trim().length() > 0)
 		{
@@ -224,8 +224,8 @@ public class ServiceProvider implements Module, Observer
 				
 				for(Method m : methods)
 				{
-					team.balam.exof.service.annotation.Service serviceAnn = 
-							m.getAnnotation(team.balam.exof.service.annotation.Service.class);
+					team.balam.exof.module.service.annotation.Service serviceAnn = 
+							m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
 					
 					if(serviceAnn != null)
 					{

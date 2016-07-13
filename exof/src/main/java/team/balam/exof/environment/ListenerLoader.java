@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import team.balam.exof.listener.PortInfo;
+import team.balam.exof.module.listener.PortInfo;
 
 public class ListenerLoader implements Loader
 {

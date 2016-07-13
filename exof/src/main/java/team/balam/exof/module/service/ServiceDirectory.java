@@ -1,4 +1,4 @@
-package team.balam.exof.service;
+package team.balam.exof.module.service;
 
 import java.lang.reflect.Method;
 import java.util.Collection;

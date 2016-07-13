@@ -1,4 +1,4 @@
-package team.balam.exof.service;
+package team.balam.exof.module.service;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -8,9 +8,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.service.component.Inbound;
-import team.balam.exof.service.component.MapToVoConverter;
-import team.balam.exof.service.component.Outbound;
+import team.balam.exof.module.service.component.Inbound;
+import team.balam.exof.module.service.component.MapToVoConverter;
+import team.balam.exof.module.service.component.Outbound;
 import team.balam.exof.util.CollectionUtil;
 
 public class ServiceImpl implements Service
