@@ -19,22 +19,54 @@ public class RequestContext
 		return c;
 	}
 	
+	public static void set(String _key, Object _obj)
+	{
+		HashMap<String, Object> c =  context.get();
+		
+		if(c == null)
+		{
+			c = _createDefaultContext();
+		}
+		
+		c.put(_key, _obj);
+	
+	}
+	
 	public static void setSession(ChannelHandlerContext _ctx)
 	{
 
 		HashMap<String, Object> c =  context.get();
 		
-		if(c == null) c = _createDefaultContext();
+		if(c == null)
+		{
+			c = _createDefaultContext();
+		}
 		
 		c.put(CHANNEL_CONTEXT, _ctx);
 	
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T get(String _key)
+	{
+		HashMap<String, Object> c =  context.get();
+		
+		if(c == null)
+		{
+			c = _createDefaultContext();
+		}
+		
+		return (T)c.get(_key);
 	}
 	
 	public static ChannelHandlerContext getSession()
 	{
 		HashMap<String, Object> c =  context.get();
 		
-		if(c == null) c = _createDefaultContext();
+		if(c == null)
+		{
+			c = _createDefaultContext();
+		}
 		
 		return (ChannelHandlerContext)c.get(CHANNEL_CONTEXT);
 	}
