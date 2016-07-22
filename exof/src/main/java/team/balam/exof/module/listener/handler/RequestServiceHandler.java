@@ -38,7 +38,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     {
     	try 
     	{
-    		RequestContext.set(RequestContext.CHANNEL_CONTEXT, ctx);
+    		RequestContext.setSession(ctx);
     		
     		if(this.transform == null)
     		{

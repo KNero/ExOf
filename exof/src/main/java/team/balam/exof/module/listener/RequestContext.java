@@ -19,22 +19,24 @@ public class RequestContext
 		return c;
 	}
 	
-	public static void set(String _key, Object _value)
+	public static void setSession(ChannelHandlerContext _ctx)
 	{
+
 		HashMap<String, Object> c =  context.get();
 		
 		if(c == null) c = _createDefaultContext();
 		
-		c.put(_key, _value);
+		c.put(CHANNEL_CONTEXT, _ctx);
+	
 	}
 	
-	public static Object get(String _key)
+	public static ChannelHandlerContext getSession()
 	{
 		HashMap<String, Object> c =  context.get();
 		
 		if(c == null) c = _createDefaultContext();
 		
-		return c.get(_key);
+		return (ChannelHandlerContext)c.get(CHANNEL_CONTEXT);
 	}
 	
 	public static void remove()
@@ -44,7 +46,7 @@ public class RequestContext
 	
 	public static void writeResponse(byte[] _msg)
 	{
-		ChannelHandlerContext channelContext = (ChannelHandlerContext)get(CHANNEL_CONTEXT);
+		ChannelHandlerContext channelContext = getSession();
 		if(channelContext != null)
 		{
 			ByteBuf buf = channelContext.alloc().buffer(_msg.length);
@@ -60,7 +62,7 @@ public class RequestContext
 	
 	public static void writeResponse(Object _res)
 	{
-		ChannelHandlerContext channelContext = (ChannelHandlerContext)get(CHANNEL_CONTEXT);
+		ChannelHandlerContext channelContext = getSession();
 		if(channelContext != null)
 		{
 			channelContext.writeAndFlush(_res);
