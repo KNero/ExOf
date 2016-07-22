@@ -83,7 +83,7 @@ public class HttpServerCodec extends ChannelHandlerArray
 		}
 		else
 		{
-			return new ChannelHandler[]{new HttpRequestDecoder(), new HttpResponseEncoder(), new HttpObjectAggregator(this.maxLength)};
+			return new ChannelHandler[]{new HttpRequestDecoder(), new HttpObjectAggregator(this.maxLength), new HttpResponseEncoder()};
 		}
 	}
 

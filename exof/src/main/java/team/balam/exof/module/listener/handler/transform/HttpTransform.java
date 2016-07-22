@@ -8,10 +8,8 @@ public class HttpTransform implements ServiceObjectTransform<FullHttpRequest>
 	@Override
 	public ServiceObject transform(FullHttpRequest _msg) throws Exception 
 	{
-		FullHttpRequest httpRequest = (FullHttpRequest)_msg;
-		
-		ServiceObject serviceObject = new ServiceObject(httpRequest.getUri());
-		serviceObject.setRequest(httpRequest);
+		ServiceObject serviceObject = new ServiceObject(_msg.getUri());
+		serviceObject.setRequest(_msg);
 
 		return serviceObject;
 	}
