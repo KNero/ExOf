@@ -5,70 +5,51 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;
 
+import team.balam.exof.module.service.ServiceObject;
+
 public class RequestContext 
 {
-	public static final String CHANNEL_CONTEXT = "c_c";
+	private static final String CHANNEL_CONTEXT = "c_c";
+	private static final String SERVICE_OBJECT = "s_o";
 	
 	private static ThreadLocal<HashMap<String, Object>> context = new ThreadLocal<HashMap<String, Object>>();
 	
-	private static HashMap<String, Object> _createDefaultContext()
+	public static void createContext()
 	{
-		HashMap<String, Object> c = new HashMap<String, Object>();
-		context.set(c);
-		
-		return c;
+		context.set(new HashMap<>());
 	}
 	
 	public static void set(String _key, Object _obj)
 	{
 		HashMap<String, Object> c =  context.get();
-		
-		if(c == null)
-		{
-			c = _createDefaultContext();
-		}
-		
 		c.put(_key, _obj);
-	
-	}
-	
-	public static void setSession(ChannelHandlerContext _ctx)
-	{
-
-		HashMap<String, Object> c =  context.get();
-		
-		if(c == null)
-		{
-			c = _createDefaultContext();
-		}
-		
-		c.put(CHANNEL_CONTEXT, _ctx);
-	
 	}
 	
 	@SuppressWarnings("unchecked")
 	public static <T> T get(String _key)
 	{
 		HashMap<String, Object> c =  context.get();
-		
-		if(c == null)
-		{
-			c = _createDefaultContext();
-		}
-		
 		return (T)c.get(_key);
+	}
+	
+	public static void setSession(ChannelHandlerContext _ctx)
+	{
+		set(CHANNEL_CONTEXT, _ctx);
 	}
 	
 	public static ChannelHandlerContext getSession()
 	{
-		HashMap<String, Object> c =  context.get();
-		
-		if(c == null)
-		{
-			c = _createDefaultContext();
-		}
-		
-		return (ChannelHandlerContext)c.get(CHANNEL_CONTEXT);
+		return get(CHANNEL_CONTEXT);
+	}
+	
+	public static void setServiceObject(ServiceObject _object)
+	{
+		set(SERVICE_OBJECT, _object);
+	}
+	
+	public static ServiceObject getServiceObject()
+	{
+		return get(SERVICE_OBJECT);
 	}
 	
 	public static void remove()
