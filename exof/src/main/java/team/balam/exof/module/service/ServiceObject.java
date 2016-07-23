@@ -9,6 +9,9 @@ public class ServiceObject
 	protected Map<String, String> serviceVariables;
 	protected Object[] serviceParameter;
 	
+	private boolean isAutoCloseSession;
+	private boolean isCloseSessionByError;
+	
 	public ServiceObject(String _path)
 	{
 		this.servicePath = _path;
@@ -44,6 +47,34 @@ public class ServiceObject
 		return this.request;
 	}
 	
+	public boolean isAutoCloseSession()
+	{
+		return isAutoCloseSession;
+	}
+
+	/**
+	 * 정상/비정상 종료시 현재 클라이언트 세션을 닫을지 여부 
+	 * @param isAutoCloseSession
+	 */
+	public void setAutoCloseSession(boolean isAutoCloseSession)
+	{
+		this.isAutoCloseSession = isAutoCloseSession;
+	}
+
+	public boolean isCloseSessionByError()
+	{
+		return isCloseSessionByError;
+	}
+
+	/**
+	 * 에러가 발생했을 경우 클라이언트 세션을 닫을지 여부
+	 * @param isCloseSessionByError
+	 */
+	public void setCloseSessionByError(boolean isCloseSessionByError)
+	{
+		this.isCloseSessionByError = isCloseSessionByError;
+	}
+
 	/**
 	 * 이 메소드를 통해서 호출한 서비스 메소드의 파라미터를 세팅한다.<br/><br/>
 	 * 서비스 메소드를 호출 할 때 아래와 같은 규칙으로 파라미터가 세팅된다.<br/>
