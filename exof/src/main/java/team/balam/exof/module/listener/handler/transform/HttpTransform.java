@@ -8,7 +8,7 @@ public class HttpTransform implements ServiceObjectTransform<FullHttpRequest>
 	@Override
 	public ServiceObject transform(FullHttpRequest _msg) throws Exception 
 	{
-		ServiceObject serviceObject = new ServiceObject(_msg.getUri());
+		ServiceObject serviceObject = new ServiceObject(_msg.uri());
 		serviceObject.setRequest(_msg);
 
 		return serviceObject;
