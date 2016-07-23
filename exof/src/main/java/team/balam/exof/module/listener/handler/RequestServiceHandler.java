@@ -47,6 +47,9 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     			throw new Exception("messageTransform setting is empty.");
     		}
     		
+    		RequestContext.createContext();
+    		RequestContext.setSession(ctx);
+    		
     		serviceObject = this.transform.transform(msg);
     		
     		if(serviceObject == null)
@@ -54,8 +57,6 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     			throw new Exception("serviceObject is null.");
     		}
     		
-    		RequestContext.createContext();
-    		RequestContext.setSession(ctx);
     		RequestContext.setServiceObject(serviceObject);
     		
 			String servicePath = serviceObject.getServicePath();
