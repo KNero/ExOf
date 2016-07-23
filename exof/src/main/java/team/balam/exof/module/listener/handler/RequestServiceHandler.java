@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import team.balam.exof.module.listener.RequestContext;
+import team.balam.exof.module.listener.handler.transform.BadFormatException;
 import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
 import team.balam.exof.module.service.Service;
 import team.balam.exof.module.service.ServiceObject;
@@ -33,25 +34,29 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 		this.sessionEventHandler = sessionEventHandler;
 	}
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) 
     {
+    	ServiceObject serviceObject = null;
+    	
     	try 
     	{
-    		RequestContext.setSession(ctx);
-    		
     		if(this.transform == null)
     		{
     			throw new Exception("messageTransform setting is empty.");
     		}
     		
-    		@SuppressWarnings("unchecked")
-			ServiceObject serviceObject = this.transform.transform(msg);
+    		serviceObject = this.transform.transform(msg);
     		
     		if(serviceObject == null)
     		{
     			throw new Exception("serviceObject is null.");
     		}
+    		
+    		RequestContext.createContext();
+    		RequestContext.setSession(ctx);
+    		RequestContext.setServiceObject(serviceObject);
     		
 			String servicePath = serviceObject.getServicePath();
 			Service service = ServiceProvider.lookup(servicePath);
@@ -73,14 +78,33 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 				this.logger.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
 			}
 		} 
+    	catch(BadFormatException bad)
+    	{
+    		this.logger.error("Session is closed. Because message is bad format.", bad);
+    		
+    		ctx.close();
+    	}
     	catch(Exception e) 
     	{
-    		this.logger.error("Message transform failed.", e);
+    		this.logger.error("Can not execute service.", e);
+    		
+    		if(serviceObject != null)
+    		{
+    			if(! serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError())
+    			{
+    				ctx.close();
+    			}
+    		}
 		}
     	finally
     	{
     		RequestContext.remove();
     		ReferenceCountUtil.release(msg);
+    		
+    		if(serviceObject != null && serviceObject.isAutoCloseSession())
+    		{
+    			ctx.close();
+    		}
     	}
     }
 
