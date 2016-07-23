@@ -8,4 +8,14 @@ public class BadFormatException extends Exception
 	{ 
 		super(_msg);
 	}
+	
+	public BadFormatException(String _msg, Exception _exp)
+	{ 
+		super(_msg, _exp);
+	}
+	
+	public BadFormatException(Exception _exp)
+	{ 
+		super(_exp);
+	}
 }
