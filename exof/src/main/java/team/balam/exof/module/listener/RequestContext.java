@@ -1,6 +1,7 @@
 package team.balam.exof.module.listener;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;
@@ -73,12 +74,25 @@ public class RequestContext
 		}
 	}
 	
-	public static void writeResponse(Object _res)
+	public static ChannelFuture writeResponse(Object _res)
 	{
 		ChannelHandlerContext channelContext = getSession();
 		if(channelContext != null)
 		{
-			channelContext.writeAndFlush(_res);
+			return channelContext.write(_res);
+		}
+		else
+		{
+			throw new NullPointerException("Session");
+		}
+	}
+
+	public static ChannelFuture writeAndFlushResponse(Object _res)
+	{
+		ChannelHandlerContext channelContext = getSession();
+		if(channelContext != null)
+		{
+			return channelContext.writeAndFlush(_res);
 		}
 		else
 		{
