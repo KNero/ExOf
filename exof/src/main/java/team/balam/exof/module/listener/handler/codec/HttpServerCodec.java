@@ -79,7 +79,7 @@ public class HttpServerCodec extends ChannelHandlerArray
 		if(this.sslCtx != null)
 		{
 			return new ChannelHandler[]{this.sslCtx.newHandler(_socketChannel.alloc()), 
-					new HttpRequestDecoder(), new HttpResponseEncoder(), new HttpObjectAggregator(this.maxLength)};
+					new HttpRequestDecoder(), new HttpObjectAggregator(this.maxLength), new HttpResponseEncoder()};
 		}
 		else
 		{
