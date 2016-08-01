@@ -64,7 +64,7 @@ public class FileModifyChecker
 								}
 								catch(Exception e)
 								{
-									this.logger.error("", e);
+									this.logger.error("file modify checker error.", e);
 								}
 							}
 						}

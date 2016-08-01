@@ -25,6 +25,7 @@ public class ServiceProvider implements Module, Observer
 	
 	private Map<String, ServiceDirectory> serviceDirectory = new ConcurrentHashMap<>();
 	private boolean isAutoReload;
+	private long updateVariableTime;
 	
 	private static ServiceProvider self = new ServiceProvider();
 	
@@ -207,40 +208,43 @@ public class ServiceProvider implements Module, Observer
 		
 		if(! this.isAutoReload) return;
 		
-		CollectionUtil.doIterator(directoryInfoList, _info -> {
-			try
-			{
-				Class<?> clazz = Class.forName(_info.getClassName());
-				Method[] methods = clazz.getMethods();
-				
-				for(Method m : methods)
+		if(System.currentTimeMillis() - this.updateVariableTime > 5000)
+		{
+			this.updateVariableTime = System.currentTimeMillis();
+			
+			CollectionUtil.doIterator(directoryInfoList, _info -> {
+				try
 				{
-					team.balam.exof.module.service.annotation.Service serviceAnn = 
-							m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
+					Class<?> clazz = Class.forName(_info.getClassName());
+					Method[] methods = clazz.getMethods();
 					
-					if(serviceAnn != null)
+					for(Method m : methods)
 					{
-						String serviceName = serviceAnn.name();
-						if(serviceName.length() == 0) serviceName = m.getName();
+						team.balam.exof.module.service.annotation.Service serviceAnn = 
+								m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
 						
-						Map<String, String> serviceVariable = _info.getVariable(serviceName);
-						
-						ServiceDirectory serviceDir = this.serviceDirectory.get(_info.getPath());
-						if(serviceDir != null)
+						if(serviceAnn != null)
 						{
-							serviceDir.reloadVariable(serviceName, serviceVariable);
+							String serviceName = serviceAnn.name();
+							if(serviceName.length() == 0) serviceName = m.getName();
 							
-							this.logger.warn("Complete reloading ServiceVariable. [{}]", _info.getPath() + "/" + serviceName);
+							Map<String, String> serviceVariable = _info.getVariable(serviceName);
+							
+							ServiceDirectory serviceDir = this.serviceDirectory.get(_info.getPath());
+							if(serviceDir != null)
+							{
+								serviceDir.reloadVariable(serviceName, serviceVariable);
+								
+								this.logger.warn("Complete reloading ServiceVariable. [{}]", _info.getPath() + "/" + serviceName);
+							}
 						}
-						
-						this.logger.warn("Complete reloading service. [{}]", _info.getPath() + "/" + serviceName);
 					}
 				}
-			}
-			catch(Exception e)
-			{
-				this.logger.error("Can not reload the ServiceVariable. Class : {}", _info.getClassName());
-			}
-		});
+				catch(Exception e)
+				{
+					this.logger.error("Can not reload the ServiceVariable. Class : {}", _info.getClassName());
+				}
+			});
+		}
 	}
 }

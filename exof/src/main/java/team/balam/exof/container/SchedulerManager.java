@@ -32,6 +32,7 @@ public class SchedulerManager implements Container, Observer
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Scheduler scheduler;
 	private boolean isAutoReload;
+	private long updateVariableTime;
 	
 	private Map<String, JobKey> jobKeyMap = new HashMap<>();
 	
@@ -120,26 +121,33 @@ public class SchedulerManager implements Container, Observer
 		
 		if(! this.isAutoReload) return;
 		
-		CollectionUtil.doIterator(infoList, _info -> {
-			JobKey jobkey = this.jobKeyMap.get(_info.getId());
+		if(System.currentTimeMillis() - this.updateVariableTime > 5000)
+		{
+			this.updateVariableTime = System.currentTimeMillis();
 			
-			try
-			{
-				JobDataMap dataMap = this.scheduler.getJobDetail(jobkey).getJobDataMap();
-				SchedulerInfo realInfo = (SchedulerInfo)dataMap.get("info");
+			CollectionUtil.doIterator(infoList, _info -> {
+				JobKey jobkey = this.jobKeyMap.get(_info.getId());
 				
-				if(_info.isUse() != realInfo.isUse())
+				try
 				{
-					realInfo.setUse(_info.isUse());
+					JobDataMap dataMap = this.scheduler.getJobDetail(jobkey).getJobDataMap();
+					SchedulerInfo realInfo = (SchedulerInfo)dataMap.get("info");
 					
-					if(! _info.isUse()) this.scheduler.pauseJob(jobkey);
-					else this.scheduler.resumeJob(jobkey);
+					if(_info.isUse() != realInfo.isUse())
+					{
+						realInfo.setUse(_info.isUse());
+						
+						if(! _info.isUse()) this.scheduler.pauseJob(jobkey);
+						else this.scheduler.resumeJob(jobkey);
+						
+						this.logger.warn("Complete reloading schedulerInfo. [{}]", _info.getServicePath());
+					}
+				} 
+				catch(Exception e)
+				{
+					this.logger.error("Can not update scheduler. [{}]", _info.toString(), e);
 				}
-			} 
-			catch(Exception e)
-			{
-				this.logger.error("Can not update scheduler. [{}]", _info.toString(), e);
-			}
-		});
+			});
+		}
 	}
 }
