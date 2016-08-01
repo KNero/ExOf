@@ -9,7 +9,7 @@
 	</appender>
 	
 	<appender name="FrameworkFileLog" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="./logs/ASF.log" />
+		<param name="File" value="./logs/exof.log" />
 		<param name="Append" value="true" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
 		<layout class="org.apache.log4j.PatternLayout">
