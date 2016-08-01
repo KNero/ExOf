@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ public class ServiceProvider implements Module, Observer
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private Map<String, ServiceDirectory> serviceDirectory = new HashMap<>();
+	private Map<String, ServiceDirectory> serviceDirectory = new ConcurrentHashMap<>();
 	private boolean isAutoReload;
 	
 	private static ServiceProvider self = new ServiceProvider();
@@ -48,10 +49,12 @@ public class ServiceProvider implements Module, Observer
 			if(serdir == null)
 			{
 				serdir = new ServiceDirectory(_info.getPath());
-				serdir.setHost(host);
 				
 				self.serviceDirectory.put(_info.getPath(), serdir);
 			}
+			
+			Map<String, Method> startupMethod = new HashMap<>();
+			Map<String, Method> shutdownMethod = new HashMap<>();
 			
 			Method[] method = clazz.getMethods();
 			for(Method m : method)
@@ -74,18 +77,20 @@ public class ServiceProvider implements Module, Observer
 				}
 				
 				Startup startupAnn = m.getAnnotation(Startup.class);
-				if(startupAnn != null)
+				if(startupAnn != null && startupAnn.serviceName().length() > 0)
 				{
-					serdir.setStartup(m);
+					startupMethod.put(startupAnn.serviceName(), m);
 				}
 				
 				team.balam.exof.module.service.annotation.Shutdown shutdown = 
 						m.getAnnotation(team.balam.exof.module.service.annotation.Shutdown.class);
-				if(shutdown != null)
+				if(shutdown != null && shutdown.serviceName().length() > 0)
 				{
-					serdir.setShutdown(m);
+					shutdownMethod.put(shutdown.serviceName(), m);
 				}
 			}
+			
+			serdir.loadStartupAndShutdown(startupMethod, shutdownMethod);
 		}
 	}
 	
@@ -165,7 +170,7 @@ public class ServiceProvider implements Module, Observer
 		List<ServiceDirectoryInfo> directoryInfoList = 
 				SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
 		
-		CollectionUtil.doIterator(directoryInfoList, _info -> {
+		directoryInfoList.forEach(_info -> {
 			try
 			{
 				ServiceProvider.register(_info);
@@ -181,30 +186,16 @@ public class ServiceProvider implements Module, Observer
 			}
 		});
 		
-		CollectionUtil.doIterator(this.serviceDirectory.values(), _serviceDir -> {
-			try
-			{
-				_serviceDir.startup();
-			}
-			catch(Exception e)
-			{
-				this.logger.error("Can not start the service. Service class : {}", _serviceDir.getClass().toString());
-			}
+		this.serviceDirectory.values().forEach(_serviceDir -> {
+			_serviceDir.startupAllServices();
 		});
 	}
 
 	@Override
 	public void stop() throws Exception
 	{
-		CollectionUtil.doIterator(this.serviceDirectory.values(), _serviceDir -> {
-			try
-			{
-				_serviceDir.shutdown();
-			}
-			catch(Exception e)
-			{
-				this.logger.error("Can not stop the service. Service class : {}", _serviceDir.getClass().toString());
-			}
+		this.serviceDirectory.values().forEach(_serviceDir -> {
+			_serviceDir.shutdownAllServices();
 		});
 	}
 

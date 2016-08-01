@@ -1,53 +1,61 @@
 package team.balam.exof.module.service;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ServiceDirectory
 {
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	private String dirPath;
 	private Map<String, Service> serviceMap = new ConcurrentHashMap<>();
 	
-	private Object host;
-	private Method startup;
-	private Method shutdown;
-	
-	public void startup() throws Exception
-	{
-		if(this.startup != null)
-		{
-			this.startup.invoke(this.host);
-		}
-	}
-	
-	public void shutdown() throws Exception
-	{
-		if(this.shutdown != null)
-		{
-			this.shutdown.invoke(this.host);
-		}
-	}
-	
-	public void setHost(Object host) 
-	{
-		this.host = host;
-	}
-
-	public void setStartup(Method startup) 
-	{
-		this.startup = startup;
-	}
-
-	public void setShutdown(Method shutdown) 
-	{
-		this.shutdown = shutdown;
-	}
-
 	public ServiceDirectory(String _dirPath)
 	{
 		this.dirPath = _dirPath;
+	}
+	
+	public void loadStartupAndShutdown(Map<String, Method> _startup, Map<String, Method> _shutdown)
+	{
+		this.serviceMap.forEach((_serviceName, _service) -> {
+			Method startup = _startup.get(_serviceName);
+			Method shutdown = _shutdown.get(_serviceName);
+			
+			ServiceImpl serviceImpl = (ServiceImpl)_service;
+			serviceImpl.setStartupAndShutdown(startup, shutdown);
+		});
+	}
+	
+	public void startupAllServices()
+	{
+		this.serviceMap.forEach((_serviceName, _service) -> {
+			try
+			{
+				_service.startup();
+			}
+			catch(Exception e)
+			{
+				this.logger.error("Can not start the service. Service name : {}", _serviceName, e);
+			}
+		});
+	}
+	
+	public void shutdownAllServices()
+	{
+		this.serviceMap.forEach((_serviceName, _service) -> {
+			try
+			{
+				_service.shutdown();
+			}
+			catch(Exception e)
+			{
+				this.logger.error("Can not stop the service. Service name : {}", _serviceName, e);
+			}
+		});
 	}
 	
 	public ServiceImpl register(String _serviceName, Object _host, Method _method, Map<String, String> _variable)
@@ -80,10 +88,5 @@ public class ServiceDirectory
 		{
 			service.setVariable(_variable);
 		}
-	}
-	
-	public Collection<Service> getServices()
-	{
-		return this.serviceMap.values();
 	}
 }

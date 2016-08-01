@@ -16,6 +16,9 @@ import team.balam.exof.util.CollectionUtil;
 public class ServiceImpl implements Service
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private Method startup;
+	private Method shutdown;
 			
 	private Method method;
 	private Object host;
@@ -26,6 +29,38 @@ public class ServiceImpl implements Service
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
 	private MapToVoConverter mapToVoConverter;
 	
+	@Override
+	public void startup() throws Exception
+	{
+		if(this.startup != null)
+		{
+			if(this.startup.getParameterCount() > 0)
+			{
+				this.startup.invoke(this.host, this.variable.values().toArray());
+			}
+			else
+			{
+				this.startup.invoke(this.host);
+			}
+		}
+	}
+	
+	@Override
+	public void shutdown() throws Exception
+	{
+		if(this.shutdown != null)
+		{
+			if(this.shutdown.getParameterCount() > 0)
+			{
+				this.shutdown.invoke(this.host, this.variable.values().toArray());
+			}
+			else
+			{
+				this.shutdown.invoke(this.host);
+			}
+		}
+	}
+	
 	public Method getMethod()
 	{
 		return method;
@@ -34,7 +69,7 @@ public class ServiceImpl implements Service
 	public void setMethod(Method method)
 	{
 		this.method = method;
-		this.methodParamCount = this.method.getParameterTypes().length;
+		this.methodParamCount = this.method.getParameterCount();
 	}
 
 	public Object getHost()
@@ -67,6 +102,12 @@ public class ServiceImpl implements Service
 		this.outbound.add(_out);
 	}
 	
+	public void setStartupAndShutdown(Method _startup, Method _shutdown)
+	{
+		this.startup = _startup;
+		this.shutdown = _shutdown;
+	}
+	
 	public void setMapToVoConverter(String _class) throws Exception
 	{
 		this.mapToVoConverter = new MapToVoConverter();
@@ -97,7 +138,10 @@ public class ServiceImpl implements Service
 		});
 		
 		Object[] methodParameter = null;
-		if(this.methodParamCount > 0) methodParameter = _so.getServiceParameter();
+		if(this.methodParamCount > 0) 
+		{
+			methodParameter = _so.getServiceParameter();
+		}
 		
 		Object result = this.method.invoke(this.host, methodParameter);
 		
