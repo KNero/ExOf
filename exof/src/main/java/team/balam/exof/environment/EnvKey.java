@@ -23,6 +23,7 @@ public interface EnvKey
 		String SCHEDULER = "scheduler";
 		
 		String INIT_LOG = "initLog";
+		String CONSOLE_PORT = "consolePort";
 		
 		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
 		String AUTORELOAD_SERVICE_VARIABLE = "autoReload.serviceVariable";
