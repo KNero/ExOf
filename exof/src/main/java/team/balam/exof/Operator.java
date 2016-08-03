@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import team.balam.exof.container.Console;
 import team.balam.exof.container.Framework;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.environment.EnvKey;
@@ -28,6 +29,7 @@ public class Operator
 	{
 		containerList.add(new Framework());
 		containerList.add(SchedulerManager.getInstance());
+		containerList.add(new Console());
 		
 		List<String> extraContainerList = SystemSetting.getInstance()
 				.getListAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
