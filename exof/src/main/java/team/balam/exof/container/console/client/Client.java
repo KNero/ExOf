@@ -1,4 +1,4 @@
-package team.balam.exof.container.console;
+package team.balam.exof.container.console.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -15,10 +15,24 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+
+import team.balam.exof.ConstantKey;
+import team.balam.exof.container.console.Command;
+import team.balam.exof.container.console.CommandBuilder;
 
 public class Client
 {
-	public static void main(String[] _arge)
+	public static void main(String[] _arge) throws Exception
+	{
+		new Viewer().start();
+	}
+	
+	public static void Send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback)
 	{
 		EventLoopGroup group = null;
 		
@@ -34,16 +48,26 @@ public class Client
 				protected void initChannel(SocketChannel ch) throws Exception
 				{
 					ch.pipeline().addLast(new DelimiterBasedFrameDecoder(8000, Delimiters.nulDelimiter()))
-						.addLast(new StringEncoder(Charset.forName("utf-8")))
-						.addLast(new StringDecoder(Charset.forName("utf-8")))
+						.addLast(new StringEncoder(Charset.forName(ConstantKey.NETWORK_CHARSET)))
+						.addLast(new StringDecoder(Charset.forName(ConstantKey.NETWORK_CHARSET)))
 						.addLast(new SimpleChannelInboundHandler<String>() 
 						{
 							@Override
-							protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception
+							protected void channelRead0(ChannelHandlerContext _ctx, String _msg) throws Exception
 							{
-								System.out.println(msg);
+								try
+								{
+									ObjectMapper objectMapper = new ObjectMapper();
+									TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
+									
+									_callback.accept(objectMapper.readValue(_msg, mapType));
+								}
+								catch(Exception e)
+								{
+									e.printStackTrace();
+								}
 								
-								ctx.close();
+								_ctx.close();
 							}
 						});
 				}
