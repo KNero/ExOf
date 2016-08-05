@@ -8,7 +8,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import team.balam.exof.Container;
-import team.balam.exof.container.console.CommanHandler;
+import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
@@ -34,6 +34,7 @@ public class Console implements Container
 		if(consolePort != null && consolePort.intValue() > 0)
 		{
 			this.handlerArray = new NullDelimiterStringCodec();
+			this.handlerArray.setMaxLength(1024 * 8);
 			this.workerGroup = new NioEventLoopGroup();
 			
 			ServerBootstrap bootstrap = new ServerBootstrap();
@@ -43,7 +44,7 @@ public class Console implements Container
 				{
 					protected void initChannel(SocketChannel ch) throws Exception 
 					{
-						ch.pipeline().addLast(handlerArray.make(ch)).addLast(new CommanHandler());
+						ch.pipeline().addLast(handlerArray.make(ch)).addLast(new ConsoleCommandHandler());
 					}
 				});
 			
