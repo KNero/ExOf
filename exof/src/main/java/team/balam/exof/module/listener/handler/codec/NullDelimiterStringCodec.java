@@ -5,6 +5,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 
 import java.nio.charset.Charset;
 
@@ -31,7 +32,8 @@ public class NullDelimiterStringCodec extends ChannelHandlerArray
 	{
 		ChannelHandler[] pipe = new ChannelHandler[]{
 				new DelimiterBasedFrameDecoder(this.maxLength, Delimiters.nulDelimiter()),
-				new StringDecoder(Charset.forName(ConstantKey.NETWORK_CHARSET))
+				new StringDecoder(Charset.forName(ConstantKey.NETWORK_CHARSET)),
+				new StringEncoder(Charset.forName(ConstantKey.NETWORK_CHARSET))
 		};
 		
 		return pipe;
