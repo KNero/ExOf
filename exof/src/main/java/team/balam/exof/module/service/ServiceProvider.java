@@ -29,7 +29,10 @@ public class ServiceProvider implements Module, Observer
 	
 	private static ServiceProvider self = new ServiceProvider();
 	
-	private ServiceProvider() {}
+	private ServiceProvider() 
+	{
+		
+	}
 	
 	public static ServiceProvider getInstance()
 	{
@@ -246,5 +249,29 @@ public class ServiceProvider implements Module, Observer
 				}
 			});
 		}
+	}
+
+	public Map<String, HashMap<String, String>> getAllServiceInfo() 
+	{
+		Map<String, HashMap<String, String>> serviceList = new HashMap<>();
+		
+		CollectionUtil.doIterator(this.serviceDirectory.keySet(), _dirPath -> {
+			ServiceDirectory serviceDir = this.serviceDirectory.get(_dirPath);
+			HashMap<String, String> serviceMap = new HashMap<>();
+			serviceList.put(_dirPath, serviceMap);
+			
+			CollectionUtil.doIterator(serviceDir.getServiceNameList(), _name -> {
+				ServiceImpl service = (ServiceImpl)serviceDir.getService(_name);
+				
+				if(! serviceMap.containsKey("class"))
+				{
+					serviceMap.put("class", service.getHost().getClass().getName());
+				}
+				
+				serviceMap.put(_name, service.getMethod().toString());
+			});
+		});
+		
+		return serviceList;
 	}
 }

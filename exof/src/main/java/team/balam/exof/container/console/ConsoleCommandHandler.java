@@ -1,12 +1,21 @@
 package team.balam.exof.container.console;
 
-import java.lang.reflect.Modifier;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import team.balam.exof.module.service.ServiceProvider;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -45,8 +54,23 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 		ctx.writeAndFlush(responseJson);
 	}
 	
-	private String _getServiceList()
+	private String _getServiceList() throws JsonGenerationException, JsonMappingException, IOException
 	{
-		return "{\"test\":\"test\"}\0";
+		ObjectMapper objectMapper = new ObjectMapper();
+		
+		
+		
+		Map<String, HashMap<String, String>> result = ServiceProvider.getInstance().getAllServiceInfo();
+		if(result.size() == 0)
+		{
+			return "{\"result\":\"No data\"}";
+		}
+		else
+		{
+			StringWriter writer = new StringWriter();
+			objectMapper.writeValue(writer, result);
+			
+			return writer.toString();
+		}
 	}
 }

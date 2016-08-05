@@ -2,6 +2,7 @@ package team.balam.exof.module.service;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -79,6 +80,11 @@ public class ServiceDirectory
 	public Service getService(String _serviceName)
 	{
 		return this.serviceMap.get(_serviceName);
+	}
+	
+	public Set<String> getServiceNameList()
+	{
+		return this.serviceMap.keySet();
 	}
 	
 	public void reloadVariable(String _serviceName, Map<String, String> _variable)
