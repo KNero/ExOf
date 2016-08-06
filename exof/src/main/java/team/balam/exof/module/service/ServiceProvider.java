@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import team.balam.exof.ConstantKey;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
@@ -263,12 +264,12 @@ public class ServiceProvider implements Module, Observer
 			CollectionUtil.doIterator(serviceDir.getServiceNameList(), _name -> {
 				ServiceImpl service = (ServiceImpl)serviceDir.getService(_name);
 				
-				if(! serviceMap.containsKey("class"))
+				if(! serviceMap.containsKey(ConstantKey.CLASS_KEY))
 				{
-					serviceMap.put("class", service.getHost().getClass().getName());
+					serviceMap.put(ConstantKey.CLASS_KEY, service.getHost().getClass().getName());
 				}
 				
-				serviceMap.put(_name, service.getMethod().toString());
+				serviceMap.put(_name, service.getMethod().getName());
 			});
 		});
 		

@@ -3,8 +3,14 @@ package team.balam.exof.container.console.client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
 
+
+
+import team.balam.exof.ConstantKey;
 import team.balam.exof.container.console.CommandBuilder;
+import team.balam.exof.util.CollectionUtil;
+
 
 public class Viewer 
 {
@@ -98,10 +104,33 @@ public class Viewer
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void _getServiceList()
 	{
-		Client.Send(CommandBuilder.buildServiceListGetter(), result -> {
-			System.out.println(result);
+		Client.Send(CommandBuilder.buildServiceListGetter(), _result -> {
+			String resultValue = (String)_result.get(ConstantKey.RESULT_KEY);
+			if(resultValue != null)
+			{
+				System.out.println(resultValue);
+			}
+			else
+			{
+				_result.forEach((_key, _value) -> {
+					Map<String, String> valueMap = (Map<String, String>)_value;
+					System.out.println("Directory path : " + _key);
+					System.out.println("Class : " + valueMap.get(ConstantKey.CLASS_KEY));
+					System.out.println("Service list");
+					
+					CollectionUtil.doIterator(valueMap.keySet(), _valueKey -> {
+						if(! ConstantKey.CLASS_KEY.equals(_valueKey))
+						{
+							System.out.println("  - " + _valueKey + " : " + valueMap.get(_valueKey));
+						}
+					});
+					
+					System.out.println();
+				});
+			}
 		});
 	}
 }

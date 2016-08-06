@@ -4,12 +4,16 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 
+import team.balam.exof.ConstantKey;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 public class Command
 {
+	public static String NO_DATA_RESPONSE = "{\"" + ConstantKey.RESULT_KEY + "\":\"No data\"}";
+	
 	@Expose
 	private String type;
 	

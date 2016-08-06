@@ -51,19 +51,17 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 				break;
 		}
 		
-		ctx.writeAndFlush(responseJson);
+		ctx.writeAndFlush(responseJson + "\0");
 	}
 	
 	private String _getServiceList() throws JsonGenerationException, JsonMappingException, IOException
 	{
 		ObjectMapper objectMapper = new ObjectMapper();
 		
-		
-		
 		Map<String, HashMap<String, String>> result = ServiceProvider.getInstance().getAllServiceInfo();
 		if(result.size() == 0)
 		{
-			return "{\"result\":\"No data\"}";
+			return Command.NO_DATA_RESPONSE;
 		}
 		else
 		{
