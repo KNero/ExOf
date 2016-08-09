@@ -14,13 +14,15 @@ import team.balam.exof.util.CollectionUtil;
 
 public class Viewer 
 {
-	public BufferedReader standardReader = new BufferedReader(new InputStreamReader(System.in));
+	public BufferedReader standardReader = null;
 	
 	private String selectMenuNumber;
 	
 	public void start() throws Exception
 	{
 		System.out.println("+++ Welcom ExOf console monitoring +++");
+		
+		this.standardReader = new BufferedReader(new InputStreamReader(System.in));
 		
 		while(true)
 		{
@@ -35,6 +37,11 @@ public class Viewer
 			{
 				break;
 			}
+		}
+		
+		if(this.standardReader != null)
+		{
+			this.standardReader.close();
 		}
 		
 		System.out.println("+++ Bye Bye +++");
