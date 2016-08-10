@@ -25,7 +25,6 @@ import team.balam.exof.container.scheduler.SchedulerInfo;
 import team.balam.exof.container.scheduler.SchedulerJob;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.util.CollectionUtil;
 
 public class SchedulerManager implements Container, Observer
 {
@@ -67,7 +66,7 @@ public class SchedulerManager implements Container, Observer
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
 			this.scheduler = factory.getScheduler();
 			
-			CollectionUtil.doIterator(infoList, _info -> {
+			infoList.forEach(_info -> {
 				try
 				{
 					if(this.jobKeyMap.containsKey(_info.getId()))
@@ -125,7 +124,7 @@ public class SchedulerManager implements Container, Observer
 		{
 			this.updateVariableTime = System.currentTimeMillis();
 			
-			CollectionUtil.doIterator(infoList, _info -> {
+			infoList.forEach(_info -> {
 				JobKey jobkey = this.jobKeyMap.get(_info.getId());
 				
 				try

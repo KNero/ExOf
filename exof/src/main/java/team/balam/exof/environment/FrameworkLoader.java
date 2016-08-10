@@ -8,8 +8,6 @@ import java.util.Properties;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.yaml.snakeyaml.Yaml;
 
-import team.balam.exof.util.CollectionUtil;
-
 /**
  * framework.yaml을 SystemSetting으로 저장.
  * @author kwonsm
@@ -31,7 +29,7 @@ public class FrameworkLoader implements Loader
 			Map<String, ?> root = (Map<String, ?>)yamlParser.load(frameworkFile);
 			Map<String, ?> fw = (Map<String, ?>)root.get(EnvKey.Framework.FRAMEWORK);
 			
-			CollectionUtil.doIterator(fw.keySet(), _key -> {
+			fw.keySet().forEach(_key -> {
 				if(_key.equals(EnvKey.Framework.INIT_LOG))
 				{
 					boolean isInitLog = (boolean)fw.get(EnvKey.Framework.INIT_LOG);
@@ -46,7 +44,7 @@ public class FrameworkLoader implements Loader
 					SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
 					
 					Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
-					CollectionUtil.doIterator(scheduler.keySet(), _quartzKey -> {
+					scheduler.keySet().forEach(_quartzKey -> {
 						Object value = scheduler.get(_quartzKey).toString();
 						sp.put(_quartzKey, value);
 					});
@@ -58,7 +56,7 @@ public class FrameworkLoader implements Loader
 					if(values instanceof Map)
 					{
 						Map<String, ?> mapValues = (Map<String, ?>)values;
-						CollectionUtil.doIterator(mapValues.keySet(), _mapKey -> {
+						mapValues.keySet().forEach(_mapKey -> {
 							String key = _key + "." + _mapKey;
 							Object value = mapValues.get(_mapKey);
 							SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, key, value);

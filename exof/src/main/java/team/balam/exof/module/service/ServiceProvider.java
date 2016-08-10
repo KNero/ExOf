@@ -18,7 +18,6 @@ import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.service.annotation.Startup;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.Outbound;
-import team.balam.exof.util.CollectionUtil;
 
 public class ServiceProvider implements Module, Observer
 {
@@ -216,7 +215,7 @@ public class ServiceProvider implements Module, Observer
 		{
 			this.updateVariableTime = System.currentTimeMillis();
 			
-			CollectionUtil.doIterator(directoryInfoList, _info -> {
+			directoryInfoList.forEach(_info -> {
 				try
 				{
 					Class<?> clazz = Class.forName(_info.getClassName());
@@ -256,12 +255,12 @@ public class ServiceProvider implements Module, Observer
 	{
 		Map<String, HashMap<String, String>> serviceList = new HashMap<>();
 		
-		CollectionUtil.doIterator(this.serviceDirectory.keySet(), _dirPath -> {
+		this.serviceDirectory.keySet().forEach(_dirPath -> {
 			ServiceDirectory serviceDir = this.serviceDirectory.get(_dirPath);
 			HashMap<String, String> serviceMap = new HashMap<>();
 			serviceList.put(_dirPath, serviceMap);
 			
-			CollectionUtil.doIterator(serviceDir.getServiceNameList(), _name -> {
+			serviceDir.getServiceNameList().forEach(_name -> {
 				ServiceImpl service = (ServiceImpl)serviceDir.getService(_name);
 				
 				if(! serviceMap.containsKey(ConstantKey.CLASS_KEY))

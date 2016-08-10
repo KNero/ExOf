@@ -13,7 +13,6 @@ import team.balam.exof.container.Framework;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.util.CollectionUtil;
 
 /**
  * 컨테이너의 구동을 담당한다.
@@ -34,7 +33,7 @@ public class Operator
 		List<String> extraContainerList = SystemSetting.getInstance()
 				.getListAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
 		
-		CollectionUtil.doIterator(extraContainerList, _containerClass -> {
+		extraContainerList.forEach(_containerClass -> {
 			try 
 			{
 				Container container = (Container)Class.forName(_containerClass).newInstance();
@@ -58,7 +57,7 @@ public class Operator
 	
 	public static void start()
 	{
-		CollectionUtil.doIterator(containerList, _container -> {
+		containerList.forEach(_container -> {
 			try
 			{
 				_container.start();
@@ -124,7 +123,7 @@ public class Operator
 	
 	public static void stop()
 	{
-		CollectionUtil.doIterator(containerList, _container -> {
+		containerList.forEach(_container -> {
 			try
 			{
 				_container.stop();

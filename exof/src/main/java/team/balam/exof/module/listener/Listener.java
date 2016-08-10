@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.util.CollectionUtil;
 
 
 public class Listener implements Module
@@ -30,7 +29,7 @@ public class Listener implements Module
 	public void start() throws Exception
 	{
 		List<PortInfo> portList = SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT);
-		CollectionUtil.doIterator(portList, _info -> {
+		portList.forEach(_info -> {
 			ServerPort serverPort = new ServerPort(_info);
 			this.serverPortList.add(serverPort);
 			
@@ -53,7 +52,7 @@ public class Listener implements Module
 	@Override
 	public void stop() throws Exception
 	{
-		CollectionUtil.doIterator(this.serverPortList, _info -> {
+		this.serverPortList.forEach(_info -> {
 			try
 			{
 				_info.close();

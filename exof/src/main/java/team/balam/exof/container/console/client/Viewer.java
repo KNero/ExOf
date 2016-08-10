@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 
-
-
 import team.balam.exof.ConstantKey;
 import team.balam.exof.container.console.CommandBuilder;
-import team.balam.exof.util.CollectionUtil;
 
 
 public class Viewer 
@@ -128,7 +125,7 @@ public class Viewer
 					System.out.println("Class : " + valueMap.get(ConstantKey.CLASS_KEY));
 					System.out.println("Service list");
 					
-					CollectionUtil.doIterator(valueMap.keySet(), _valueKey -> {
+					valueMap.keySet().forEach(_valueKey -> {
 						if(! ConstantKey.CLASS_KEY.equals(_valueKey))
 						{
 							System.out.println("  - " + _valueKey + " : " + valueMap.get(_valueKey));

@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.MapToVoConverter;
 import team.balam.exof.module.service.component.Outbound;
-import team.balam.exof.util.CollectionUtil;
 
 public class ServiceImpl implements Service
 {
@@ -126,7 +125,7 @@ public class ServiceImpl implements Service
 			_so.setRequest(vo);
 		}
 		
-		CollectionUtil.doIterator(this.inbound, _in -> {
+		this.inbound.forEach(_in -> {
 			try
 			{
 				_in.execute(_so);
