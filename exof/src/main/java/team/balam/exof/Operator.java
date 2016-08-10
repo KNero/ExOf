@@ -33,26 +33,29 @@ public class Operator
 		List<String> extraContainerList = SystemSetting.getInstance()
 				.getListAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
 		
-		extraContainerList.forEach(_containerClass -> {
-			try 
-			{
-				Container container = (Container)Class.forName(_containerClass).newInstance();
-				containerList.add(container);
-			} 
-			catch (Exception e) 
-			{
-				if(e instanceof InitializeFatalException)
+		if(extraContainerList != null)
+		{
+			extraContainerList.forEach(_containerClass -> {
+				try 
 				{
-					logger.error("Init fatal error occurred by init container[{}].", _containerClass, e);
-					
-					System.exit(0);
-				}
-				else
+					Container container = (Container)Class.forName(_containerClass).newInstance();
+					containerList.add(container);
+				} 
+				catch (Exception e) 
 				{
-					logger.error("Container[{}] can not create.", _containerClass, e);
+					if(e instanceof InitializeFatalException)
+					{
+						logger.error("Init fatal error occurred by init container[{}].", _containerClass, e);
+						
+						System.exit(0);
+					}
+					else
+					{
+						logger.error("Container[{}] can not create.", _containerClass, e);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	
 	public static void start()
