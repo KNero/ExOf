@@ -24,6 +24,7 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	private ObjectMapper objectMapper = new ObjectMapper();
 	private Gson gson;
 	
 	public ConsoleCommandHandler()
@@ -42,22 +43,23 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 			this.logger.info("Command type : {}", command.getType());
 		}
 		
-		String responseJson = null;
+		Object response = null;
 		
 		switch(command.getType())
 		{
 			case Command.Type.SHOW_SERVICE_LIST :
-				responseJson = this._getServiceList();
+				response = this._getServiceList();
 				break;
 		}
 		
-		ctx.writeAndFlush(responseJson + "\0");
+		StringWriter writer = new StringWriter();
+		this.objectMapper.writeValue(writer, response);
+		
+		ctx.writeAndFlush(writer.toString() + "\0");
 	}
 	
-	private String _getServiceList() throws JsonGenerationException, JsonMappingException, IOException
+	private Object _getServiceList() throws JsonGenerationException, JsonMappingException, IOException
 	{
-		ObjectMapper objectMapper = new ObjectMapper();
-		
 		Map<String, HashMap<String, String>> result = ServiceProvider.getInstance().getAllServiceInfo();
 		if(result.size() == 0)
 		{
@@ -65,10 +67,7 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 		}
 		else
 		{
-			StringWriter writer = new StringWriter();
-			objectMapper.writeValue(writer, result);
-			
-			return writer.toString();
+			return result;
 		}
 	}
 }
