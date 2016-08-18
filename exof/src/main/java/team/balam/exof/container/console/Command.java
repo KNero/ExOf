@@ -1,18 +1,25 @@
 package team.balam.exof.container.console;
 
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import team.balam.exof.ConstantKey;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
+import team.balam.exof.ConstantKey;
+
 public class Command
 {
-	public static String NO_DATA_RESPONSE = "{\"" + ConstantKey.RESULT_KEY + "\":\"No data\"}";
+	public static final Map<String, String> NO_DATA_RESPONSE = new HashMap<>();
+	
+	static
+	{
+		NO_DATA_RESPONSE.put(ConstantKey.RESULT_KEY, "No data.");
+	}
 	
 	@Expose
 	private String type;
@@ -56,5 +63,6 @@ public class Command
 	public interface Type
 	{
 		String SHOW_SERVICE_LIST = "showServiceList";
+		String SHOW_SCHEDULE_LIST = "showScheduleList";
 	}
 }
