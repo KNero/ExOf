@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -102,6 +103,13 @@ public class WebServlet extends HttpServlet
 				this.logger.error("Can not transform http message.", e);
 				
 				throw new ServletException(e);
+			}
+			
+			if(serviceObject == null)
+			{
+				this.logger.error("ServiceObject is null");
+				
+				throw new UnavailableException(req.getMethod() + " is not available");
 			}
 		}
 		else
