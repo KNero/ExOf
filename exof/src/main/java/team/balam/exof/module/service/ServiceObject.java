@@ -22,6 +22,11 @@ public class ServiceObject
 		return this.servicePath;
 	}
 	
+	public void setServicePath(String servicePath)
+	{
+		this.servicePath = servicePath;
+	}
+	
 	public void setServiceVariables(Map<String, String> _variable)
 	{
 		this.serviceVariables = _variable;
