@@ -35,6 +35,6 @@ public class HttpServletMessage
 	
 	public String getRequestPath()
 	{
-		return this.request.getPathInfo();
+		return this.request.getServletPath();
 	}
 }

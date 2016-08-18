@@ -45,56 +45,42 @@ public class WebServlet extends HttpServlet
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		super.doPost(req, resp);
-		
 		this._executeService(req, resp);
 	}
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		super.doGet(req, resp);
-		
 		this._executeService(req, resp);
 	}
 	
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		super.doDelete(req, resp);
-		
 		this._executeService(req, resp);
 	}
 	
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		super.doPut(req, resp);
-		
 		this._executeService(req, resp);
 	}
 	
 	@Override
 	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		super.doHead(req, resp);
-		
 		this._executeService(req, resp);
 	}
 	
 	@Override
 	protected void doOptions(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException 
 	{
-		super.doOptions(arg0, arg1);
-		
 		this._executeService(arg0, arg1);
 	}
 	
 	@Override
 	protected void doTrace(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException 
 	{
-		super.doTrace(arg0, arg1);
-		
 		this._executeService(arg0, arg1);
 	}
 	private void _executeService(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -120,9 +106,11 @@ public class WebServlet extends HttpServlet
 		}
 		else
 		{
-			serviceObject = new ServiceObject(req.getPathInfo());
+			serviceObject = new ServiceObject(req.getServletPath());
 			serviceObject.setRequest(msg);
 		}
+		
+		long start = System.currentTimeMillis();
 		
 		try 
 		{
@@ -139,6 +127,14 @@ public class WebServlet extends HttpServlet
 			this.logger.error("Can not execute service.", e);
 			
 			throw new ServletException(e);
+		}
+		finally
+		{
+			if(this.logger.isInfoEnabled())
+			{
+				long end = System.currentTimeMillis();
+				this.logger.info("Service[{}] is completed. Elapsed : {} ms", serviceObject.getServicePath(), end - start);
+			}
 		}
 	}
 }
