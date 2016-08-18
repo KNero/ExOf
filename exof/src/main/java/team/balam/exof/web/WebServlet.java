@@ -37,7 +37,7 @@ public class WebServlet extends HttpServlet
 			} 
 			catch(Exception e) 
 			{
-				this.logger.error("Can not create httpServletTransform.");
+				this.logger.error("Can not create httpServletTransform.", e);
 			}
 		}
 	}
@@ -127,6 +127,11 @@ public class WebServlet extends HttpServlet
 		try 
 		{
 			Service service = ServiceProvider.lookup(serviceObject.getServicePath());
+			if(service == null)
+			{
+				throw new NullPointerException("Service is null");
+			}
+			
 			service.call(serviceObject);
 		} 
 		catch(Exception e)
