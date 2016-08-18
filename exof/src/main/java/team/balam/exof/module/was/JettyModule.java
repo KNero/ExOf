@@ -3,6 +3,7 @@ package team.balam.exof.module.was;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import team.balam.exof.Module;
@@ -43,7 +44,12 @@ public class JettyModule implements Module
 			
 			if(httpsPort != null)
 			{
-				SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+				SslContextFactory sslCtxFactory = new SslContextFactory();
+				
+				SslSelectChannelConnector sslConnector = new SslSelectChannelConnector(sslCtxFactory);
+				sslConnector.setPort(httpsPort);
+				sslConnector.setMaxIdleTime(maxIdleTime);
+				sslConnector.setRequestHeaderSize(headerSize);
 				this.server.addConnector(sslConnector);
 			}
 			
