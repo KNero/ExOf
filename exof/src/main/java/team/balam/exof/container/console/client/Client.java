@@ -32,7 +32,7 @@ public class Client
 		new Viewer().start();
 	}
 	
-	public static void Send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback)
+	public static void send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback)
 	{
 		EventLoopGroup group = null;
 		

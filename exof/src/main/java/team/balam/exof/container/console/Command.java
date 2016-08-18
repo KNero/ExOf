@@ -63,5 +63,6 @@ public class Command
 	public interface Type
 	{
 		String SHOW_SERVICE_LIST = "showServiceList";
+		String SHOW_SCHEDULE_LIST = "showScheduleList";
 	}
 }

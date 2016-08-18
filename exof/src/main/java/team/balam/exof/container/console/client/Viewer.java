@@ -105,13 +105,17 @@ public class Viewer
 			case "1":
 				this._getServiceList();
 				break;
+			
+			case "2":
+				this._getScheduleList();
+				break;
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void _getServiceList()
 	{
-		Client.Send(CommandBuilder.buildServiceListGetter(), _result -> {
+		Client.send(CommandBuilder.buildServiceListGetter(), _result -> {
 			String resultValue = (String)_result.get(ConstantKey.RESULT_KEY);
 			if(resultValue != null)
 			{
@@ -135,6 +139,13 @@ public class Viewer
 					System.out.println();
 				});
 			}
+		});
+	}
+	
+	private void _getScheduleList()
+	{
+		Client.send(CommandBuilder.buildScheduleListGetter(), _result -> {
+			
 		});
 	}
 }
