@@ -44,7 +44,9 @@ public class JettyModule implements Module
 			
 			if(httpsPort != null)
 			{
-				SslContextFactory sslCtxFactory = new SslContextFactory();
+				String sslCtxClass = (String)SystemSetting.getInstance().get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_SSL_CONTEXT);
+				SslContextFactoryBuilder sslCtxFactoryBuilder = (SslContextFactoryBuilder)Class.forName(sslCtxClass).newInstance();
+				SslContextFactory sslCtxFactory = sslCtxFactoryBuilder.build();
 				
 				SslSelectChannelConnector sslConnector = new SslSelectChannelConnector(sslCtxFactory);
 				sslConnector.setPort(httpsPort);

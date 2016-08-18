@@ -36,6 +36,7 @@ public interface EnvKey
 		String JETTY_DESCRIPTOR = "jetty.descriptor";
 		String JETTY_RESOURCE_BASE = "jetty.resourceBase";
 		String JETTY_CONTEXT_PATH = "jetty.contextPath";
+		String JETTY_SSL_CONTEXT = "jetty.sslContextClass";
 	}
 	
 	interface Service
