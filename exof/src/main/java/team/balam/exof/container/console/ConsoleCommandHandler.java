@@ -3,18 +3,17 @@ package team.balam.exof.container.console;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.module.service.ServiceProvider;
 
 import com.google.gson.Gson;
@@ -42,22 +41,29 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 			this.logger.info("Command type : {}", command.getType());
 		}
 		
-		String responseJson = null;
+		Object response = null;
 		
 		switch(command.getType())
 		{
 			case Command.Type.SHOW_SERVICE_LIST :
-				responseJson = this._getServiceList();
+				response = this._getServiceList();
+				break;
+				
+			case Command.Type.SHOW_SCHEDULE_LIST :
+				response = this._getScheduleList();
 				break;
 		}
 		
-		ctx.writeAndFlush(responseJson + "\0");
+		ObjectMapper objectMapper = new ObjectMapper();
+		StringWriter writer = new StringWriter();
+		
+		objectMapper.writeValue(writer, response);
+		
+		ctx.writeAndFlush(writer.toString() + "\0");
 	}
 	
-	private String _getServiceList() throws JsonGenerationException, JsonMappingException, IOException
+	private Object _getServiceList()
 	{
-		ObjectMapper objectMapper = new ObjectMapper();
-		
 		Map<String, HashMap<String, String>> result = ServiceProvider.getInstance().getAllServiceInfo();
 		if(result.size() == 0)
 		{
@@ -65,10 +71,20 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 		}
 		else
 		{
-			StringWriter writer = new StringWriter();
-			objectMapper.writeValue(writer, result);
-			
-			return writer.toString();
+			return result;
+		}
+	}
+	
+	private Object _getScheduleList()
+	{
+		List<String> list = SchedulerManager.getInstance().getScheduleList();
+		if(list.size() == 0)
+		{
+			return Command.NO_DATA_RESPONSE;
+		}
+		else
+		{
+			return list;
 		}
 	}
 }
