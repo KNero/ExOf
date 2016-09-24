@@ -44,7 +44,7 @@ public class JettyModule implements Module
 			
 			if(httpsPort != null)
 			{
-				String sslCtxClass = (String)SystemSetting.getInstance().get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_SSL_CONTEXT);
+				String sslCtxClass = SystemSetting.getInstance().getString(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_SSL_CONTEXT);
 				SslContextFactoryBuilder sslCtxFactoryBuilder = (SslContextFactoryBuilder)Class.forName(sslCtxClass).newInstance();
 				SslContextFactory sslCtxFactory = sslCtxFactoryBuilder.build();
 				
@@ -55,9 +55,9 @@ public class JettyModule implements Module
 				this.server.addConnector(sslConnector);
 			}
 			
-			String descriptor = (String)SystemSetting.getInstance().get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_DESCRIPTOR);
-			String resourceBase = (String)SystemSetting.getInstance().get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_RESOURCE_BASE);
-			String contextPath = (String)SystemSetting.getInstance().get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_CONTEXT_PATH);
+			String descriptor = SystemSetting.getInstance().getString(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_DESCRIPTOR);
+			String resourceBase = SystemSetting.getInstance().getString(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_RESOURCE_BASE);
+			String contextPath = SystemSetting.getInstance().getString(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.JETTY_CONTEXT_PATH);
 			
 			WebAppContext webapp = new WebAppContext();
 			webapp.setDescriptor(descriptor);

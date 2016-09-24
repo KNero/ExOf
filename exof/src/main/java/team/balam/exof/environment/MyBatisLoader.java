@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-import team.balam.exof.db.SqlSessionFactory;
+import team.balam.exof.db.DbSessionFactory;
 
 public class MyBatisLoader implements Loader
 {
@@ -15,7 +15,7 @@ public class MyBatisLoader implements Loader
 	{
 		org.apache.ibatis.session.SqlSessionFactory defaultSqlSessionFactory = this.loadSqlSessionFactory(_envPath, null);
 		
-		SqlSessionFactory.getInstance().setDefaultSqlSessionFactory(defaultSqlSessionFactory);
+		DbSessionFactory.getInstance().setDefaultSqlSessionFactory(defaultSqlSessionFactory);
 	}
 	
 	public org.apache.ibatis.session.SqlSessionFactory loadSqlSessionFactory(String _envPath, String _datasource) throws LoadEnvException
