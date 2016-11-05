@@ -1,4 +1,4 @@
-package balam.exof.gson;
+package balam.exof.test.gson;
 
 import java.util.ArrayList;
 import java.util.List;
