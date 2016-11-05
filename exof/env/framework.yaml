@@ -11,7 +11,7 @@ framework :
    
    scheduler :
       org.quartz.scheduler.instanceName : SchedulerInit
-      org.quartz.threadPool.threadCount : 5
+      org.quartz.threadPool.threadCount : 1
       org.quartz.jobStore.class : org.quartz.simpl.RAMJobStore
       org.quartz.threadPool.class : org.quartz.simpl.SimpleThreadPool
       org.quartz.scheduler.instanceId : AUTO
@@ -20,7 +20,8 @@ framework :
    jetty :
       use : yes
       http : 8080
-      https : 
+      https : 8081
+      sslContextClass : 
       maxIdleTime : 30000
       requestHeaderSize : 8192
       descriptor : ./webapp/WEB-INF/web.xml

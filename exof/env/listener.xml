@@ -4,10 +4,10 @@
 		<sessionHandler class=""/>
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
 		<messageTransform class=""/>
-	</port> -->
+	</port>
 	<port number="2000" ssl="yes" certificatePath="C:/Users/kwonsm/Desktop/keyutil_example.com.crt" 
 									privateKeyPath="C:/Users/kwonsm/Desktop/keyutil_example.com.key" maxLength="8000">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
 		<messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>
-	</port>
+	</port> -->
 </listener>
