@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
-	<serviceDirectory class="team.balam.exof.test.SchedulerTest" path="/test/scheduler2">
+	<!-- <serviceDirectory class="team.balam.exof.test.SchedulerTest" path="/test/scheduler2">
 		<serviceVariable serviceName="testScheduler">
 			<variable name="a" value="aaaaaaaaaaaaaa"/>
 			<variable name="b" value="bbbbbbbbbbbbbb"/>
@@ -8,5 +8,5 @@
 		</serviceVariable>
 	</serviceDirectory>
 		
-	<scheduler id="" servicePath="/test/scheduler2/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="no"/>
+	<scheduler id="" servicePath="/test/scheduler2/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="no"/> -->
 </services>
