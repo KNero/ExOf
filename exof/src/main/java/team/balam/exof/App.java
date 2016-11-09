@@ -8,6 +8,7 @@ import team.balam.exof.environment.LoadEnvException;
 import team.balam.exof.environment.Loader;
 import team.balam.exof.environment.MainLoader;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.util.JarFileLoader;
 
 /**
  * 
@@ -29,18 +30,29 @@ public class App
 		String envPath = System.getProperty(EnvKey.HOME, "./env");
 		SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.HOME, envPath);
 		
+		Logger logger = LoggerFactory.getLogger(App.class);
+		
 		try
 		{
 			Loader mainLoader = new MainLoader();
 			mainLoader.load(envPath);
-		}
-		catch(LoadEnvException e)
-		{
-			Logger logger = LoggerFactory.getLogger(App.class);
-			logger.error("Loader error occurred.", e);
 			
-			e.printStackTrace();
+			JarFileLoader.load("./lib/custom");
 		}
+		catch(Exception e) 
+    	{
+    		if(e instanceof LoadEnvException)
+    		{
+    			logger.error("Loader error occurred.", e);
+    		}
+    		else
+    		{
+    			logger.error("Fail to load Custom jar.", e);
+    		}
+    		
+    		e.printStackTrace();
+		}
+    	
 	        
         Operator.init();
         Operator.start();
@@ -48,6 +60,6 @@ public class App
 	
     public static void main(String[] args)
     {
-       start();
+    	start();
     }
 }

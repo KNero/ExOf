@@ -35,7 +35,7 @@ public class FrameworkLoader implements Loader
 					boolean isInitLog = (boolean)fw.get(EnvKey.Framework.INIT_LOG);
 					if(isInitLog)
 					{
-						DOMConfigurator.configure(_envPath + "/" + "Log4j.xml");
+						DOMConfigurator.configure(_envPath + "/" + "log4j.xml");
 					}
 				}
 				else if(_key.equals(EnvKey.Framework.SCHEDULER))
