@@ -1,0 +1,1 @@
+java -jar ./lib/ExOf-1.0.0-SNAPSHOT.jar
