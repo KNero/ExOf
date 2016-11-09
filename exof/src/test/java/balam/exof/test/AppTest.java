@@ -1,4 +1,4 @@
-package balam.exof.test.gson;
+package balam.exof.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
