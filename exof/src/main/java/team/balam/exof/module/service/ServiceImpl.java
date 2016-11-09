@@ -29,6 +29,12 @@ public class ServiceImpl implements Service
 	private MapToVoConverter mapToVoConverter;
 	
 	@Override
+	public String getVariable(String _name)
+	{
+		return this.variable.get(_name);
+	}
+	
+	@Override
 	public void startup() throws Exception
 	{
 		if(this.startup != null)

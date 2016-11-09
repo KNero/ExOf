@@ -18,7 +18,7 @@ framework :
       org.quartz.jobStore.misfireThreshold : 60000
 
    jetty :
-      use : yes
+      use : no
       http : 8080
       https : 8081
       sslContextClass : 

@@ -263,9 +263,9 @@ public class ServiceProvider implements Module, Observer
 			serviceDir.getServiceNameList().forEach(_name -> {
 				ServiceImpl service = (ServiceImpl)serviceDir.getService(_name);
 				
-				if(! serviceMap.containsKey(ConstantKey.CLASS_KEY))
+				if(! serviceMap.containsKey(ConstantKey.CLASS))
 				{
-					serviceMap.put(ConstantKey.CLASS_KEY, service.getHost().getClass().getName());
+					serviceMap.put(ConstantKey.CLASS, service.getHost().getClass().getName());
 				}
 				
 				serviceMap.put(_name, service.getMethod().getName());

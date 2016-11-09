@@ -4,6 +4,6 @@ public interface ConstantKey
 {
 	String NETWORK_CHARSET = "UTF-8";
 	
-	String RESULT_KEY = "result";
-	String CLASS_KEY = "class";
+	String RESULT = "result";
+	String CLASS = "class";
 }

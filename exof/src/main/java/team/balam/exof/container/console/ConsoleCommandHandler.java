@@ -1,23 +1,17 @@
 package team.balam.exof.container.console;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.container.SchedulerManager;
-import team.balam.exof.module.service.ServiceProvider;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 
 public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 {
@@ -26,8 +20,11 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 	private ObjectMapper objectMapper = new ObjectMapper();
 	private Gson gson;
 	
+	private ConsoleService consoleService;
+	
 	public ConsoleCommandHandler()
 	{
+		this.consoleService = new ConsoleService();
 		this.gson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.STATIC)
 				.excludeFieldsWithoutExposeAnnotation().create();
 	}
@@ -47,11 +44,11 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 		switch(command.getType())
 		{
 			case Command.Type.SHOW_SERVICE_LIST :
-				response = this._getServiceList();
+				response = this.consoleService.getServiceList();
 				break;
 				
 			case Command.Type.SHOW_SCHEDULE_LIST :
-				response = this._getScheduleList();
+				response = this.consoleService.getScheduleList();
 
 				break;
 		}
@@ -60,31 +57,5 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 		this.objectMapper.writeValue(writer, response);
 		
 		ctx.writeAndFlush(writer.toString() + "\0");
-	}
-
-	private Object _getServiceList()
-	{
-		Map<String, HashMap<String, String>> result = ServiceProvider.getInstance().getAllServiceInfo();
-		if(result.size() == 0)
-		{
-			return Command.NO_DATA_RESPONSE;
-		}
-		else
-		{
-			return result;
-		}
-	}
-	
-	private Object _getScheduleList()
-	{
-		List<String> list = SchedulerManager.getInstance().getScheduleList();
-		if(list.size() == 0)
-		{
-			return Command.NO_DATA_RESPONSE;
-		}
-		else
-		{
-			return list;
-		}
 	}
 }

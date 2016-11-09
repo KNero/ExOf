@@ -18,7 +18,7 @@ public class Command
 	
 	static
 	{
-		NO_DATA_RESPONSE.put(ConstantKey.RESULT_KEY, "No data.");
+		NO_DATA_RESPONSE.put(ConstantKey.RESULT, "No data.");
 	}
 	
 	@Expose
