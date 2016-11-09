@@ -14,7 +14,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<deploy.target.dir>target</deploy.target.dir>
 		<lib.dir>lib</lib.dir>
-		<jar.name>ExOf-${project.version}</jar.name>
+		<jar.name>exof-${project.version}</jar.name>
+		<install_folder>install_folder</install_folder>
 	</properties>
 
 	<dependencies>
@@ -106,7 +107,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.2</version>
-		
 				<configuration>
 					<finalName>${jar.name}</finalName>
 					<!-- jar 파일이 생성될 폴더 -->
@@ -134,15 +134,33 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>copy</id>
+						<id>copy-dependencies</id>
 						<phase>install</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>
-								${project.build.directory}/${lib.dir}
+							<outputDirectory><!-- ${project.build.directory} -->
+								${install_folder}/${lib.dir}
 							</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-jar</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>balam</groupId>
+									<artifactId>exof</artifactId>
+									<version>${project.version}</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${install_folder}/${lib.dir}</outputDirectory>
+							<!-- <stripVersion>true</stripVersion> -->
 						</configuration>
 					</execution>
 				</executions>
