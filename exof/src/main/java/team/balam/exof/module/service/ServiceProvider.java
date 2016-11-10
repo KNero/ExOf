@@ -16,12 +16,13 @@ import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.service.annotation.Startup;
+import team.balam.exof.module.service.annotation.Shutdown;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.Outbound;
 
 public class ServiceProvider implements Module, Observer
 {
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static Logger logger = LoggerFactory.getLogger(ServiceProvider.class);
 	
 	private Map<String, ServiceDirectory> serviceDirectory = new ConcurrentHashMap<>();
 	private boolean isAutoReload;
@@ -78,6 +79,11 @@ public class ServiceProvider implements Module, Observer
 					_checkOutboundAnnotation(m, service);
 					
 					_checkMapToVoAnnotation(m, service);
+					
+					if(logger.isInfoEnabled())
+					{
+						logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
+					}
 				}
 				
 				Startup startupAnn = m.getAnnotation(Startup.class);
@@ -86,8 +92,7 @@ public class ServiceProvider implements Module, Observer
 					startupMethod.put(startupAnn.serviceName(), m);
 				}
 				
-				team.balam.exof.module.service.annotation.Shutdown shutdown = 
-						m.getAnnotation(team.balam.exof.module.service.annotation.Shutdown.class);
+				Shutdown shutdown = m.getAnnotation(Shutdown.class);
 				if(shutdown != null && shutdown.serviceName().length() > 0)
 				{
 					shutdownMethod.put(shutdown.serviceName(), m);
@@ -181,12 +186,12 @@ public class ServiceProvider implements Module, Observer
 				
 				if(_info.getServiceVariableSize() > 0)
 				{
-					this.logger.warn("Unused service variable list\n{}", _info.toString());
+					logger.warn("Unused service variable list\n{}", _info.toString());
 				}
 			}
 			catch(Exception e)
 			{
-				this.logger.error("Can not register the service. Class : {}", _info.getClassName());
+				logger.error("Can not register the service. Class : {}", _info.getClassName());
 			}
 		});
 		
@@ -238,14 +243,14 @@ public class ServiceProvider implements Module, Observer
 							{
 								serviceDir.reloadVariable(serviceName, serviceVariable);
 								
-								this.logger.warn("Complete reloading ServiceVariable. [{}]", _info.getPath() + "/" + serviceName);
+								logger.warn("Complete reloading ServiceVariable. [{}]", _info.getPath() + "/" + serviceName);
 							}
 						}
 					}
 				}
 				catch(Exception e)
 				{
-					this.logger.error("Can not reload the ServiceVariable. Class : {}", _info.getClassName());
+					logger.error("Can not reload the ServiceVariable. Class : {}", _info.getClassName());
 				}
 			});
 		}

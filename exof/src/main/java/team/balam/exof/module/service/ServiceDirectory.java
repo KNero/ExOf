@@ -28,6 +28,11 @@ public class ServiceDirectory
 			
 			ServiceImpl serviceImpl = (ServiceImpl)_service;
 			serviceImpl.setStartupAndShutdown(startup, shutdown);
+			
+			if(this.logger.isInfoEnabled())
+			{
+				this.logger.info("Service[{}] Startup : {}, Shutdown : {}", this.dirPath + "/" + _serviceName, startup.getName(), shutdown.getName());
+			}
 		});
 	}
 	
