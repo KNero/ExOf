@@ -5,8 +5,13 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.xml.DOMConfigurator;
 import org.yaml.snakeyaml.Yaml;
+
+
+
+
+
+
 
 /**
  * framework.yaml을 SystemSetting으로 저장.
@@ -30,15 +35,7 @@ public class FrameworkLoader implements Loader
 			Map<String, ?> fw = (Map<String, ?>)root.get(EnvKey.Framework.FRAMEWORK);
 			
 			fw.keySet().forEach(_key -> {
-				if(_key.equals(EnvKey.Framework.INIT_LOG))
-				{
-					boolean isInitLog = (boolean)fw.get(EnvKey.Framework.INIT_LOG);
-					if(isInitLog)
-					{
-						DOMConfigurator.configure(_envPath + "/" + "log4j.xml");
-					}
-				}
-				else if(_key.equals(EnvKey.Framework.SCHEDULER))
+				if(_key.equals(EnvKey.Framework.SCHEDULER))
 				{
 					Properties sp = new Properties();
 					SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);

@@ -1,5 +1,4 @@
 framework :
-   initLog : yes
    consolePort : 3333
    
    container :
