@@ -22,7 +22,6 @@ public interface EnvKey
 		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
 		
-		String INIT_LOG = "initLog";
 		String CONSOLE_PORT = "consolePort";
 		
 		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
