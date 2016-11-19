@@ -1,5 +1,6 @@
 package team.balam.exof.module.service;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +16,9 @@ import team.balam.exof.ConstantKey;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.service.annotation.Startup;
 import team.balam.exof.module.service.annotation.Shutdown;
+import team.balam.exof.module.service.annotation.Startup;
+import team.balam.exof.module.service.annotation.Variable;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.Outbound;
 
@@ -50,16 +52,15 @@ public class ServiceProvider implements Module, Observer
 		{
 			Object host = clazz.newInstance();
 			
+			_setServiceVariableByAnnotation(host, _info);
+			
 			ServiceDirectory serdir = self.serviceDirectory.get(_info.getPath());
 			if(serdir == null)
 			{
-				serdir = new ServiceDirectory(_info.getPath());
+				serdir = new ServiceDirectory(host, _info.getPath());
 				
 				self.serviceDirectory.put(_info.getPath(), serdir);
 			}
-			
-			Map<String, Method> startupMethod = new HashMap<>();
-			Map<String, Method> shutdownMethod = new HashMap<>();
 			
 			Method[] method = clazz.getMethods();
 			for(Method m : method)
@@ -87,19 +88,56 @@ public class ServiceProvider implements Module, Observer
 				}
 				
 				Startup startupAnn = m.getAnnotation(Startup.class);
-				if(startupAnn != null && startupAnn.serviceName().length() > 0)
+				if(startupAnn != null)
 				{
-					startupMethod.put(startupAnn.serviceName(), m);
+					serdir.setStartup(m);
 				}
 				
 				Shutdown shutdown = m.getAnnotation(Shutdown.class);
-				if(shutdown != null && shutdown.serviceName().length() > 0)
+				if(shutdown != null)
 				{
-					shutdownMethod.put(shutdown.serviceName(), m);
+					serdir.setShutdown(m);
 				}
 			}
+		}
+	}
+	
+	private static void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception
+	{
+		Field[] fields = _host.getClass().getDeclaredFields();
+		
+		for(Field field : fields)
+		{
+			field.setAccessible(true);
 			
-			serdir.loadStartupAndShutdown(startupMethod, shutdownMethod);
+			Variable variableAnn = field.getAnnotation(Variable.class);
+			if(variableAnn != null)
+			{
+				Map<String, String> serviceVariables = _info.getVariable(variableAnn.serviceName());
+				String value = serviceVariables.get(field.getName());
+				Class<?> fieldType = field.getType();
+
+				if("int".equals(fieldType.toGenericString()) || fieldType.equals(Integer.class))
+				{
+					field.set(_host, Integer.valueOf(value));
+				}
+				else if("long".equals(fieldType.toGenericString()) || fieldType.equals(Long.class))
+				{
+					field.set(_host, Long.valueOf(value));
+				}
+				else if("float".equals(fieldType.toGenericString()) || fieldType.equals(Float.class))
+				{
+					field.set(_host, Float.valueOf(value));
+				}
+				else if("double".equals(fieldType.toGenericString()) || fieldType.equals(Double.class))
+				{
+					field.set(_host, Double.valueOf(value));
+				}
+				else
+				{
+					field.set(_host, value);
+				}
+			}
 		}
 	}
 	
@@ -184,19 +222,16 @@ public class ServiceProvider implements Module, Observer
 			{
 				ServiceProvider.register(_info);
 				
-				if(_info.getServiceVariableSize() > 0)
-				{
-					logger.warn("Unused service variable list\n{}", _info.toString());
-				}
+				logger.warn("Service Directory is loaded.\n{}", _info.toString());
 			}
 			catch(Exception e)
 			{
-				logger.error("Can not register the service. Class : {}", _info.getClassName());
+				logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
 			}
 		});
 		
 		this.serviceDirectory.values().forEach(_serviceDir -> {
-			_serviceDir.startupAllServices();
+			_serviceDir.startup();
 		});
 	}
 
@@ -204,7 +239,7 @@ public class ServiceProvider implements Module, Observer
 	public void stop() throws Exception
 	{
 		this.serviceDirectory.values().forEach(_serviceDir -> {
-			_serviceDir.shutdownAllServices();
+			_serviceDir.shutdown();
 		});
 	}
 

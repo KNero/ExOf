@@ -1,5 +1,6 @@
 package team.balam.exof.module.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
@@ -12,56 +13,55 @@ public class ServiceDirectory
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	private Object host;
 	private String dirPath;
+	
+	private Method startup;
+	private Method shutdown;
+	
 	private Map<String, Service> serviceMap = new ConcurrentHashMap<>();
 	
-	public ServiceDirectory(String _dirPath)
+	public ServiceDirectory(Object _host, String _dirPath)
 	{
+		this.host = _host;
 		this.dirPath = _dirPath;
 	}
 	
-	public void loadStartupAndShutdown(Map<String, Method> _startup, Map<String, Method> _shutdown)
+	public void startup()
 	{
-		this.serviceMap.forEach((_serviceName, _service) -> {
-			Method startup = _startup.get(_serviceName);
-			Method shutdown = _shutdown.get(_serviceName);
-			
-			ServiceImpl serviceImpl = (ServiceImpl)_service;
-			serviceImpl.setStartupAndShutdown(startup, shutdown);
-			
-			if(this.logger.isInfoEnabled())
-			{
-				this.logger.info("Service[{}] Startup : {}, Shutdown : {}", this.dirPath + "/" + _serviceName, startup.getName(), shutdown.getName());
-			}
-		});
-	}
-	
-	public void startupAllServices()
-	{
-		this.serviceMap.forEach((_serviceName, _service) -> {
+		if(this.startup != null)
+		{
 			try
 			{
-				_service.startup();
+				this.startup.invoke(this.host);
 			}
-			catch(Exception e)
+			catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 			{
-				this.logger.error("Can not start the service. Service name : {}", _serviceName, e);
+				this.logger.error("Can not start the service. ServiceDirectory path : {}", this.dirPath, e);
 			}
-		});
+		}
 	}
 	
-	public void shutdownAllServices()
+	public void shutdown()
 	{
-		this.serviceMap.forEach((_serviceName, _service) -> {
-			try
-			{
-				_service.shutdown();
-			}
-			catch(Exception e)
-			{
-				this.logger.error("Can not stop the service. Service name : {}", _serviceName, e);
-			}
-		});
+		try
+		{
+			this.shutdown.invoke(this.host);
+		}
+		catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+		{
+			this.logger.error("Can not stop the service. ServiceDirectory path : {}", this.dirPath, e);
+		}
+	}
+	
+	public void setStartup(Method startup)
+	{
+		this.startup = startup;
+	}
+	
+	public void setShutdown(Method shutdown)
+	{
+		this.shutdown = shutdown;
 	}
 	
 	public ServiceImpl register(String _serviceName, Object _host, Method _method, Map<String, String> _variable)

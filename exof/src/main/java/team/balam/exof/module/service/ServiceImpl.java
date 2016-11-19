@@ -15,9 +15,6 @@ import team.balam.exof.module.service.component.Outbound;
 public class ServiceImpl implements Service
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	private Method startup;
-	private Method shutdown;
 			
 	private Method method;
 	private Object host;
@@ -32,38 +29,6 @@ public class ServiceImpl implements Service
 	public String getVariable(String _name)
 	{
 		return this.variable.get(_name);
-	}
-	
-	@Override
-	public void startup() throws Exception
-	{
-		if(this.startup != null)
-		{
-			if(this.startup.getParameterCount() > 0)
-			{
-				this.startup.invoke(this.host, this.variable.values().toArray());
-			}
-			else
-			{
-				this.startup.invoke(this.host);
-			}
-		}
-	}
-	
-	@Override
-	public void shutdown() throws Exception
-	{
-		if(this.shutdown != null)
-		{
-			if(this.shutdown.getParameterCount() > 0)
-			{
-				this.shutdown.invoke(this.host, this.variable.values().toArray());
-			}
-			else
-			{
-				this.shutdown.invoke(this.host);
-			}
-		}
 	}
 	
 	public Method getMethod()
@@ -87,11 +52,6 @@ public class ServiceImpl implements Service
 		this.host = host;
 	}
 
-	public Map<String, String> getVariable()
-	{
-		return variable;
-	}
-
 	public void setVariable(Map<String, String> variable)
 	{
 		this.variable = variable;
@@ -105,12 +65,6 @@ public class ServiceImpl implements Service
 	public void addOutbound(Outbound<?, ?> _out)
 	{
 		this.outbound.add(_out);
-	}
-	
-	public void setStartupAndShutdown(Method _startup, Method _shutdown)
-	{
-		this.startup = _startup;
-		this.shutdown = _shutdown;
 	}
 	
 	public void setMapToVoConverter(String _class) throws Exception

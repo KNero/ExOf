@@ -42,7 +42,7 @@ public class ServiceDirectoryInfo
 	
 	public Map<String, String> getVariable(String _serviceName)
 	{
-		return this.variableMap.remove(_serviceName);
+		return this.variableMap.get(_serviceName);
 	}
 	
 	public int getServiceVariableSize()
