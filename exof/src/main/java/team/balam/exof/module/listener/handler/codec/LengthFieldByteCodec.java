@@ -9,8 +9,6 @@ import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
 public class LengthFieldByteCodec extends ChannelHandlerArray
 {
-	protected int maxLength;
-	
 	protected int lengthFieldOffset;
 	protected int lengthFieldLength;
 	protected int lengthAdjustment;
