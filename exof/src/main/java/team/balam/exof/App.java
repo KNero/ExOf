@@ -37,7 +37,7 @@ public class App
 			Loader mainLoader = new MainLoader();
 			mainLoader.load(envPath);
 			
-			JarFileLoader.load("./lib/custom");
+			JarFileLoader.load("./lib/external");
 		}
 		catch(Exception e) 
     	{
