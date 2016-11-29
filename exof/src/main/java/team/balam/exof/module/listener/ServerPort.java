@@ -99,9 +99,19 @@ public class ServerPort
 	{
 		this.channelHandlerArray.destroy();
 		
-		this.channel.close();
+		if(this.channel != null)
+		{
+			this.channel.close();
+		}
 		
-		this.workerGroup.shutdownGracefully();
-		this.bossGroup.shutdownGracefully();
+		if(this.workerGroup != null)
+		{
+			this.workerGroup.shutdownGracefully();
+		}
+		
+		if(this.bossGroup != null)
+		{
+			this.bossGroup.shutdownGracefully();
+		}
 	}
 }
