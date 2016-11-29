@@ -44,13 +44,16 @@ public class ServiceDirectory
 	
 	public void shutdown()
 	{
-		try
+		if(this.shutdown != null)
 		{
-			this.shutdown.invoke(this.host);
-		}
-		catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-		{
-			this.logger.error("Can not stop the service. ServiceDirectory path : {}", this.dirPath, e);
+			try
+			{
+				this.shutdown.invoke(this.host);
+			}
+			catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+			{
+				this.logger.error("Can not stop the service. ServiceDirectory path : {}", this.dirPath, e);
+			}
 		}
 	}
 	
