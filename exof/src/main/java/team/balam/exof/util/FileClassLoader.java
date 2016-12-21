@@ -8,9 +8,6 @@ import java.net.URLClassLoader;
 
 public class FileClassLoader 
 {
-	@SuppressWarnings( "rawtypes" )
-	private static final Class[] parameters = new Class[] { URL.class };
-	
 	public static void loadJar( String _path ) throws Exception
 	{
 		File f = new File( _path );
@@ -46,7 +43,7 @@ public class FileClassLoader
 		
 		try
 		{
-			Method method = sysclass.getDeclaredMethod( "addURL" , parameters );
+			Method method = sysclass.getDeclaredMethod("addURL" , new Class[]{URL.class});
 			method.setAccessible( true );
 			method.invoke( sysloader , new Object[] { _u } );
 		}
