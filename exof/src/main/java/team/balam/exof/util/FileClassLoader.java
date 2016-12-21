@@ -6,12 +6,12 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class JarFileLoader 
+public class FileClassLoader 
 {
 	@SuppressWarnings( "rawtypes" )
 	private static final Class[] parameters = new Class[] { URL.class };
 	
-	public static void load( String _path ) throws Exception
+	public static void loadJar( String _path ) throws Exception
 	{
 		File f = new File( _path );
 		
@@ -19,27 +19,27 @@ public class JarFileLoader
 		{
 			for( String fileName : f.list() )
 			{
-				JarFileLoader.load( _path + "/" + fileName );
+				FileClassLoader.loadJar( _path + "/" + fileName );
 			}
 		}
 		else if( f.isFile() && f.getName().endsWith( ".jar" ) )
 		{
-			JarFileLoader.addFile( f );
+			FileClassLoader.loadFileOrDirectory( f );
 		}
 	}
 	
-	public static void addFile( String _s ) throws Exception
+	public static void loadFileOrDirectory( String _s ) throws Exception
 	{
 		File f = new File( _s );
-		JarFileLoader.addFile( f );
+		FileClassLoader.loadFileOrDirectory( f );
 	}
 	
-	public static void addFile( File _f ) throws IOException
+	public static void loadFileOrDirectory( File _f ) throws IOException
 	{
-		JarFileLoader.addURL( _f.toURI( ).toURL( ) );
+		FileClassLoader.loadUrl( _f.toURI( ).toURL( ) );
 	}
 	
-	public static void addURL( URL _u ) throws IOException
+	public static void loadUrl( URL _u ) throws IOException
 	{
 		URLClassLoader sysloader = ( URLClassLoader ) ClassLoader.getSystemClassLoader( );
 		Class< URLClassLoader > sysclass = URLClassLoader.class;

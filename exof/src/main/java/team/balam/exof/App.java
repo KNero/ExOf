@@ -8,7 +8,7 @@ import team.balam.exof.environment.LoadEnvException;
 import team.balam.exof.environment.Loader;
 import team.balam.exof.environment.MainLoader;
 import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.util.JarFileLoader;
+import team.balam.exof.util.FileClassLoader;
 
 /**
  * 
@@ -37,7 +37,8 @@ public class App
 			Loader mainLoader = new MainLoader();
 			mainLoader.load(envPath);
 			
-			JarFileLoader.load("./lib/external");
+			FileClassLoader.loadJar("./lib/external");
+			FileClassLoader.loadFileOrDirectory("./classes");
 		}
 		catch(Exception e) 
     	{
