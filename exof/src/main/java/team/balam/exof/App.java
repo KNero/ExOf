@@ -1,5 +1,7 @@
 package team.balam.exof;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +36,16 @@ public class App
 		
 		try
 		{
+			FileClassLoader.loadJar("./lib/external");
+			
+			File classes = new File("./classes");
+			if(classes.exists())
+			{
+				FileClassLoader.loadFileOrDirectory(classes);
+			}
+			
 			Loader mainLoader = new MainLoader();
 			mainLoader.load(envPath);
-			
-			FileClassLoader.loadJar("./lib/external");
-			FileClassLoader.loadFileOrDirectory("./classes");
 		}
 		catch(Exception e) 
     	{
