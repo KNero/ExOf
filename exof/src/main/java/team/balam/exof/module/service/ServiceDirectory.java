@@ -33,7 +33,15 @@ public class ServiceDirectory
 		{
 			try
 			{
-				this.startup.invoke(this.host);
+				Class<?>[] param = this.startup.getParameterTypes();
+				if(param.length ==1 && param[0].equals(Map.class))
+				{
+					this.startup.invoke(this.host, this.serviceMap);
+				}
+				else
+				{
+					this.startup.invoke(this.host);
+				}
 			}
 			catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 			{
