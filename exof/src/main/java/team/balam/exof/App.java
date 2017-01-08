@@ -36,7 +36,10 @@ public class App
 		
 		try
 		{
-			FileClassLoader.loadJar("./lib/external");
+			if(new File("./lib/external").exists())
+			{
+				FileClassLoader.loadJar("./lib/external");
+			}
 			
 			File classes = new File("./classes");
 			if(classes.exists())
