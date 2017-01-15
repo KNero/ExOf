@@ -15,7 +15,7 @@
 		<deploy.target.dir>target</deploy.target.dir>
 		<lib.dir>lib</lib.dir>
 		<jar.name>exof-${project.version}</jar.name>
-		<install_folder>install_folder</install_folder>
+		<install_folder>target</install_folder>
 	</properties>
 
 	<dependencies>
@@ -110,32 +110,6 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>2.5.3</version>
 				<extensions>true</extensions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<finalName>${jar.name}</finalName>
-					<!-- jar 파일이 생성될 폴더 -->
-					<outputDirectory>${deploy.target.dir}</outputDirectory>
-					<archive>
-						<manifest>
-							<!-- public static void main() 함수가 있는 클래스 지정 -->
-							<mainClass>team.balam.exof.App</mainClass>
-		
-							<!-- jar 파일 META-INF/MANIFEST.MF 에 클래스패스 정보 추가 -->
-							<addClasspath>true</addClasspath>
-		
-							<!-- 클래스패스에 추가시 prefix 설정 ex) log4j-1.2.16.jar -> lib/log4j-1.2.16.jar 로 추가됨  
-							<classpathPrefix>${lib.dir}/</classpathPrefix> -->
-						</manifest>
-						<manifestEntries>
-							<Class-Path>../classes/</Class-Path>
-						</manifestEntries>
-					</archive>
-				</configuration>
 			</plugin>
 
 			<plugin>
