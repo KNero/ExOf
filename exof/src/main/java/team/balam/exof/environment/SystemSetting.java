@@ -71,6 +71,12 @@ public class SystemSetting
 		return (Map<K, V>)this.setting.remove(_prefix + _key);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <T> T getFramework(String _key)
+	{
+		return (T)this.setting.get(EnvKey.PreFix.FRAMEWORK + _key);
+	}
+	
 	@Override
 	public String toString()
 	{
