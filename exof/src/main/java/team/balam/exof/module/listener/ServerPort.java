@@ -75,7 +75,15 @@ public class ServerPort
 		}
 		
 		this.bossGroup = new NioEventLoopGroup();
-		this.workerGroup = new NioEventLoopGroup();
+		
+		if(this.portInfo.getWorkerSize() > 0)
+		{
+			this.workerGroup = new NioEventLoopGroup(this.portInfo.getWorkerSize());
+		}
+		else
+		{
+			this.workerGroup = new NioEventLoopGroup();
+		}
 		
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(this.bossGroup, this.workerGroup)

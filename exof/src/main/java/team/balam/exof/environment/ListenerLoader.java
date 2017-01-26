@@ -41,6 +41,11 @@ public class ListenerLoader implements Loader
 						
 						PortInfo info = new PortInfo(Integer.parseInt(number));
 						
+						if(attr.getNamedItem("workerSize") != null)
+						{
+							info.setWorkerSize(attr.getNamedItem("workerSize").getNodeValue());
+						}
+						
 						for(int a = 0; a < attr.getLength(); ++a)
 						{
 							Node attrNode = attr.item(a);

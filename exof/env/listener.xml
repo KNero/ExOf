@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listener>
-	<!-- <port number="2000" legthOffset="0" lengthSize="4" maxLength="1000">
+	<!-- <port number="2000" workerSize="200" legthOffset="0" lengthSize="4" maxLength="1000">
 		<sessionHandler class=""/>
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
 		<messageTransform class=""/>
