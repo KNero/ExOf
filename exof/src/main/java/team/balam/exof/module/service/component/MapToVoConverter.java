@@ -32,7 +32,7 @@ public class MapToVoConverter
 	{
 		if(! (_req instanceof Map<?, ?>))
 		{
-			throw new Exception("Service Rquest must is Map for use MapToVoConverter.");
+			throw new MapToVoConvertException(_req);
 		}
 		
 		Map<String, Object> mapReq = (Map<String, Object>)_req;
@@ -49,5 +49,15 @@ public class MapToVoConverter
 		}
 		
 		return vo;
+	}
+	
+	public class MapToVoConvertException extends Exception
+	{
+		private static final long serialVersionUID = 1L;
+
+		private MapToVoConvertException(Object _req)
+		{
+			super("Service Rquest must is Map for use MapToVoConverter. Request : " + _req.getClass().getName());
+		}
 	}
 }
