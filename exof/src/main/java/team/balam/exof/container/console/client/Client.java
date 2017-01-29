@@ -1,5 +1,12 @@
 package team.balam.exof.container.console.client;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,22 +20,24 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-
 import team.balam.exof.ConstantKey;
 import team.balam.exof.container.console.Command;
-import team.balam.exof.container.console.CommandBuilder;
+import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.FrameworkLoader;
+import team.balam.exof.environment.SystemSetting;
 
 public class Client
 {
+	private static int consolePort;
+	
 	public static void main(String[] _arge) throws Exception
 	{
+		String envPath = System.getProperty(EnvKey.HOME, "./env");
+		FrameworkLoader loader = new FrameworkLoader();
+		loader.load(envPath);
+		
+		consolePort = SystemSetting.getInstance().getFramework("consolePort");
+		
 		new Viewer().start();
 	}
 	
@@ -74,11 +83,8 @@ public class Client
 				
 			});
 			
-			Channel channel = boot.connect("localhost", 3333).sync().channel();
-			
-			Command cmd = CommandBuilder.buildServiceListGetter();
-			channel.writeAndFlush(cmd.toJson());
-			
+			Channel channel = boot.connect("127.0.0.1", consolePort).sync().channel();
+			channel.writeAndFlush(_command.toJson());
 			channel.closeFuture().sync();
 		}
 		catch(Exception e)
