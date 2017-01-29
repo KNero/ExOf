@@ -7,12 +7,6 @@ import java.util.Properties;
 
 import org.yaml.snakeyaml.Yaml;
 
-
-
-
-
-
-
 /**
  * framework.yaml을 SystemSetting으로 저장.
  * @author kwonsm
