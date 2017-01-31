@@ -11,7 +11,7 @@ public class ConsoleService
 {
 	public Object getServiceList()
 	{
-		Map<String, HashMap<String, String>> result = ServiceProvider.getInstance().getAllServiceInfo();
+		Map<String, HashMap<String, Object>> result = ServiceProvider.getInstance().getAllServiceInfo();
 		if(result.size() == 0)
 		{
 			return Command.NO_DATA_RESPONSE;

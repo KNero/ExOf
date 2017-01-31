@@ -291,13 +291,13 @@ public class ServiceProvider implements Module, Observer
 		}
 	}
 
-	public Map<String, HashMap<String, String>> getAllServiceInfo() 
+	public Map<String, HashMap<String, Object>> getAllServiceInfo() 
 	{
-		Map<String, HashMap<String, String>> serviceList = new HashMap<>();
+		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();
 		
 		this.serviceDirectory.keySet().forEach(_dirPath -> {
 			ServiceDirectory serviceDir = this.serviceDirectory.get(_dirPath);
-			HashMap<String, String> serviceMap = new HashMap<>();
+			HashMap<String, Object> serviceMap = new HashMap<>();
 			serviceList.put(_dirPath, serviceMap);
 			
 			serviceDir.getServiceNameList().forEach(_name -> {
@@ -309,6 +309,7 @@ public class ServiceProvider implements Module, Observer
 				}
 				
 				serviceMap.put(_name, service.getMethod().getName());
+				serviceMap.put(_name + ConstantKey.SERVICE_VARIABLE, service.getAllServiceVariable());
 			});
 		});
 		

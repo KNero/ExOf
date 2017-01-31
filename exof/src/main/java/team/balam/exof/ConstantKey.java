@@ -6,4 +6,5 @@ public interface ConstantKey
 	
 	String RESULT = "result";
 	String CLASS = "class";
+	String SERVICE_VARIABLE = "serviceVariable";
 }

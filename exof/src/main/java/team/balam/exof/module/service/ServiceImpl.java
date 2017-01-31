@@ -2,6 +2,7 @@ package team.balam.exof.module.service;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,12 @@ public class ServiceImpl implements Service
 	public String getServiceVariable(String _name)
 	{
 		return this.variable.get(_name);
+	}
+	
+	@Override
+	public Map<String, String> getAllServiceVariable() 
+	{
+		return new HashMap<>(this.variable);
 	}
 	
 	public Method getMethod()

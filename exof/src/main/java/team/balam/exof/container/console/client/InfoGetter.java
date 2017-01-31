@@ -15,7 +15,7 @@ public class InfoGetter
 			if(this._isExistData(_result))
 			{
 				_result.forEach((_key, _value) -> {
-					Map<String, String> valueMap = (Map<String, String>)_value;
+					Map<String, Object> valueMap = (Map<String, Object>)_value;
 					System.out.println("Directory path : " + _key);
 					System.out.println("Class : " + valueMap.get(ConstantKey.CLASS));
 					System.out.println("Service list");
@@ -23,7 +23,15 @@ public class InfoGetter
 					valueMap.keySet().forEach(_valueKey -> {
 						if(! ConstantKey.CLASS.equals(_valueKey))
 						{
-							System.out.println("  - " + _valueKey + " : " + valueMap.get(_valueKey));
+							if(! _valueKey.endsWith(ConstantKey.SERVICE_VARIABLE))
+							{
+								System.out.println("  - " + _valueKey + "(method name : " + valueMap.get(_valueKey) + ")");
+								
+								Map<String, String> variables = (Map<String, String>)valueMap.get(_valueKey + ConstantKey.SERVICE_VARIABLE);
+								variables.keySet().forEach(_name -> {
+									System.out.println("   -- " + _name + " : " + variables.get(_name));
+								});
+							}
 						}
 					});
 					

@@ -16,13 +16,13 @@ public class Viewer
 	{
 		this.getter = new InfoGetter();
 		
-		System.out.println("=======                ===");
-		System.out.println("|                     =   =");
-		System.out.println("|         =     =    =     =     ====");
-		System.out.println("=======    =   =     =     =    |");
-		System.out.println("|            =       =     =   ======");
-		System.out.println("|          =   =      =   =      |");
-		System.out.println("=======   =     =      ===       |");
+		System.out.println(" =======                ===");
+		System.out.println(" |                     =   =");
+		System.out.println(" |         =     =    =     =     ===");
+		System.out.println(" =======    =   =     =     =    |");
+		System.out.println(" |            =       =     =   =====");
+		System.out.println(" |          =   =      =   =     |");
+		System.out.println(" =======   =     =      ===      |");
 		System.out.println();
 		System.out.println("+++ Welcom ExOf console monitoring +++");
 		
