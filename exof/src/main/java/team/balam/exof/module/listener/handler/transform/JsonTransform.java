@@ -1,6 +1,7 @@
 package team.balam.exof.module.listener.handler.transform;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -12,6 +13,9 @@ public class JsonTransform implements ServiceObjectTransform<String>
 	protected ObjectMapper jsonMapper = new ObjectMapper();
 	protected TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
 	
+	/**
+	 * servicePathKey를 설정하여 map에서 service path를 꺼낼 수 있다.
+	 */
 	protected String servicePathKey = "servicePath";
 	
 	public String getServicePathKey()
@@ -29,9 +33,14 @@ public class JsonTransform implements ServiceObjectTransform<String>
 	{
 		HashMap<String, Object> requestMap = this.jsonMapper.readValue(_msg, this.mapType);
 		
+		return this.transform(requestMap);
+	}
+	
+	public ServiceObject transform(Map<String, Object> _reqMap)
+	{
 		//타입키 관련 클래스추가
-		ServiceObject serviceObject = new ServiceObject((String)requestMap.get(this.servicePathKey));
-		serviceObject.setRequest(requestMap);
+		ServiceObject serviceObject = new ServiceObject((String)_reqMap.get(this.servicePathKey));
+		serviceObject.setRequest(_reqMap);
 		
 		return serviceObject;
 	}
