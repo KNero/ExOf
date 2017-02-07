@@ -5,8 +5,7 @@ import java.util.Properties;
 public class PortInfo
 {
 	private int number;
-	private int workerSize;
-	
+
 	private String sessionHandler;
 	private String channelHandler;
 	private String messageTransform;
@@ -52,24 +51,20 @@ public class PortInfo
 		if(messageTransform.length() > 0) this.messageTransform = messageTransform;
 	}
 	
-	public void setWorkerSize(String workerSize) 
-	{
-		if(workerSize != null)
-		{
-			try
-			{
-				this.workerSize = Integer.parseInt(workerSize);
-			}
-			catch(NumberFormatException e)
-			{
-				this.workerSize = 0;
-			}
-		}
-	}
-	
 	public int getWorkerSize() 
 	{
-		return workerSize;
+		int defaultWorkerSize = Runtime.getRuntime().availableProcessors() + 1;
+		String workerSize = this.attr.getProperty("workerSize");
+		
+		return workerSize == null ? defaultWorkerSize : Integer.parseInt(workerSize);
+	}
+	
+	public int getMaxLength()
+	{
+		int defaultMaxLength = 8 * 1024 * 1024;
+		String maxLength = this.attr.getProperty("maxLength");
+		
+		return maxLength == null ? defaultMaxLength : Integer.parseInt(maxLength);
 	}
 	
 	public void addAttribute(String _key, String _value)
@@ -102,11 +97,6 @@ public class PortInfo
 	public String toString()
 	{
 		StringBuilder str = new StringBuilder("Number[" + this.number + "]");
-		
-		if(this.workerSize > 0)
-		{
-			str.append(" WorkerSize[").append(this.workerSize).append("]");
-		}
 		
 		for(Object key : this.attr.keySet())
 		{

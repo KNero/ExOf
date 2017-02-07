@@ -18,7 +18,6 @@ import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
 
 public class ServerPort
 {
-	private static final int DEFAULT_MAX_LENGTH = 8 * 1024 * 1024;
 	private ServerPort self = this;
 	
 	private PortInfo portInfo;
@@ -53,10 +52,7 @@ public class ServerPort
 			this.channelHandlerArray = new LengthFieldByteCodec();
 		}
 		
-		int maxLength = this.portInfo.getAttributeToInt("maxLength", ServerPort.DEFAULT_MAX_LENGTH);
-		if(maxLength <= 0) maxLength = ServerPort.DEFAULT_MAX_LENGTH;
-		
-		this.channelHandlerArray.setMaxLength(maxLength);
+		this.channelHandlerArray.setMaxLength(this.portInfo.getMaxLength());
 		this.channelHandlerArray.init(this.portInfo);
 		
 		if(this.portInfo.getMessageTransform() != null)
@@ -75,15 +71,7 @@ public class ServerPort
 		}
 		
 		this.bossGroup = new NioEventLoopGroup();
-		
-		if(this.portInfo.getWorkerSize() > 0)
-		{
-			this.workerGroup = new NioEventLoopGroup(this.portInfo.getWorkerSize());
-		}
-		else
-		{
-			this.workerGroup = new NioEventLoopGroup();
-		}
+		this.workerGroup = new NioEventLoopGroup(this.portInfo.getWorkerSize());
 		
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(this.bossGroup, this.workerGroup)
