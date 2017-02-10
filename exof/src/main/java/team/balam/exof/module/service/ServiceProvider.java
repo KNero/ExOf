@@ -133,6 +133,14 @@ public class ServiceProvider implements Module, Observer
 				{
 					field.set(_host, Double.valueOf(value));
 				}
+				else if("byte".equals(fieldType.toGenericString()) || fieldType.equals(Byte.class))
+				{
+					field.set(_host, Byte.valueOf(value));
+				}
+				else if("short".equals(fieldType.toGenericString()) || fieldType.equals(Short.class))
+				{
+					field.set(_host, Short.valueOf(value));
+				}
 				else
 				{
 					field.set(_host, value);
