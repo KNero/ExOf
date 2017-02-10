@@ -1,4 +1,4 @@
-package team.balam.exof.web;
+package team.balam.exof;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
