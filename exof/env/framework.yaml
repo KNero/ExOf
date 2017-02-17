@@ -1,6 +1,4 @@
 framework :
-   consolePort : 3333
-   
    container :
       #- a.b.c.Test
       

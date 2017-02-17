@@ -16,12 +16,16 @@ import team.balam.exof.environment.SystemSetting;
  */
 public class App 
 {
+	private static volatile boolean isShutdown = false;
+	
 	public static void start()
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			@Override
 			public void run()
 			{
+				App.isShutdown = true;
+				
 				Operator.stop();
 			}
 		});
@@ -53,10 +57,24 @@ public class App
 	        
         Operator.init();
         Operator.start();
+        
+        //main thread에서 worker들을 검사한다.
+        while(! App.isShutdown)
+        {
+        	ThreadWorkerRegister.getInstance().check();
+        	
+        	try 
+        	{
+				Thread.sleep(1000);
+			}
+        	catch(InterruptedException e) 
+        	{
+			}
+        }
 	}
 	
     public static void main(String[] args)
     {
-    	start();
+    	App.start();
     }
 }
