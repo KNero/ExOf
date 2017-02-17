@@ -22,8 +22,6 @@ public interface EnvKey
 		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
 		
-		String CONSOLE_PORT = "consolePort";
-		
 		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
 		String AUTORELOAD_SERVICE_VARIABLE = "autoReload.serviceVariable";
 		
@@ -47,5 +45,7 @@ public interface EnvKey
 	interface Listener
 	{
 		String PORT = "port";
+		String CONSOLE = "console";
+		String GROUP = "group";
 	}
 }

@@ -26,9 +26,9 @@ public class Operator
 	
 	public static void init()
 	{
+		containerList.add(new Console());
 		containerList.add(new Framework());
 		containerList.add(SchedulerManager.getInstance());
-		containerList.add(new Console());
 		
 		List<String> extraContainerList = SystemSetting.getInstance()
 				.getListAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
