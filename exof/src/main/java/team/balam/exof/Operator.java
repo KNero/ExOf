@@ -30,9 +30,7 @@ public class Operator
 		containerList.add(new Framework());
 		containerList.add(SchedulerManager.getInstance());
 		
-		List<String> extraContainerList = SystemSetting.getInstance()
-				.getListAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
-		
+		List<String> extraContainerList = SystemSetting.getInstance().getList(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.CONTAINER);
 		if(extraContainerList != null)
 		{
 			extraContainerList.forEach(_containerClass -> {

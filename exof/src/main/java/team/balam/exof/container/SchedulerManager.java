@@ -57,13 +57,10 @@ public class SchedulerManager implements Container, Observer
 		this.isAutoReload = (Boolean)SystemSetting.getInstance()
 				.get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER);
 		
-		List<SchedulerInfo> infoList = SystemSetting.getInstance()
-				.getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
-		
+		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
 		if(infoList.size() > 0)
 		{
-			Properties pro = (Properties)SystemSetting.getInstance()
-					.getAndRemove(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER);
+			Properties pro = (Properties)SystemSetting.getInstance().get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER);
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
 			this.scheduler = factory.getScheduler();
 			
@@ -116,8 +113,7 @@ public class SchedulerManager implements Container, Observer
 	@Override
 	public void update(Observable o, Object arg) 
 	{
-		List<SchedulerInfo> infoList = SystemSetting.getInstance()
-				.getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
+		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
 		
 		if(! this.isAutoReload) return;
 		

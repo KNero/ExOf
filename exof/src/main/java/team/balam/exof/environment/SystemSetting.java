@@ -31,20 +31,10 @@ public class SystemSetting
 	{
 		return this.setting.get(_prefix + _key);
 	}
-	
-	public Object getAndRemove(String _prefix, String _key)
-	{
-		return this.setting.remove(_prefix + _key);
-	}
 
 	public String getString(String _prefix, String _key) 
 	{
 		return this.setting.get(_prefix + _key).toString();
-	}
-
-	public String getStringAndRemove(String _prefix, String _key) 
-	{
-		return this.setting.remove(_prefix + _key).toString();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -54,21 +44,9 @@ public class SystemSetting
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> List<T> getListAndRemove(String _prefix, String _key) 
-	{
-		return (List<T>)this.setting.remove(_prefix + _key);
-	}
-
-	@SuppressWarnings("unchecked")
 	public <K, V> Map<K, V> getMap(String _prefix, String _key) 
 	{
 		return (Map<K, V>)this.setting.get(_prefix + _key);
-	}
-
-	@SuppressWarnings("unchecked")
-	public <K, V> Map<K, V> getMapAndRemove(String _prefix, String _key) 
-	{
-		return (Map<K, V>)this.setting.remove(_prefix + _key);
 	}
 	
 	@SuppressWarnings("unchecked")

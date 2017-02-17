@@ -222,9 +222,7 @@ public class ServiceProvider implements Module, Observer
 		this.isAutoReload = (Boolean)SystemSetting.getInstance().
 				get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
 		
-		List<ServiceDirectoryInfo> directoryInfoList = 
-				SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
-		
+		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
 		directoryInfoList.forEach(_info -> {
 			try
 			{
@@ -254,8 +252,7 @@ public class ServiceProvider implements Module, Observer
 	@Override
 	public void update(Observable o, Object arg)
 	{
-		List<ServiceDirectoryInfo> directoryInfoList = 
-				SystemSetting.getInstance().getListAndRemove(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
+		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
 		
 		if(! this.isAutoReload) return;
 		
