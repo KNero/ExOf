@@ -1,38 +1,67 @@
 package balam.exof.test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
+import team.balam.exof.ThreadWorker;
+import team.balam.exof.ThreadWorkerRegister;
+
+public class AppTest extends ThreadWorker
 {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+	private int count;
+	
+	@Override
+	public void run()
+	{
+		while(true)
+		{
+			++this.count;
+			
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Override
+	public boolean isStop()
+	{
+		return this.count % 5 == 0;
+	}
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+	@Override
+	public ThreadWorker createIfStop()
+	{
+		System.out.println("create new threadworker.");
+		ThreadWorker tw = new AppTest();
+		tw.start();
+		return tw;
+	}
+	
+	@Test
+	public void testThreadWorker()
+	{
+		ThreadWorker tw = new AppTest();
+		ThreadWorkerRegister.getInstance().add(tw);
+		
+		tw.start();
+		
+		for(int i = 0; i < 10; ++i)
+		{
+			ThreadWorkerRegister.getInstance().check();
+			
+			try
+			{
+				Thread.sleep(1000);
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
 }

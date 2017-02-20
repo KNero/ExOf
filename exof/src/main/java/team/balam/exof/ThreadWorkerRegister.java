@@ -36,7 +36,7 @@ public class ThreadWorkerRegister
 		this.workerList.remove(_worker);
 	}
 
-	void check() 
+	public void check() 
 	{
 		for(ThreadWorker worker : this.workerList)
 		{
