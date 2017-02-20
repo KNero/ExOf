@@ -1,6 +1,7 @@
 package team.balam.exof;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 여기에 등록된 Thread는 정기적으로 죽었는지 체크하여 ThreadWorker의 createIfStop()을 호출해 준다.
@@ -9,12 +10,12 @@ import java.util.Vector;
  */
 public class ThreadWorkerRegister
 {
-	private Vector<ThreadWorker> workerList;
+	private List<ThreadWorker> workerList;
 	private static final ThreadWorkerRegister self = new ThreadWorkerRegister();
 	
 	private ThreadWorkerRegister()
 	{
-		this.workerList = new Vector<>();
+		this.workerList = new CopyOnWriteArrayList<>();
 	}
 	
 	public static ThreadWorkerRegister getInstance()
