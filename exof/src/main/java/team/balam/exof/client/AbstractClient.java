@@ -1,8 +1,17 @@
 package team.balam.exof.client;
 
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -10,18 +19,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-public abstract class AbstractClient implements Client
+public abstract class AbstractClient<I, O> extends ChannelInboundHandlerAdapter implements Client<I, O>
 {
-	private ChannelFuture channelFuture;
+	protected Channel channel;
 
 	private EventLoopGroup workerGorup;
 	private ChannelHandler[] channelHandler;
 	
+	private BlockingQueue<Object> responseQueue;
 	private int connectTimeout;
 	protected int readTimeout;
 	
@@ -33,15 +38,15 @@ public abstract class AbstractClient implements Client
 	}
 	
 	@Override
-	public void setConnectTimeout(int _time) 
+	public void setConnectTimeout(int _timeout) 
 	{
-		this.connectTimeout = _time;
+		this.connectTimeout = _timeout;
 	}
 	
 	@Override
-	public void setReadTimeout(int _time) 
+	public void setReadTimeout(int _timeout) 
 	{
-		this.readTimeout = _time;
+		this.readTimeout = _timeout;
 	}
 	
 	@Override
@@ -54,15 +59,16 @@ public abstract class AbstractClient implements Client
 		b.handler(new ChannelInitializer<SocketChannel>(){
 			protected void initChannel(SocketChannel _channel) throws Exception 
 			{
-				_channel.pipeline().addLast(channelHandler);
+				_channel.pipeline().addLast(channelHandler).addLast(this);
 			}
 		});
-		
-		this.channelFuture = b.connect(_host, _port);
+
+		ChannelFuture channelFuture = b.connect(_host, _port);
 
 		try 
 		{
-			this.channelFuture.get(this.connectTimeout, TimeUnit.MILLISECONDS);
+			channelFuture.get(this.connectTimeout, TimeUnit.MILLISECONDS);
+			this.channel = channelFuture.channel();
 		} 
 		catch(InterruptedException | ExecutionException | TimeoutException e) 
 		{
@@ -71,11 +77,28 @@ public abstract class AbstractClient implements Client
 	}
 	
 	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+	{
+		this.responseQueue.add(msg);
+	}
+	
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+	{
+		this.responseQueue.add(cause);
+	}
+	
+	protected ResponseFuture<O> makeResponse()
+	{
+		return new ResponseFutureImpl<O>(this.responseQueue);
+	}
+	
+	@Override
 	public void close() throws IOException 
 	{
-		if(this.channelFuture != null)
+		if(this.channel != null)
 		{
-			this.channelFuture.channel().close();
+			this.channel.close();
 		}
 		
 		this.workerGorup.shutdownGracefully();
@@ -84,9 +107,9 @@ public abstract class AbstractClient implements Client
 	@Override
 	public String toString() 
 	{
-		if(this.channelFuture != null && this.channelFuture.channel() != null)
+		if(this.channel != null)
 		{
-			return this.channelFuture.channel().toString();
+			return this.channel.toString();
 		}
 		else
 		{
