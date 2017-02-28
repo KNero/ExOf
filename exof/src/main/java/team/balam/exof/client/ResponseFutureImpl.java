@@ -1,35 +1,71 @@
 package team.balam.exof.client;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class ResponseFutureImpl<O> implements ResponseFuture<O>
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implements ResponseFuture<O>
 {
 	private BlockingQueue<Object> responseQueue;
 	private O response;
 	private Throwable throwable;
 	private boolean isSuccess;
 	
-	public ResponseFutureImpl(BlockingQueue<Object> _responseQueue)
+	public ResponseFutureImpl()
 	{
-		this.responseQueue = _responseQueue;
+		this.responseQueue = new ArrayBlockingQueue<>(2);
+	}
+	
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+	{
+		this.responseQueue.add(msg);
+	}
+	
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
+	{
+		this.responseQueue.add(cause);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void await(long timeoutMillis) throws InterruptedException
+	public void await(long _timeoutMillis)
 	{
-		Object res = this.responseQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
+		long start = System.currentTimeMillis();
 		
-		if(res instanceof Throwable)
+		while(true)
 		{
-			this.throwable = (Throwable)res;
-			this.isSuccess = false;
-		}
-		else
-		{
-			this.response = (O)res;
-			this.isSuccess = true;
+			Object res = this.responseQueue.poll();
+			if(res != null)
+			{
+				if(res instanceof Throwable)
+				{
+					this.throwable = (Throwable)res;
+					this.isSuccess = false;
+				}
+				else
+				{
+					this.response = (O)res;
+					this.isSuccess = true;
+				}
+				
+				break;
+			}
+			else if(System.currentTimeMillis() - start >= _timeoutMillis)
+			{
+				break;
+			}
+			
+			try
+			{
+				Thread.sleep(1);
+			}
+			catch(InterruptedException e) 
+			{
+			}
 		}
 	}
 	
@@ -42,6 +78,11 @@ public class ResponseFutureImpl<O> implements ResponseFuture<O>
 	@Override
 	public O get()
 	{
+		if(this.response == null)
+		{
+			this.await(0);
+		}
+		
 		return this.response;
 	}
 

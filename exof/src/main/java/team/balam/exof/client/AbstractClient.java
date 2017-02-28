@@ -1,17 +1,8 @@
 package team.balam.exof.client;
 
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -19,18 +10,26 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public abstract class AbstractClient<I, O> extends ChannelInboundHandlerAdapter implements Client<I, O>
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
+
+public abstract class AbstractClient<I, O> implements Client<I, O>
 {
 	protected Channel channel;
 
 	private EventLoopGroup workerGorup;
-	private ChannelHandler[] channelHandler;
+	private ChannelHandlerMaker channelHandler;
 	
-	private BlockingQueue<Object> responseQueue;
 	private int connectTimeout;
 	protected int readTimeout;
 	
-	public AbstractClient(ChannelHandler[] _channelHandler)
+	private ResponseFutureImpl<O> response;
+	
+	public AbstractClient(ChannelHandlerMaker _channelHandler)
 	{
 		this.workerGorup = new NioEventLoopGroup();
 		this.channelHandler = _channelHandler;
@@ -59,7 +58,8 @@ public abstract class AbstractClient<I, O> extends ChannelInboundHandlerAdapter 
 		b.handler(new ChannelInitializer<SocketChannel>(){
 			protected void initChannel(SocketChannel _channel) throws Exception 
 			{
-				_channel.pipeline().addLast(channelHandler).addLast(this);
+				response = new ResponseFutureImpl<O>();
+				_channel.pipeline().addLast(channelHandler.make(_channel)).addLast(response);
 			}
 		});
 
@@ -76,21 +76,9 @@ public abstract class AbstractClient<I, O> extends ChannelInboundHandlerAdapter 
 		}
 	}
 	
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+	protected ResponseFuture<O> getResponse()
 	{
-		this.responseQueue.add(msg);
-	}
-	
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
-	{
-		this.responseQueue.add(cause);
-	}
-	
-	protected ResponseFuture<O> makeResponse()
-	{
-		return new ResponseFutureImpl<O>(this.responseQueue);
+		return this.response;
 	}
 	
 	@Override
