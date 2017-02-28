@@ -13,5 +13,7 @@ public interface Client<I, O> extends Closeable
 	
 	void setConnectTimeout(int _timeout);
 	
-	ResponseFuture<O> send(I _data) throws IOException;
+	ResponseFuture<O> send(I _data) throws Exception;
+	
+	ResponseFuture<O> sendAndWait(I _data) throws Exception;
 }

@@ -1,36 +1,35 @@
 package team.balam.exof.client;
 
+import java.io.IOException;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
 public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implements ResponseFuture<O>
 {
-	private BlockingQueue<Object> responseQueue;
 	private O response;
-	private Throwable throwable;
-	private boolean isSuccess;
+	private Exception exception;
 	
-	public ResponseFutureImpl()
-	{
-		this.responseQueue = new ArrayBlockingQueue<>(2);
-	}
-	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
 	{
-		this.responseQueue.add(msg);
+		this.response = (O)msg;
 	}
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
 	{
-		this.responseQueue.add(cause);
+		if(cause instanceof Exception)
+		{
+			this.exception = (Exception)cause;
+		}
+		else
+		{
+			this.exception = new Exception(cause);
+		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void await(long _timeoutMillis)
 	{
@@ -38,24 +37,13 @@ public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implemen
 		
 		while(true)
 		{
-			Object res = this.responseQueue.poll();
-			if(res != null)
+			if(this.response != null || this.exception != null)
 			{
-				if(res instanceof Throwable)
-				{
-					this.throwable = (Throwable)res;
-					this.isSuccess = false;
-				}
-				else
-				{
-					this.response = (O)res;
-					this.isSuccess = true;
-				}
-				
 				break;
 			}
 			else if(System.currentTimeMillis() - start >= _timeoutMillis)
 			{
+				this.exception = new IOException("Read Timeout.");
 				break;
 			}
 			
@@ -72,23 +60,18 @@ public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implemen
 	@Override
 	public boolean isSuccess()
 	{
-		return this.isSuccess;
+		return this.response != null;
 	}
 
 	@Override
 	public O get()
 	{
-		if(this.response == null)
-		{
-			this.await(0);
-		}
-		
 		return this.response;
 	}
 
 	@Override
-	public Throwable cause()
+	public Exception cause()
 	{
-		return this.throwable;
+		return this.exception;
 	}
 }

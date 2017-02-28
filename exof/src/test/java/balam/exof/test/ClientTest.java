@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import team.balam.exof.ConstantKey;
 import team.balam.exof.client.ResponseFuture;
-import team.balam.exof.client.SynchClient;
+import team.balam.exof.client.Sender;
 import team.balam.exof.container.console.client.InfoGetter;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
@@ -31,7 +31,7 @@ public class ClientTest
 	{
 		try
 		{
-			SynchClient<String, String> client = new SynchClient<>(new ChannelHandlerMaker(){
+			Sender<String, String> client = new Sender<>(new ChannelHandlerMaker(){
 				@Override
 				public ChannelHandler[] make(SocketChannel _socketChannel) 
 				{
