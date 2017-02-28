@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
-	<serviceDirectory class="team.balam.exof.util.TestService" path="/test"/>
+	<serviceDirectory class="team.balam.exof.util.TestService" path="/test">
+		<serviceVariable serviceName="receive">
+			<variable name="a" value="a1"/>
+			<variable name="b" value="b2"/>
+			<variable name="c" value="c3"/>
+		</serviceVariable>
+	</serviceDirectory>
 	
 	<!-- <resource file="/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/> -->
 	
