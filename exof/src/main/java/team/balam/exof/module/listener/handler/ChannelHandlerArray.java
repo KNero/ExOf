@@ -1,10 +1,8 @@
 package team.balam.exof.module.listener.handler;
 
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.socket.SocketChannel;
 import team.balam.exof.module.listener.PortInfo;
 
-public abstract class ChannelHandlerArray
+public abstract class ChannelHandlerArray implements ChannelHandlerMaker
 {
 	protected int maxLength;
 	
@@ -21,6 +19,4 @@ public abstract class ChannelHandlerArray
 	public abstract void init(PortInfo _info);
 	
 	public abstract void destroy();
-	
-	public abstract ChannelHandler[] make(SocketChannel _socketChannel);
 }
