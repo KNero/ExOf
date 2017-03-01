@@ -1,20 +1,25 @@
 package team.balam.exof.client;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implements ResponseFuture<O>
 {
-	private O response;
-	private Exception exception;
+	private BlockingQueue<Object> responseQueue;
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+	public ResponseFutureImpl()
 	{
-		this.response = (O)msg;
+		this.responseQueue = new LinkedBlockingQueue<>();
+	}
+	
+	@Override
+	public void channelRead(ChannelHandlerContext _ctx, Object _msg) throws Exception
+	{
+		this.responseQueue.add(_msg);
 	}
 	
 	@Override
@@ -22,11 +27,11 @@ public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implemen
 	{
 		if(cause instanceof Exception)
 		{
-			this.exception = (Exception)cause;
+			this.responseQueue.add(cause);
 		}
 		else
 		{
-			this.exception = new Exception(cause);
+			this.responseQueue.add(new Exception(cause));
 		}
 	}
 	
@@ -37,13 +42,13 @@ public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implemen
 		
 		while(true)
 		{
-			if(this.response != null || this.exception != null)
+			if(this.responseQueue.size() > 0)
 			{
 				break;
 			}
 			else if(System.currentTimeMillis() - start >= _timeoutMillis)
 			{
-				this.exception = new IOException("Read Timeout.");
+				this.responseQueue.add(new IOException("Read Timeout."));
 				break;
 			}
 			
@@ -58,20 +63,28 @@ public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implemen
 	}
 	
 	@Override
-	public boolean isSuccess()
+	public boolean isDone()
 	{
-		return this.response != null;
+		return this.responseQueue.size() > 0;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public O get()
+	public O get() throws Exception
 	{
-		return this.response;
-	}
-
-	@Override
-	public Exception cause()
-	{
-		return this.exception;
+		Object res = this.responseQueue.poll();
+		if(res != null)
+		{
+			if(res instanceof Exception)
+			{
+				throw (Exception)res;
+			}
+			else
+			{
+				return (O)res;
+			}
+		}
+		
+		return null;
 	}
 }

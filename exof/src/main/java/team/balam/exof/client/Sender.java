@@ -20,18 +20,11 @@ public class Sender<I, O> extends AbstractClient<I, O>
 	}
 	
 	@Override
-	public ResponseFuture<O> sendAndWait(I _data) throws Exception
+	public O sendAndWait(I _data) throws Exception
 	{
 		ResponseFuture<O> resFuture = this.send(_data);
 		resFuture.await(this.readTimeout);
 		
-		if(resFuture.isSuccess())
-		{
-			return resFuture;
-		}
-		else
-		{
-			throw resFuture.cause();
-		}
+		return resFuture.get();
 	}
 }

@@ -15,5 +15,5 @@ public interface Client<I, O> extends Closeable
 	
 	ResponseFuture<O> send(I _data) throws Exception;
 	
-	ResponseFuture<O> sendAndWait(I _data) throws Exception;
+	O sendAndWait(I _data) throws Exception;
 }

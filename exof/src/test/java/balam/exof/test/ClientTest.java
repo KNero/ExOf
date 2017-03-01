@@ -2,17 +2,15 @@ package balam.exof.test;
 
 import java.nio.charset.Charset;
 
+import org.junit.Test;
+
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-
-import org.junit.Test;
-
 import team.balam.exof.ConstantKey;
-import team.balam.exof.client.ResponseFuture;
 import team.balam.exof.client.Sender;
 import team.balam.exof.container.console.client.InfoGetter;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
@@ -45,8 +43,8 @@ public class ClientTest
 			client.setReadTimeout(3000);
 			client.connect("127.0.0.1", 2000);
 
-			ResponseFuture<String> res = client.send("{\"aaa\":\"ababa\", \"servicePath\":\"/test/receive\"}\0");
-			System.out.println("============>" + res.get());
+			String res = client.sendAndWait("{\"aaa\":\"ababa\", \"servicePath\":\"/test/receive\"}\0");
+			System.out.println("============>" + res);
 			
 			client.close();
 		}

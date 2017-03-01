@@ -4,9 +4,7 @@ public interface ResponseFuture<V>
 {
 	void await(long timeoutMillis);
 	
-	boolean isSuccess();
+	boolean isDone();
 	
-	V get();
-	
-	Exception cause();
+	V get() throws Exception;
 }
