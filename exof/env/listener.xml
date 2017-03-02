@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listener>
 	<port number="3001" console="yes"/>
-	<port number="3002" group="yes"/>
 	
 	<port number="2000" maxLength="2000">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
