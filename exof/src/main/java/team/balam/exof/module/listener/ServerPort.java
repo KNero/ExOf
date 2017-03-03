@@ -52,7 +52,6 @@ public class ServerPort
 			this.channelHandlerArray = new LengthFieldByteCodec();
 		}
 		
-		this.channelHandlerArray.setMaxLength(this.portInfo.getMaxLength());
 		this.channelHandlerArray.init(this.portInfo);
 		
 		if(this.portInfo.getMessageTransform() != null)
@@ -70,6 +69,8 @@ public class ServerPort
 			SessionEventHandler sessionHandler = 
 					(SessionEventHandler)Class.forName(this.portInfo.getSessionHandler()).newInstance();
 			requestHandler.setSessionEventHandler(sessionHandler);
+			
+			sessionHandler.init(this.portInfo);
 		}
 		
 		this.bossGroup = new NioEventLoopGroup();
