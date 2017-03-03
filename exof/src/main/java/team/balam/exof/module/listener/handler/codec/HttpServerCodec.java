@@ -14,6 +14,8 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import team.balam.exof.ConstantKey;
+import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
@@ -21,19 +23,22 @@ public class HttpServerCodec extends ChannelHandlerArray
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	private int maxLength;
 	private SelfSignedCertificate certificate;
 	private SslContext sslCtx;
 	
 	@Override
 	public void init(PortInfo _info) 
 	{
-		String isUseSsl = _info.getAttribute("ssl", "no");
-		if("yes".equals(isUseSsl))
+		this.maxLength = _info.getAttributeToInt(EnvKey.Listener.MAX_LENGTH, 1024 * 8);
+		
+		String isUseSsl = _info.getAttribute(EnvKey.Listener.SSL, ConstantKey.NO);
+		if(ConstantKey.YES.equals(isUseSsl))
 		{
 			try
 			{
-				String certPath = _info.getAttribute("certificatePath");
-				String priKeyPath = _info.getAttribute("privateKeyPath");
+				String certPath = _info.getAttribute(EnvKey.Listener.CERTIFICATE_PATH);
+				String priKeyPath = _info.getAttribute(EnvKey.Listener.PRIVATE_KEY_PATH);
 				
 				if((certPath == null || certPath.length() == 0) && (priKeyPath == null || priKeyPath.length() == 0))
 				{

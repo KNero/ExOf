@@ -11,6 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import team.balam.exof.ConstantKey;
 import team.balam.exof.module.listener.PortInfo;
 
 public class ListenerLoader implements Loader
@@ -29,15 +30,15 @@ public class ListenerLoader implements Loader
 			Document doc = builder.parse(new File(filePath));
 			
 			Node listenerNode = doc.getFirstChild();
-			if(this._equalsNodeName(listenerNode, "listener"))
+			if(this._equalsNodeName(listenerNode, EnvKey.Listener.LISTENER))
 			{
 				Node portNode = listenerNode.getFirstChild();
 				while(portNode != null)
 				{
-					if(this._equalsNodeName(portNode, "port"))
+					if(this._equalsNodeName(portNode, EnvKey.Listener.PORT))
 					{
 						NamedNodeMap attr =  portNode.getAttributes();
-						String number = attr.getNamedItem("number").getNodeValue();
+						String number = attr.getNamedItem(EnvKey.Listener.NUMBER).getNodeValue();
 						
 						PortInfo info = new PortInfo(Integer.parseInt(number));
 						
@@ -56,21 +57,21 @@ public class ListenerLoader implements Loader
 							if(portChildNode.getNodeType() == Node.ELEMENT_NODE)
 							{
 								NamedNodeMap childAttr = portChildNode.getAttributes();
-								Node classAttr = childAttr.getNamedItem("class");
+								Node classAttr = childAttr.getNamedItem(ConstantKey.CLASS);
 								
 								if(classAttr != null)
 								{
 									String className = classAttr.getNodeValue().trim();
 									
-									if(this._equalsNodeName(portChildNode, "sessionHandler"))
+									if(this._equalsNodeName(portChildNode, EnvKey.Listener.SESSION_HANDLER))
 									{
 										info.setSessionHandler(className);
 									}
-									else if(this._equalsNodeName(portChildNode, "channelHandler"))
+									else if(this._equalsNodeName(portChildNode, EnvKey.Listener.CHANNEL_HANDLER))
 									{
 										info.setChannelHandler(className);
 									}
-									else if(this._equalsNodeName(portChildNode, "messageTransform"))
+									else if(this._equalsNodeName(portChildNode, EnvKey.Listener.MESSAGE_TRANSFORM))
 									{
 										info.setMessageTransform(className);
 									}

@@ -4,17 +4,12 @@ import team.balam.exof.module.listener.PortInfo;
 
 public abstract class ChannelHandlerArray implements ChannelHandlerMaker
 {
-	protected int maxLength;
+//	protected int maxLength;
 	
-	public ChannelHandlerArray()
-	{
-		
-	}
-	
-	public void setMaxLength(int _length)
-	{
-		this.maxLength = _length;
-	}
+//	public void setMaxLength(int _length)
+//	{
+//		this.maxLength = _length;
+//	}
 	
 	public abstract void init(PortInfo _info);
 	

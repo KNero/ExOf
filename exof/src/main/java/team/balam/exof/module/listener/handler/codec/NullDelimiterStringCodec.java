@@ -10,15 +10,18 @@ import io.netty.handler.codec.string.StringEncoder;
 import java.nio.charset.Charset;
 
 import team.balam.exof.ConstantKey;
+import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
 public class NullDelimiterStringCodec extends ChannelHandlerArray
 {
+	private int maxLength;
+	
 	@Override
 	public void init(PortInfo _info) 
 	{
-		
+		this.maxLength = _info.getAttributeToInt(EnvKey.Listener.MAX_LENGTH, 1024 * 8);
 	}
 	
 	@Override

@@ -44,8 +44,23 @@ public interface EnvKey
 	
 	interface Listener
 	{
+		String LISTENER = "listener";
 		String PORT = "port";
+		String NUMBER = "number";
+		String WORKER_SIZE = "workerSize";
+		String MAX_LENGTH = "maxLength";
+		
+		String CHANNEL_HANDLER = "channelHandler";
+		String MESSAGE_TRANSFORM = "messageTransform";
+		String SESSION_HANDLER = "sessionHandler";
+		
+		String LENGTH_OFFSET = "lengthOffset";
+		String LENGTH_SIZE = "lengthSize";
+		
+		String SSL = "ssl";
+		String CERTIFICATE_PATH = "certificatePath";
+		String PRIVATE_KEY_PATH = "privateKeyPath";
+		
 		String CONSOLE = "console";
-		String GROUP = "group";
 	}
 }
