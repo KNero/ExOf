@@ -61,6 +61,8 @@ public class ServerPort
 			ServiceObjectTransform messageTransform = 
 					(ServiceObjectTransform)Class.forName(this.portInfo.getMessageTransform()).newInstance();
 			requestHandler.setServiceObjectTransform(messageTransform);
+			
+			messageTransform.init(this.portInfo);
 		}
 		
 		if(this.portInfo.getSessionHandler() != null)
