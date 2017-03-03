@@ -6,7 +6,6 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
-import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.service.ServiceObject;
 
 public class JsonTransform implements ServiceObjectTransform<String>
@@ -18,12 +17,6 @@ public class JsonTransform implements ServiceObjectTransform<String>
 	 * servicePathKey를 설정하여 map에서 service path를 꺼낼 수 있다.
 	 */
 	protected String servicePathKey = "servicePath";
-	
-	@Override
-	public void init(PortInfo _portInfo) throws Exception
-	{
-		
-	}
 	
 	public String getServicePathKey()
 	{
