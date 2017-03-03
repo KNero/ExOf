@@ -40,7 +40,8 @@ public class Console implements Container
 			if(ConstantKey.YES.equals(isConsole))
 			{
 				this.handlerArray = new NullDelimiterStringCodec();
-				this.handlerArray.setMaxLength(1024 * 8);
+				this.handlerArray.init(port);
+				
 				this.workerGroup = new NioEventLoopGroup();
 				
 				ServerBootstrap bootstrap = new ServerBootstrap();
