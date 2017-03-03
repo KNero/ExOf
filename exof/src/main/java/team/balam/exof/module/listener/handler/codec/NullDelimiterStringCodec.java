@@ -14,7 +14,7 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
-public class NullDelimiterStringCodec extends ChannelHandlerArray
+public class NullDelimiterStringCodec implements ChannelHandlerArray
 {
 	private int maxLength;
 	

@@ -8,7 +8,7 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
-public class LengthFieldByteCodec extends ChannelHandlerArray
+public class LengthFieldByteCodec implements ChannelHandlerArray
 {
 	private int maxLength;
 	

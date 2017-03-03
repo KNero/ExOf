@@ -40,7 +40,15 @@ public class Console implements Container
 			if(ConstantKey.YES.equals(isConsole))
 			{
 				this.handlerArray = new NullDelimiterStringCodec();
-				this.handlerArray.init(port);
+				
+				try
+				{
+					this.handlerArray.init(port);
+				}
+				catch(Exception e)
+				{
+					// 이 부분은 에러가 나지 않기 때문에 무시한다.
+				}
 				
 				this.workerGroup = new NioEventLoopGroup();
 				
