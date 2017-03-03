@@ -5,7 +5,10 @@ import team.balam.exof.module.service.ServiceObject;
 
 public interface ServiceObjectTransform<T>
 {
-	void init(PortInfo _portInfo) throws Exception;
+	default void init(PortInfo _portInfo) throws Exception
+	{
+		
+	}
 	
 	ServiceObject transform(T _msg) throws Exception;
 }
