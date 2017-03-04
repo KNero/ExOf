@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.ConstantKey;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
@@ -222,7 +221,7 @@ public class ServiceProvider implements Module, Observer
 		this.isAutoReload = (Boolean)SystemSetting.getInstance().
 				get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
 		
-		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
+		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICES);
 		directoryInfoList.forEach(_info -> {
 			try
 			{
@@ -252,7 +251,7 @@ public class ServiceProvider implements Module, Observer
 	@Override
 	public void update(Observable o, Object arg)
 	{
-		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE);
+		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICES);
 		
 		if(! this.isAutoReload) return;
 		
@@ -308,13 +307,13 @@ public class ServiceProvider implements Module, Observer
 			serviceDir.getServiceNameList().forEach(_name -> {
 				ServiceImpl service = (ServiceImpl)serviceDir.getService(_name);
 				
-				if(! serviceMap.containsKey(ConstantKey.CLASS))
+				if(! serviceMap.containsKey(EnvKey.Service.CLASS))
 				{
-					serviceMap.put(ConstantKey.CLASS, service.getHost().getClass().getName());
+					serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
 				}
 				
 				serviceMap.put(_name, service.getMethod().getName());
-				serviceMap.put(_name + ConstantKey.SERVICE_VARIABLE, service.getAllServiceVariable());
+				serviceMap.put(_name + EnvKey.Service.SERVICE_VARIABLE, service.getAllServiceVariable());
 			});
 		});
 		

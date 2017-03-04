@@ -9,7 +9,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import team.balam.exof.ConstantKey;
+import team.balam.exof.Constant;
 import team.balam.exof.Container;
 import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.environment.EnvKey;
@@ -37,7 +37,7 @@ public class Console implements Container
 		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT);
 		portList.forEach(port -> {
 			String isConsole = port.getAttribute(EnvKey.Listener.CONSOLE);
-			if(ConstantKey.YES.equals(isConsole))
+			if(Constant.YES.equals(isConsole))
 			{
 				this.handlerArray = new NullDelimiterStringCodec();
 				

@@ -11,7 +11,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import team.balam.exof.ConstantKey;
 import team.balam.exof.module.listener.PortInfo;
 
 public class ListenerLoader implements Loader
@@ -57,7 +56,7 @@ public class ListenerLoader implements Loader
 							if(portChildNode.getNodeType() == Node.ELEMENT_NODE)
 							{
 								NamedNodeMap childAttr = portChildNode.getAttributes();
-								Node classAttr = childAttr.getNamedItem(ConstantKey.CLASS);
+								Node classAttr = childAttr.getNamedItem(EnvKey.Service.CLASS);
 								
 								if(classAttr != null)
 								{

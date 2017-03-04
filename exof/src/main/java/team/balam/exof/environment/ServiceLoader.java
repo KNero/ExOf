@@ -22,10 +22,10 @@ public class ServiceLoader implements Loader
 	public void load(String _envPath) throws LoadEnvException 
 	{
 		List<ServiceDirectoryInfo> serviceDirectoryList = new LinkedList<>();
-		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICE, serviceDirectoryList);
+		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICES, serviceDirectoryList);
 		
 		List<SchedulerInfo> schedulerList = new LinkedList<>();
-		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE, schedulerList);
+		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULER, schedulerList);
 		
 		this._loadServiceAndScheduler(_envPath + "/service.xml", serviceDirectoryList, schedulerList);
 	}
@@ -39,19 +39,19 @@ public class ServiceLoader implements Loader
 			Document doc = builder.parse(new File( _filePath));
 			
 			Node servicesNode = doc.getFirstChild();
-			if(this._equalsNodeName(servicesNode, "services"))
+			if(this._equalsNodeName(servicesNode, EnvKey.Service.SERVICES))
 			{
 				int idIndex = 0;
 				
 				Node serviceNode = servicesNode.getFirstChild();
 				while(serviceNode != null)
 				{
-					if(this._equalsNodeName(serviceNode, "serviceDirectory"))
+					if(this._equalsNodeName(serviceNode, EnvKey.Service.SERVICE_DIRECTORY))
 					{
 						ServiceDirectoryInfo info = this._makeServiceDirectory(serviceNode);
 						_serviceDirectoryList.add(info);
 					}
-					else if(this._equalsNodeName(serviceNode, "scheduler"))
+					else if(this._equalsNodeName(serviceNode, EnvKey.Service.SCHEDULER))
 					{
 						String[] pathArr = _filePath.split("/");
 						String fileName = pathArr[pathArr.length - 1];
@@ -59,9 +59,9 @@ public class ServiceLoader implements Loader
 						SchedulerInfo info = this._makeSchedulerInfo(fileName, idIndex++, serviceNode);
 						_schedulerList.add(info);
 					}
-					else if(this._equalsNodeName(serviceNode, "resource"))
+					else if(this._equalsNodeName(serviceNode, EnvKey.Service.RESOURCE))
 					{
-						String serviceFile = serviceNode.getAttributes().getNamedItem("file").getNodeValue();
+						String serviceFile = serviceNode.getAttributes().getNamedItem(EnvKey.Service.FILE).getNodeValue();
 						File file = new File(serviceFile);
 						if(! file.exists())
 						{
@@ -91,16 +91,16 @@ public class ServiceLoader implements Loader
 		NamedNodeMap attr = _node.getAttributes();
 		
 		ServiceDirectoryInfo info = new ServiceDirectoryInfo();
-		info.setClassName(attr.getNamedItem("class").getNodeValue());
-		info.setPath(attr.getNamedItem("path").getNodeValue());
+		info.setClassName(attr.getNamedItem(EnvKey.Service.CLASS).getNodeValue());
+		info.setPath(attr.getNamedItem(EnvKey.Service.PATH).getNodeValue());
 		
 		Node serviceVariableNode = _node.getFirstChild();
 		while(serviceVariableNode != null)
 		{
-			if(this._equalsNodeName(serviceVariableNode, "serviceVariable"))
+			if(this._equalsNodeName(serviceVariableNode, EnvKey.Service.SERVICE_VARIABLE))
 			{
 				NamedNodeMap serVariAttr = serviceVariableNode.getAttributes();
-				String serviceName = serVariAttr.getNamedItem("serviceName").getNodeValue();
+				String serviceName = serVariAttr.getNamedItem(EnvKey.Service.SERVICE_NAME).getNodeValue();
 				LinkedHashMap<String, String> variable = new LinkedHashMap<>();
 				
 				info.setVariable(serviceName, variable);
@@ -108,11 +108,11 @@ public class ServiceLoader implements Loader
 				Node variableNode = serviceVariableNode.getFirstChild();
 				while(variableNode != null)
 				{
-					if(this._equalsNodeName(variableNode, "variable"))
+					if(this._equalsNodeName(variableNode, EnvKey.Service.VARIABLE))
 					{
 						NamedNodeMap variAttr = variableNode.getAttributes();
-						String name = variAttr.getNamedItem("name").getNodeValue();
-						String value = variAttr.getNamedItem("value").getNodeValue();
+						String name = variAttr.getNamedItem(EnvKey.Service.NAME).getNodeValue();
+						String value = variAttr.getNamedItem(EnvKey.Service.VALUE).getNodeValue();
 						
 						variable.put(name, value);
 					}

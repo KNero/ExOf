@@ -9,7 +9,7 @@ import io.netty.handler.codec.string.StringEncoder;
 
 import java.nio.charset.Charset;
 
-import team.balam.exof.ConstantKey;
+import team.balam.exof.Constant;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
@@ -35,8 +35,8 @@ public class NullDelimiterStringCodec implements ChannelHandlerArray
 	{
 		ChannelHandler[] pipe = new ChannelHandler[]{
 				new DelimiterBasedFrameDecoder(this.maxLength, Delimiters.nulDelimiter()),
-				new StringDecoder(Charset.forName(ConstantKey.NETWORK_CHARSET)),
-				new StringEncoder(Charset.forName(ConstantKey.NETWORK_CHARSET))
+				new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET)),
+				new StringEncoder(Charset.forName(Constant.NETWORK_CHARSET))
 		};
 		
 		return pipe;

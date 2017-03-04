@@ -10,15 +10,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
-import team.balam.exof.ConstantKey;
-
 public class Command
 {
+	public interface Key
+	{
+		String RESULT = "result";
+		String CLASS = "class";
+	}
+	
 	public static final Map<String, String> NO_DATA_RESPONSE = new HashMap<>();
 	
 	static
 	{
-		NO_DATA_RESPONSE.put(ConstantKey.RESULT, "No data.");
+		NO_DATA_RESPONSE.put(Command.Key.RESULT, "No data.");
 	}
 	
 	@Expose

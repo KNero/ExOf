@@ -38,8 +38,28 @@ public interface EnvKey
 	
 	interface Service
 	{
-		String SCHEDULE = "schedule";
-		String SERVICE = "service";
+		String SERVICES = "services";
+		
+		String SERVICE_DIRECTORY = "serviceDirectory";
+		String CLASS = "class";
+		String PATH = "path";
+		
+		String SERVICE_VARIABLE = "serviceVariable";
+		String SERVICE_NAME = "serviceName";
+		
+		String VARIABLE = "variable";
+		String NAME = "name";
+		String VALUE = "value";
+		
+		String RESOURCE = "resource";
+		String FILE = "file";
+		
+		String SCHEDULER = "scheduler";
+		String ID = "id";
+		String SERVICE_PATH = "servicePath";
+		String CRON = "cron";
+		String DUPLICATE_EXECUTION = "duplicateExecution";
+		String USE = "use";
 	}
 	
 	interface Listener

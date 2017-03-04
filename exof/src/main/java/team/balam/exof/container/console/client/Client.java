@@ -20,7 +20,7 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import team.balam.exof.ConstantKey;
+import team.balam.exof.Constant;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.FrameworkLoader;
@@ -57,8 +57,8 @@ public class Client
 				protected void initChannel(SocketChannel ch) throws Exception
 				{
 					ch.pipeline().addLast(new DelimiterBasedFrameDecoder(8000, Delimiters.nulDelimiter()))
-						.addLast(new StringEncoder(Charset.forName(ConstantKey.NETWORK_CHARSET)))
-						.addLast(new StringDecoder(Charset.forName(ConstantKey.NETWORK_CHARSET)))
+						.addLast(new StringEncoder(Charset.forName(Constant.NETWORK_CHARSET)))
+						.addLast(new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET)))
 						.addLast(new SimpleChannelInboundHandler<String>() 
 						{
 							@Override

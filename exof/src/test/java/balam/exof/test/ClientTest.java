@@ -10,7 +10,7 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import team.balam.exof.ConstantKey;
+import team.balam.exof.Constant;
 import team.balam.exof.client.Sender;
 import team.balam.exof.container.console.client.InfoGetter;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
@@ -35,7 +35,7 @@ public class ClientTest
 				{
 					return new ChannelHandler[]{new StringEncoder(), 
 							new DelimiterBasedFrameDecoder(2048, Delimiters.nulDelimiter()),
-							new StringDecoder(Charset.forName(ConstantKey.NETWORK_CHARSET))};
+							new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET))};
 				}
 			});
 			

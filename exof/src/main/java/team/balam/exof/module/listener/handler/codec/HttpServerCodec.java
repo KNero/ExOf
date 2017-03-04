@@ -14,7 +14,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.ConstantKey;
+import team.balam.exof.Constant;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
@@ -32,8 +32,8 @@ public class HttpServerCodec implements ChannelHandlerArray
 	{
 		this.maxLength = _info.getAttributeToInt(EnvKey.Listener.MAX_LENGTH, 1024 * 8);
 		
-		String isUseSsl = _info.getAttribute(EnvKey.Listener.SSL, ConstantKey.NO);
-		if(ConstantKey.YES.equals(isUseSsl))
+		String isUseSsl = _info.getAttribute(EnvKey.Listener.SSL, Constant.NO);
+		if(Constant.YES.equals(isUseSsl))
 		{
 			try
 			{

@@ -57,7 +57,7 @@ public class SchedulerManager implements Container, Observer
 		this.isAutoReload = (Boolean)SystemSetting.getInstance()
 				.get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER);
 		
-		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
+		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULER);
 		if(infoList.size() > 0)
 		{
 			Properties pro = (Properties)SystemSetting.getInstance().get(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER);
@@ -113,7 +113,7 @@ public class SchedulerManager implements Container, Observer
 	@Override
 	public void update(Observable o, Object arg) 
 	{
-		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULE);
+		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULER);
 		
 		if(! this.isAutoReload) return;
 		
