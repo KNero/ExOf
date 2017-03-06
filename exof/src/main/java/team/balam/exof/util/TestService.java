@@ -13,9 +13,9 @@ public class TestService
 	private Logger logger  = LoggerFactory.getLogger(this.getClass());
 	
 	@Service
-	public void schedule(Object _req, String _a, String _b, String _c)
+	public void schedule(String _a, String _b, String _c)
 	{
-		this.logger.info("Receive data : " + _req.toString());
+		this.logger.info("Service Variable : " + _a + " / " + _b + " / " + _c);
 	}
 	
 	@Service

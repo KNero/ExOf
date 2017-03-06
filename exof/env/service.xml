@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
+	<!-- <resource file="/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/> -->
+
 	<serviceDirectory class="team.balam.exof.util.TestService" path="/test">
 		<serviceVariable serviceName="schedule">
 			<variable name="a" value="a1"/>
@@ -7,16 +9,6 @@
 			<variable name="c" value="c3"/>
 		</serviceVariable>
 	</serviceDirectory>
-	
-	<!-- <resource file="/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/> -->
-	
-	<!-- <serviceDirectory class="team.balam.exof.test.SchedulerTest" path="/test/scheduler">
-		<serviceVariable serviceName="testScheduler">
-			<variable name="a" value="a1"/>
-			<variable name="b" value="b2"/>
-			<variable name="c" value="c3"/>
-		</serviceVariable>
-	</serviceDirectory>
 		
-	<scheduler id="" servicePath="/test/scheduler/testScheduler" cron="0/5 * * * * ?" duplicateExecution="no" use="no"/> -->
+	<scheduler id="" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
 </services>
