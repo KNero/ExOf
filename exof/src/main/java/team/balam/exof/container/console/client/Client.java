@@ -1,30 +1,24 @@
 package team.balam.exof.container.console.client;
 
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.Delimiters;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import team.balam.exof.Constant;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.FrameworkLoader;
+import team.balam.exof.environment.ListenerLoader;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.util.StreamUtil;
 
 public class Client
 {
@@ -33,59 +27,42 @@ public class Client
 	public static void main(String[] _arge) throws Exception
 	{
 		String envPath = System.getProperty(EnvKey.HOME, "./env");
-		FrameworkLoader loader = new FrameworkLoader();
+		ListenerLoader loader = new ListenerLoader();
 		loader.load(envPath);
 		
-		consolePort = SystemSetting.getInstance().getFramework("consolePort");
+		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT);
+		for(PortInfo port : portList)
+		{
+			if(Constant.YES.equals(port.getAttribute(EnvKey.Listener.CONSOLE)))
+			{
+				consolePort = port.getNumber();
+				break;
+			}
+		}
 		
 		new Viewer().start();
 	}
 	
 	public static void send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback)
 	{
-		EventLoopGroup group = null;
+		Socket socket = null;
 		
 		try
 		{
-			group = new NioEventLoopGroup(1);
+			socket = new Socket();
+			socket.connect(new InetSocketAddress(consolePort), 3000);
+			socket.setSoTimeout(5000);
 			
-			Bootstrap boot = new Bootstrap();
-			boot.group(group);
-			boot.channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>(){
-
-				@Override
-				protected void initChannel(SocketChannel ch) throws Exception
-				{
-					ch.pipeline().addLast(new DelimiterBasedFrameDecoder(8000, Delimiters.nulDelimiter()))
-						.addLast(new StringEncoder(Charset.forName(Constant.NETWORK_CHARSET)))
-						.addLast(new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET)))
-						.addLast(new SimpleChannelInboundHandler<String>() 
-						{
-							@Override
-							protected void channelRead0(ChannelHandlerContext _ctx, String _msg) throws Exception
-							{
-								try
-								{
-									ObjectMapper objectMapper = new ObjectMapper();
-									TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
-									
-									_callback.accept(objectMapper.readValue(_msg, mapType));
-								}
-								catch(Exception e)
-								{
-									e.printStackTrace();
-								}
-								
-								_ctx.close();
-							}
-						});
-				}
-				
-			});
+			OutputStream out = socket.getOutputStream();
+			out. write(_command.toJson().getBytes());
 			
-			Channel channel = boot.connect("127.0.0.1", consolePort).sync().channel();
-			channel.writeAndFlush(_command.toJson());
-			channel.closeFuture().sync();
+			InputStream in = socket.getInputStream();
+			byte[] res = StreamUtil.read(in, '\0');
+			
+			ObjectMapper objectMapper = new ObjectMapper();
+			TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
+			
+			_callback.accept(objectMapper.readValue(new String(res), mapType));
 		}
 		catch(Exception e)
 		{
@@ -93,7 +70,17 @@ public class Client
 		}
 		finally
 		{
-			group.shutdownGracefully();
+			if(socket != null)
+			{
+				try 
+				{
+					socket.close();
+				}
+				catch(IOException e) 
+				{
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

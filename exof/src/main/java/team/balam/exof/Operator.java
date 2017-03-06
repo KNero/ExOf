@@ -78,7 +78,7 @@ public class Operator
 			}
 		});
 		
-		logger.error("*************************************");
+		logger.error("");
 		logger.error("   =======             ===");
 		logger.error("   |                  =   =     ==");
 		logger.error("   =======   =   =   =     =   |");

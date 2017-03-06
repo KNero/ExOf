@@ -35,7 +35,14 @@ public class ServiceImpl implements Service
 	@Override
 	public Map<String, String> getAllServiceVariable() 
 	{
-		return new HashMap<>(this.variable);
+		if(this.variable != null)
+		{
+			return new HashMap<>(this.variable);
+		}
+		else
+		{
+			return new HashMap<>();
+		}
 	}
 	
 	public Method getMethod()

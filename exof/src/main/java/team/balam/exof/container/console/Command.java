@@ -18,6 +18,12 @@ public class Command
 		String CLASS = "class";
 	}
 	
+	public interface Type
+	{
+		String SHOW_SERVICE_LIST = "showServiceList";
+		String SHOW_SCHEDULE_LIST = "showScheduleList";
+	}
+	
 	public static final Map<String, String> NO_DATA_RESPONSE = new HashMap<>();
 	
 	static
@@ -62,11 +68,5 @@ public class Command
 				.excludeFieldsWithoutExposeAnnotation().create();
 		
 		return gson.toJson(this) + "\0";
-	}
-	
-	public interface Type
-	{
-		String SHOW_SERVICE_LIST = "showServiceList";
-		String SHOW_SCHEDULE_LIST = "showScheduleList";
 	}
 }

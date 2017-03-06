@@ -51,22 +51,6 @@ public class PortInfo
 		if(messageTransform.length() > 0) this.messageTransform = messageTransform;
 	}
 	
-	public int getWorkerSize() 
-	{
-		int defaultWorkerSize = Runtime.getRuntime().availableProcessors() + 1;
-		String workerSize = this.attr.getProperty("workerSize");
-		
-		return workerSize == null ? defaultWorkerSize : Integer.parseInt(workerSize);
-	}
-	
-	public int getMaxLength()
-	{
-		int defaultMaxLength = 8 * 1024 * 1024;
-		String maxLength = this.attr.getProperty("maxLength");
-		
-		return maxLength == null ? defaultMaxLength : Integer.parseInt(maxLength);
-	}
-	
 	public void addAttribute(String _key, String _value)
 	{
 		this.attr.setProperty(_key, _value);
