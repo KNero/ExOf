@@ -1,5 +1,7 @@
 package team.balam.exof;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,7 @@ import team.balam.exof.environment.SystemSetting;
  */
 public class App 
 {
-	private static volatile boolean isShutdown = false;
+	private static AtomicBoolean isShutdown = new AtomicBoolean(false);
 	
 	public static void start()
 	{
@@ -24,9 +26,11 @@ public class App
 			@Override
 			public void run()
 			{
-				App.isShutdown = true;
+				if(App.isShutdown.compareAndSet(false, true))
+				{
+					Operator.stop();
+				}
 				
-				Operator.stop();
 			}
 		});
 		
@@ -59,7 +63,7 @@ public class App
         Operator.start();
         
         //main thread에서 worker들을 검사한다.
-        while(! App.isShutdown)
+        while(! App.isShutdown.get())
         {
         	ThreadWorkerRegister.getInstance().check();
         	
