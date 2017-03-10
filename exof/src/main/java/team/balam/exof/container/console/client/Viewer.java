@@ -8,14 +8,10 @@ import java.io.InputStreamReader;
 public class Viewer 
 {
 	public BufferedReader standardReader = null;
-	
 	private String selectMenuNumber;
-	private InfoGetter getter;
 	
 	public void start() throws Exception
 	{
-		this.getter = new InfoGetter();
-		
 		System.out.println("   =======             ===");
 		System.out.println("   |                  =   =     ==");
 		System.out.println("   =======   =   =   =     =   |");
@@ -32,9 +28,16 @@ public class Viewer
 			{
 				if(this._showOneLevelQuestion())
 				{
-					if(this._showTwoLevelQuestion())
+					while(true)
 					{
-						this._executeCommand();
+						if(this._showTwoLevelQuestion())
+						{
+							Executor.execute(this.selectMenuNumber);
+						}
+						else
+						{
+							break;
+						}
 					}
 				}
 				else
@@ -70,15 +73,15 @@ public class Viewer
 			
 			switch(cmd)
 			{
-				case "1":
+				case Menu.OneLevel.GET:
 					this.selectMenuNumber = cmd;
 					return true;
 					
-				case "2":
+				case Menu.OneLevel.SET:
 					System.out.println("Not support yet.");
-					return false;
+					return true;
 					
-				case "3":
+				case Menu.QUIT:
 					return false;
 					
 				default:
@@ -101,35 +104,21 @@ public class Viewer
 				throw new TerminateException();
 			}
 			
-			switch(cmd)
+			int menu = Integer.parseInt(cmd);
+			if(1 <= menu && menu <= 2)
 			{
-				case "1":
-				case "2":
-					this.selectMenuNumber = cmd;
-					return true;
-					
-				case "3":
-					return false;
-					
-				default:
-					System.out.println("\n(1)service list   (2)schedule list   (3)quit");
-					System.out.println("Enter numbaer 1 ~ 3");
-					break;
+				this.selectMenuNumber = cmd;
+				return true;
 			}
-		}
-	}
-	
-	private void _executeCommand()
-	{
-		switch(this.selectMenuNumber)
-		{
-			case "1":
-				this.getter.getServiceList();
-				break;
-			
-			case "2":
-				this.getter.getScheduleList();
-				break;
+			else if(Menu.QUIT.equals(cmd))
+			{
+				return false;
+			}
+			else
+			{
+				System.out.println("\n(1)service list   (2)schedule list   (3)quit");
+				System.out.println("Enter numbaer 1 ~ 3");
+			}
 		}
 	}
 }
