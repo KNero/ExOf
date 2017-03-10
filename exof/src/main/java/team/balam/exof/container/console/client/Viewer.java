@@ -91,7 +91,7 @@ public class Viewer
 	
 	private boolean _showTwoLevelQuestion() throws IOException
 	{
-		System.out.println("\n(1)service list   (2)quit");
+		System.out.println("\n(1)service list   (2)schedule list   (3)quit");
 		
 		while(true)
 		{
@@ -104,15 +104,16 @@ public class Viewer
 			switch(cmd)
 			{
 				case "1":
+				case "2":
 					this.selectMenuNumber = cmd;
 					return true;
 					
-				case "2":
+				case "3":
 					return false;
 					
 				default:
-					System.out.println("\n(1)service list   (2)quit");
-					System.out.println("Enter numbaer 1 or 2");
+					System.out.println("\n(1)service list   (2)schedule list   (3)quit");
+					System.out.println("Enter numbaer 1 ~ 3");
 					break;
 			}
 		}
