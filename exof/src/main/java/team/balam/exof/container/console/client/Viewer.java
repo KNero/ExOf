@@ -28,14 +28,21 @@ public class Viewer
 		
 		while(true)
 		{
-			if(this._showOneLevelQuestion())
+			try
 			{
-				if(this._showTwoLevelQuestion())
+				if(this._showOneLevelQuestion())
 				{
-					this._executeCommand();
+					if(this._showTwoLevelQuestion())
+					{
+						this._executeCommand();
+					}
+				}
+				else
+				{
+					break;
 				}
 			}
-			else
+			catch(TerminateException e)
 			{
 				break;
 			}
@@ -56,6 +63,10 @@ public class Viewer
 		while(true)
 		{
 			String cmd = this.standardReader.readLine();
+			if(cmd == null)
+			{
+				throw new TerminateException();
+			}
 			
 			switch(cmd)
 			{
@@ -85,6 +96,10 @@ public class Viewer
 		while(true)
 		{
 			String cmd = this.standardReader.readLine();
+			if(cmd == null)
+			{
+				throw new TerminateException();
+			}
 			
 			switch(cmd)
 			{
