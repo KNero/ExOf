@@ -153,15 +153,11 @@ public class ServiceProvider implements Module, Observer
 		team.balam.exof.module.service.annotation.Inbound inboundAnn = 
 				_method.getAnnotation(team.balam.exof.module.service.annotation.Inbound.class);
 		
-		if(inboundAnn != null && inboundAnn.className().trim().length() > 0)
+		if(inboundAnn != null && inboundAnn.classObject() != null)
 		{
-			String[] inList = inboundAnn.className().split(",");
-			for(String inClass : inList)
+			for(Class<?> inClass : inboundAnn.classObject())
 			{
-				if(inClass.trim().length() > 0)
-				{
-					_service.addInbound((Inbound)Class.forName(inClass.trim()).newInstance());
-				}
+				_service.addInbound((Inbound)inClass.newInstance());
 			}
 		}
 	}
@@ -171,15 +167,11 @@ public class ServiceProvider implements Module, Observer
 		team.balam.exof.module.service.annotation.Outbound outboundAnn = 
 				_method.getAnnotation(team.balam.exof.module.service.annotation.Outbound.class);
 		
-		if(outboundAnn != null && outboundAnn.className().trim().length() > 0)
+		if(outboundAnn != null && outboundAnn.classObject() != null)
 		{
-			String[] outList = outboundAnn.className().split(",");
-			for(String outClass : outList)
+			for(Class<?> outClass : outboundAnn.classObject())
 			{
-				if(outClass.trim().length() > 0)
-				{
-					_service.addOutbound((Outbound<?, ?>)Class.forName(outClass.trim()).newInstance());
-				}
+				_service.addOutbound((Outbound<?, ?>)outClass.newInstance());
 			}
 		}
 	}
@@ -189,9 +181,9 @@ public class ServiceProvider implements Module, Observer
 		team.balam.exof.module.service.annotation.MapToVo mapTovoAnn = 
 				_method.getAnnotation(team.balam.exof.module.service.annotation.MapToVo.class);
 		
-		if(mapTovoAnn != null && mapTovoAnn.className().trim().length() > 0)
+		if(mapTovoAnn != null && mapTovoAnn.classObject() != null)
 		{
-			_service.setMapToVoConverter(mapTovoAnn.className());
+			_service.setMapToVoConverter(mapTovoAnn.classObject());
 		}
 	}
 	
@@ -260,41 +252,46 @@ public class ServiceProvider implements Module, Observer
 			this.updateVariableTime = System.currentTimeMillis();
 			
 			directoryInfoList.forEach(_info -> {
-				try
-				{
-					Class<?> clazz = Class.forName(_info.getClassName());
-					Method[] methods = clazz.getMethods();
-					
-					for(Method m : methods)
-					{
-						team.balam.exof.module.service.annotation.Service serviceAnn = 
-								m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
-						
-						if(serviceAnn != null)
-						{
-							String serviceName = serviceAnn.name();
-							if(serviceName.length() == 0) serviceName = m.getName();
-							
-							Map<String, String> serviceVariable = _info.getVariable(serviceName);
-							
-							ServiceDirectory serviceDir = this.serviceDirectory.get(_info.getPath());
-							if(serviceDir != null)
-							{
-								serviceDir.reloadVariable(serviceName, serviceVariable);
-								
-								logger.warn("Complete reloading ServiceVariable. [{}]", _info.getPath() + "/" + serviceName);
-							}
-						}
-					}
-				}
-				catch(Exception e)
-				{
-					logger.error("Can not reload the ServiceVariable. Class : {}", _info.getClassName());
-				}
+				self.updateServiceDirectory(_info);
 			});
 		}
 	}
-
+	
+	public void updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo)
+	{
+		try
+		{
+			Class<?> clazz = Class.forName(_serviceDirInfo.getClassName());
+			Method[] methods = clazz.getMethods();
+			
+			for(Method m : methods)
+			{
+				team.balam.exof.module.service.annotation.Service serviceAnn = 
+						m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
+				
+				if(serviceAnn != null)
+				{
+					String serviceName = serviceAnn.name();
+					if(serviceName.length() == 0) serviceName = m.getName();
+					
+					Map<String, String> serviceVariable = _serviceDirInfo.getVariable(serviceName);
+					
+					ServiceDirectory serviceDir = this.serviceDirectory.get(_serviceDirInfo.getPath());
+					if(serviceDir != null)
+					{
+						serviceDir.reloadVariable(serviceName, serviceVariable);
+						
+						logger.warn("Complete reloading ServiceVariable. [{}]", _serviceDirInfo.getPath() + "/" + serviceName);
+					}
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			logger.error("Can not reload the ServiceVariable. Class : {}", _serviceDirInfo.getClassName());
+		}
+	}
+	
 	public Map<String, HashMap<String, Object>> getAllServiceInfo() 
 	{
 		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();

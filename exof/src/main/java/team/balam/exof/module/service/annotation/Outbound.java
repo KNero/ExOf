@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Outbound 
 {
-	String className();
+	Class<? extends team.balam.exof.module.service.component.Outbound<?, ?>>[] classObject();
 }

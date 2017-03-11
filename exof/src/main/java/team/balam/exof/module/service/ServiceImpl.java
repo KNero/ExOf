@@ -35,7 +35,14 @@ public class ServiceImpl implements Service
 	@Override
 	public Map<String, String> getAllServiceVariable() 
 	{
-		return new HashMap<>(this.variable);
+		if(this.variable != null)
+		{
+			return new HashMap<>(this.variable);
+		}
+		else
+		{
+			return new HashMap<>();
+		}
 	}
 	
 	public Method getMethod()
@@ -74,7 +81,7 @@ public class ServiceImpl implements Service
 		this.outbound.add(_out);
 	}
 	
-	public void setMapToVoConverter(String _class) throws Exception
+	public void setMapToVoConverter(Class<?> _class) throws Exception
 	{
 		this.mapToVoConverter = new MapToVoConverter();
 		this.mapToVoConverter.init(_class);
