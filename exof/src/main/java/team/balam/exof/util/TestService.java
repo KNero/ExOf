@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import team.balam.exof.module.listener.RequestContext;
+import team.balam.exof.module.service.annotation.Inbound;
+import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
 
@@ -12,10 +14,14 @@ public class TestService
 {
 	private Logger logger  = LoggerFactory.getLogger(this.getClass());
 	
+	@Inbound(classObject=TestInOutbound.class)
+	@Outbound(classObject=TestInOutbound.class)
 	@Service
-	public void schedule(String _a, String _b, String _c)
+	public String schedule(String _a, String _b, String _c)
 	{
 		this.logger.info("Service Variable : " + _a + " / " + _b + " / " + _c);
+		
+		return "END";
 	}
 	
 	@Service
