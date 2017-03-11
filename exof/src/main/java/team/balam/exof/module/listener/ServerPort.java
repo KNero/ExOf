@@ -10,6 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 import team.balam.exof.module.listener.handler.RequestServiceHandler;
 import team.balam.exof.module.listener.handler.SessionEventHandler;
@@ -74,7 +75,10 @@ public class ServerPort
 		}
 		
 		this.bossGroup = new NioEventLoopGroup();
-		this.workerGroup = new NioEventLoopGroup(this.portInfo.getWorkerSize());
+		
+		int defaultWorkerSize = Runtime.getRuntime().availableProcessors() + 1;
+		int workerSize = this.portInfo.getAttributeToInt(EnvKey.Listener.WORKER_SIZE, defaultWorkerSize);
+		this.workerGroup = new NioEventLoopGroup(workerSize);
 		
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(this.bossGroup, this.workerGroup)

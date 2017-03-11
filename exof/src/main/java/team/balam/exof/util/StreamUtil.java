@@ -1,5 +1,6 @@
 package team.balam.exof.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,33 @@ public class StreamUtil
 			remain = _length - read;
 			if(remain > 0) buf = new byte[remain];
 			else break;
+		}
+		
+		return resultBuf.toByteArray();
+	}
+	
+	/**
+	 * InputStream에서 특정 문자열 전까지 읽어 들인다.
+	 * @param _in 대상 InputStream
+	 * @param _ch 경계가 되는 특정 문자열
+	 * @return 읽어들인 데이터 길이
+	 * @throws IOException
+	 */
+	public static byte[] read(InputStream _in, char _ch) throws IOException
+	{
+		ByteArrayOutputStream resultBuf = new ByteArrayOutputStream();
+		BufferedInputStream bufIn = new BufferedInputStream(_in);
+		
+		int read = 0;
+		
+		while((read = bufIn.read()) != -1)
+		{
+			if(read == _ch)
+			{
+				break;
+			}
+			
+			resultBuf.write(read);
 		}
 		
 		return resultBuf.toByteArray();
