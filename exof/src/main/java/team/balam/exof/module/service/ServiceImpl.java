@@ -81,7 +81,7 @@ public class ServiceImpl implements Service
 		this.outbound.add(_out);
 	}
 	
-	public void setMapToVoConverter(String _class) throws Exception
+	public void setMapToVoConverter(Class<?> _class) throws Exception
 	{
 		this.mapToVoConverter = new MapToVoConverter();
 		this.mapToVoConverter.init(_class);

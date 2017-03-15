@@ -11,9 +11,9 @@ public class MapToVoConverter
 	private Class<?> voClass;
 	private HashMap<String, Method> methodMap = new HashMap<>();
 	
-	public void init(String _class) throws Exception
+	public void init(Class<?> _class) throws Exception
 	{
-		this.voClass = Class.forName(_class);
+		this.voClass = _class;
 		Method[] methods = this.voClass.getMethods();
 		
 		for(Method m : methods)
