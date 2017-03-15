@@ -31,8 +31,13 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 	
 	public AbstractClient(ChannelHandlerMaker _channelHandler)
 	{
-		this.workerGorup = new NioEventLoopGroup();
+		this(_channelHandler, new NioEventLoopGroup());
+	}
+	
+	public AbstractClient(ChannelHandlerMaker _channelHandler, NioEventLoopGroup _loopGroup)
+	{
 		this.channelHandler = _channelHandler;
+		this.workerGorup = _loopGroup;
 		this.connectTimeout = Client.DEFAULT_CONNECT_TIMEOUT;
 	}
 	
