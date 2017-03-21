@@ -2,6 +2,7 @@ package team.balam.exof;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -97,18 +98,38 @@ public class Operator
 		try
 		{
 			String ip = InetAddress.getLocalHost().getHostAddress();
-			
-			NetworkInterface network = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
 			StringBuilder sb = new StringBuilder();
 			
-			if(network != null)
-			{
-				byte[] mac = network.getHardwareAddress();
-				for (int i = 0; i < mac.length; i++) 
-				{
-					sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));		
-				}
-			}
+			Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
+		    while(n.hasMoreElements())
+		    {
+		        NetworkInterface e = n.nextElement();
+		        Enumeration<InetAddress> a = e.getInetAddresses();
+		        
+		        while(a.hasMoreElements())
+		        {
+		            InetAddress addr = a.nextElement();
+		            if(! "127.0.0.1".equals(addr.getHostAddress()) && addr.getHostAddress().split("\\.").length == 4)
+		            {
+		            	ip = addr.getHostAddress();
+		            	NetworkInterface netif = NetworkInterface.getByInetAddress(addr);
+
+						if(netif != null)
+						{
+							byte[] mac = netif.getHardwareAddress();
+							if(mac != null)
+							{
+								for(int i = 0; i < mac.length; i++)
+								{
+									sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));		
+								}
+								
+								break;
+							}
+						}
+		            }
+		        }
+		    }
 			
 			logger.error("*************************************");
 			logger.error("   The server is running normally.");
@@ -144,4 +165,40 @@ public class Operator
 		logger.error("   The server has been shut down.");
 		logger.error("*************************************");
 	}
+	
+	public static void main(String[] args) throws Exception
+	{
+	    System.out.println("Your Host addr: " + InetAddress.getLocalHost().getHostAddress());  // often returns "127.0.0.1"
+	    Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
+	    while(n.hasMoreElements())
+	    {
+	        NetworkInterface e = n.nextElement();
+
+	        Enumeration<InetAddress> a = e.getInetAddresses();
+	        while(a.hasMoreElements())
+	        {
+	            InetAddress addr = a.nextElement();
+	            System.out.println("  " + addr.getHostAddress());
+	            
+				// 네트워크 인터페이스 취득
+				NetworkInterface netif = NetworkInterface.getByInetAddress(addr);
+				// 네트워크 인터페이스가 NULL이 아니면
+				if(netif != null)
+				{
+					// 네트워크 인터페이스 표시명 출력
+					System.out.print(netif.getDisplayName() + " : ");
+
+					// 맥어드레스 취득
+					byte[] mac = netif.getHardwareAddress();
+					if(mac != null)
+					{
+						for(byte b : mac)
+						{
+							System.out.printf("[%02X]", b);
+						}
+					}
+				}
+	        }
+	    }
+	} 
 }
