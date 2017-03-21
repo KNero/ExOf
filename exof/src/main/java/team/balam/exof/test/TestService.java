@@ -1,4 +1,4 @@
-package team.balam.exof.util;
+package team.balam.exof.test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +14,9 @@ public class TestService
 {
 	private Logger logger  = LoggerFactory.getLogger(this.getClass());
 	
-	@Inbound(classObject=TestInOutbound.class)
-	@Outbound(classObject=TestInOutbound.class)
 	@Service
+	@Inbound(classObject=TestInbound.class)
+	@Outbound(classObject=TestOutbound.class)
 	public String schedule(String _a, String _b, String _c)
 	{
 		this.logger.info("Service Variable : " + _a + " / " + _b + " / " + _c);
@@ -25,6 +25,8 @@ public class TestService
 	}
 	
 	@Service
+	@Inbound(classObject=TestInbound.class)
+	@Outbound(classObject=TestOutbound.class)
 	public void receive(Object _req)
 	{
 		this.logger.info("Receive data : " + _req.toString());
