@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import team.balam.exof.Constant;
 import team.balam.exof.container.scheduler.SchedulerInfo;
 import team.balam.exof.module.service.ServiceDirectoryInfo;
 
@@ -141,8 +142,9 @@ public class ServiceLoader implements Loader
 		SchedulerInfo info = new SchedulerInfo();
 		info.setServicePath(attr.getNamedItem("servicePath").getNodeValue());
 		info.setCronExpression(attr.getNamedItem("cron").getNodeValue());
-		info.setDuplicateExecution("yes".equals(attr.getNamedItem("duplicateExecution").getNodeValue()));
-		info.setUse("yes".equals(attr.getNamedItem("use").getNodeValue()));
+		info.setDuplicateExecution(Constant.YES.equals(attr.getNamedItem("duplicateExecution").getNodeValue()));
+		info.setUse(Constant.YES.equals(attr.getNamedItem("use").getNodeValue()));
+		info.setInitExecution(Constant.YES.equals(attr.getNamedItem("initExecution").getNodeValue()));
 		
 		String id = null;
 		Node idAttr = attr.getNamedItem("id"); 

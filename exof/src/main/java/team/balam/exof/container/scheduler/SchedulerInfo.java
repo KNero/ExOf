@@ -16,6 +16,7 @@ public class SchedulerInfo
 	private String cronExpression;
 	private boolean isDuplicateExecution;
 	private boolean isUse;
+	private boolean isInitExecution;
 	private AtomicBoolean isRunning = new AtomicBoolean(false);
 	
 	public String getId()
@@ -73,14 +74,26 @@ public class SchedulerInfo
 		this.isUse = isUse;
 	}
 	
+	public void setInitExecution(boolean isInitExecution) 
+	{
+		this.isInitExecution = isInitExecution;
+	}
+	
+	public boolean isInitExecution() 
+	{
+		return isInitExecution;
+	}
+	
 	@Override
 	public String toString()
 	{
 		StringBuilder str = new StringBuilder();
-		str.append("ID : ").append(this.id);
-		str.append(" , ServicePath : ").append(this.servicePath);
-		str.append(" , cron : ").append(this.cronExpression);
-		str.append(" , DuplicateExecution : ").append(this.isDuplicateExecution);
+		str.append("ID:").append(this.id);
+		str.append(", ServicePath:").append(this.servicePath);
+		str.append(", Cron:").append(this.cronExpression);
+		str.append(", DuplicateExecution:").append(this.isDuplicateExecution);
+		str.append(", Use:").append(this.isUse);
+		str.append(", InitExecution:").append(this.isInitExecution);
 		
 		return str.toString();
 	}

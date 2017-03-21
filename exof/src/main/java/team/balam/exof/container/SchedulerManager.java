@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import team.balam.exof.Container;
+import team.balam.exof.container.scheduler.ExecutionContext;
 import team.balam.exof.container.scheduler.PauseAwareCronTrigger;
 import team.balam.exof.container.scheduler.SchedulerAlreadyExists;
 import team.balam.exof.container.scheduler.SchedulerInfo;
@@ -100,8 +101,30 @@ public class SchedulerManager implements Container, Observer
 				this.logger.info("Scheduler is Loaded. Schedule Count : {}", infoList.size());
 			}
 			
+			this._executeScheduleInitTime(infoList);
+			
 			this.scheduler.start();
 		}
+	}
+	
+	private void _executeScheduleInitTime(List<SchedulerInfo> _infoList)
+	{
+		_infoList.forEach(info -> {
+			if(info.isUse() && info.isInitExecution())
+			{
+				ExecutionContext exeCtx = new ExecutionContext(info);
+				SchedulerJob job = new SchedulerJob();
+				
+				try 
+				{
+					job.execute(exeCtx);
+				} 
+				catch(Exception e) 
+				{
+					this.logger.error("Failed to execute scheduler in init time. ServicePath : " + info.getServicePath(), e);
+				}
+			}
+		});
 	}
 	
 	@Override

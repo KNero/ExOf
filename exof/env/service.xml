@@ -9,6 +9,6 @@
 			<variable name="c" value="c3"/>
 		</serviceVariable>
 	</serviceDirectory>
-		
-	<scheduler id="" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="yes"/>
+	
+	<scheduler id="" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="yes" initExecution="no"/>
 </services>
