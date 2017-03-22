@@ -1,0 +1,1 @@
+java -Xms64m -Xmx128m -Dfile.encoding=utf-8 -Dlogback.configurationFile=./env/logback.xml -cp "./lib/*:./lib/external/*:./classes" team.balam.exof.container.console.client.Client

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!-- 
+poolMaximumIdleConnections : 유휴상태에서 최대 커넥션 수
+poolMaximumCheckoutTime : 최대 커넥션 획득 시간(ms)
+poolPingEnabled : 커넥션이 살아있는지 ping 테스트 여부
+poolPingQuery : 커넥션 ping 테스트 쿼리 (DB 종류에 따라 적절하게 수정)
+poolPingConnectionsNotUsedFor: 유휴상태의 커넥션이 닫히는지 판단할 시간(ms)
+poolTimeToWait : 사용된 커넥션을 기다리는 시간
+ -->
+	<!--environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+				<property name="poolMaximumActiveConnections" value="1"/>
+				<property name="poolMaximumIdleConnections" value="20"/>
+				<property name="poolMaximumCheckoutTime" value="20000"/>
+				<property name="poolPingEnabled" value="true"/>
+				<property name="poolPingQuery" value="select 1 from dual"/>
+				<property name="poolPingConnectionsNotUsedFor" value="10000"/>
+				<property name="poolTimeToWait" value="15000"/>
+			</dataSource>
+		</environment>
+	</environments-->
+	
+	<mappers>
+		<!--mapper resource="org/mybatis/example/BlogMapper.xml" /-->
+	</mappers>
+</configuration>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listener>
+	<port number="3001" console="yes"/>
+	
+	<port number="2000" maxLength="2000" description="for maven build">
+		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
+		<messageTransform class="team.balam.exof.module.listener.handler.transform.JsonTransform"/>
+	</port>
+	
+	<!-- <port number="2000" workerSize="200" lengthOffset="0" lengthSize="4" maxLength="1000">
+		<sessionHandler class=""/>
+		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
+		<messageTransform class=""/>
+	</port>
+	<port number="2000" ssl="yes" certificatePath="C:/Users/kwonsm/Desktop/keyutil_example.com.crt" 
+									privateKeyPath="C:/Users/kwonsm/Desktop/keyutil_example.com.key" maxLength="8000">
+		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
+		<messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>
+	</port> -->
+</listener>

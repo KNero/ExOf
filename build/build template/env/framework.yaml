@@ -1,0 +1,26 @@
+framework :
+   container :
+      #- a.b.c.Test
+      
+   autoReload :
+      scheduler : yes
+      serviceVariable : yes
+   
+   scheduler :
+      org.quartz.scheduler.instanceName : SchedulerInit
+      org.quartz.threadPool.threadCount : 1
+      org.quartz.jobStore.class : org.quartz.simpl.RAMJobStore
+      org.quartz.threadPool.class : org.quartz.simpl.SimpleThreadPool
+      org.quartz.scheduler.instanceId : AUTO
+      org.quartz.jobStore.misfireThreshold : 60000
+
+   jetty :
+      use : no
+      http : 8080
+      https : 8081
+      sslContextClass : 
+      maxIdleTime : 30000
+      requestHeaderSize : 8192
+      descriptor : ./webapp/WEB-INF/web.xml
+      resourceBase : ./webapp
+      contextPath : /test
