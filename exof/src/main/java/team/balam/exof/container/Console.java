@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -34,38 +35,49 @@ public class Console implements Container
 	@Override
 	public void start() throws Exception
 	{
+		PortInfo consolePort = null;
+		
 		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT);
-		portList.forEach(port -> {
-			String isConsole = port.getAttribute(EnvKey.Listener.CONSOLE);
+		for(PortInfo info : portList)
+		{
+			String isConsole = info.getAttribute(EnvKey.Listener.CONSOLE);
 			if(Constant.YES.equals(isConsole))
 			{
-				this.handlerArray = new NullDelimiterStringCodec();
-				
-				try
-				{
-					this.handlerArray.init(port);
-				}
-				catch(Exception e)
-				{
-					// 이 부분은 에러가 나지 않기 때문에 무시한다.
-				}
-				
-				this.workerGroup = new NioEventLoopGroup();
-				
-				ServerBootstrap bootstrap = new ServerBootstrap();
-				bootstrap.group(this.workerGroup)
-					.channel(NioServerSocketChannel.class)
-					.childHandler(new ChannelInitializer<SocketChannel>() 
-					{
-						protected void initChannel(SocketChannel ch) throws Exception 
-						{
-							ch.pipeline().addLast(handlerArray.make(ch)).addLast(new ConsoleCommandHandler());
-						}
-					});
-				
-				this.channle = bootstrap.bind(port.getNumber()).channel();
+				consolePort = info;
 			}
-		});
+		}
+		
+		if(consolePort != null)
+		{
+			this.handlerArray = new NullDelimiterStringCodec();
+			
+			try
+			{
+				this.handlerArray.init(consolePort);
+			}
+			catch(Exception e)
+			{
+				// 이 부분은 에러가 나지 않기 때문에 무시한다.
+			}
+			
+			this.workerGroup = new NioEventLoopGroup();
+			
+			ServerBootstrap bootstrap = new ServerBootstrap();
+			bootstrap.group(this.workerGroup)
+				.channel(NioServerSocketChannel.class)
+				.childHandler(new ChannelInitializer<SocketChannel>() 
+				{
+					protected void initChannel(SocketChannel ch) throws Exception 
+					{
+						ch.pipeline().addLast(handlerArray.make(ch)).addLast(new ConsoleCommandHandler());
+					}
+				});
+			
+			ChannelFuture future = bootstrap.bind(consolePort.getNumber()).sync();
+			this.channle = future.channel();
+			
+			portList.remove(consolePort);
+		}
 	}
 
 	@Override
