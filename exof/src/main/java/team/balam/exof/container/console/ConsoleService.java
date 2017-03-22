@@ -9,7 +9,7 @@ import team.balam.exof.module.service.ServiceProvider;
 
 public class ConsoleService
 {
-	public Object getServiceList()
+	public Object getServiceList(Map<String, Object> _param)
 	{
 		Map<String, HashMap<String, Object>> result = ServiceProvider.getInstance().getAllServiceInfo();
 		if(result.size() == 0)
@@ -22,7 +22,7 @@ public class ConsoleService
 		}
 	}
 	
-	public Object getScheduleList()
+	public Object getScheduleList(Map<String, Object> _param)
 	{
 		List<String> list = SchedulerManager.getInstance().getScheduleList();
 		if(list.size() == 0)
