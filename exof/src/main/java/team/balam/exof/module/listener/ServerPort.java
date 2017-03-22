@@ -2,6 +2,7 @@ package team.balam.exof.module.listener;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -95,7 +96,8 @@ public class ServerPort
 			.childOption(ChannelOption.SO_KEEPALIVE, true)
 			.childOption(ChannelOption.SO_REUSEADDR, true);
 		
-		this.channel = b.bind(this.portInfo.getNumber()).channel();
+		ChannelFuture future = b.bind(this.portInfo.getNumber()).sync(); 
+		this.channel = future.channel();
 	}
 	
 	public void close() throws Exception
