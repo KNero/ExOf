@@ -2,8 +2,6 @@ package team.balam.exof.container.console;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -20,8 +18,8 @@ public class Command
 	
 	public interface Type
 	{
-		String SHOW_SERVICE_LIST = "showServiceList";
-		String SHOW_SCHEDULE_LIST = "showScheduleList";
+		String SHOW_SERVICE_LIST = "getServiceList";
+		String SHOW_SCHEDULE_LIST = "getScheduleList";
 	}
 	
 	public static final Map<String, String> NO_DATA_RESPONSE = new HashMap<>();
@@ -35,7 +33,7 @@ public class Command
 	private String type;
 	
 	@Expose
-	private List<String> parameter = new LinkedList<>();
+	private Map<String, Object> parameter = new HashMap<>();
 	
 	public Command(String _type)
 	{
@@ -47,19 +45,19 @@ public class Command
 		return type;
 	}
 	
-	public List<String> getParameter()
+	public Map<String, Object> getParameter()
 	{
 		return parameter;
 	}
 
-	public void setParameter(List<String> parameter)
+	public void setParameter(Map<String, Object> parameter)
 	{
 		this.parameter = parameter;
 	}
 	
-	public void addParameter(String _param)
+	public void addParameter(String _key, String _param)
 	{
-		this.parameter.add(_param);
+		this.parameter.put(_key, _param);
 	}
 
 	public String toJson()

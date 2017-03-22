@@ -1,7 +1,9 @@
 package team.balam.exof.container.console;
 
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -39,19 +41,8 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 			this.logger.info("Command type : {}", command.getType());
 		}
 		
-		Object response = null;
-		
-		switch(command.getType())
-		{
-			case Command.Type.SHOW_SERVICE_LIST :
-				response = this.consoleService.getServiceList();
-				break;
-				
-			case Command.Type.SHOW_SCHEDULE_LIST :
-				response = this.consoleService.getScheduleList();
-
-				break;
-		}
+		Method service = ConsoleService.class.getMethod(command.getType(), Map.class);
+		Object response = service.invoke(this.consoleService, command.getParameter());
 		
 		StringWriter writer = new StringWriter();
 		this.objectMapper.writeValue(writer, response);
