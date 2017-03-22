@@ -80,7 +80,7 @@ public class PortInfo
 	@Override
 	public String toString()
 	{
-		StringBuilder str = new StringBuilder("Number[" + this.number + "]");
+		StringBuilder str = new StringBuilder();
 		
 		for(Object key : this.attr.keySet())
 		{
