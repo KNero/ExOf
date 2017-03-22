@@ -43,7 +43,7 @@ public class Client
 		new Viewer().start();
 	}
 	
-	public static void send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback)
+	public static void send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback) throws IOException
 	{
 		Socket socket = null;
 		
@@ -63,10 +63,6 @@ public class Client
 			TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
 			
 			_callback.accept(objectMapper.readValue(new String(res), mapType));
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
 		}
 		finally
 		{
