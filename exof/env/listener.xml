@@ -2,7 +2,7 @@
 <listener>
 	<port number="3001" console="yes"/>
 	
-	<port number="2000" maxLength="2000">
+	<port number="2000" maxLength="2000" description="for maven build">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
 		<messageTransform class="team.balam.exof.module.listener.handler.transform.JsonTransform"/>
 	</port>
