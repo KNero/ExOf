@@ -26,6 +26,13 @@ public class Client
 	
 	public static void main(String[] _arge) throws Exception
 	{
+		Client.init();
+		
+		new Viewer().start();
+	}
+	
+	public static void init() throws Exception
+	{
 		String envPath = System.getProperty(EnvKey.HOME, "./env");
 		ListenerLoader loader = new ListenerLoader();
 		loader.load(envPath);
@@ -39,8 +46,6 @@ public class Client
 				break;
 			}
 		}
-		
-		new Viewer().start();
 	}
 	
 	public static void send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback) throws IOException
