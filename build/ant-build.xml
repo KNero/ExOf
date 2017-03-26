@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-exof" default="zip" basedir=".">
+	<property name="version" value="1.0.3"/>
+	<property name="install_file_name" value="exof-${version}-install.zip"/>
+
+	<target name="delete">
+		<echo>delete zip file</echo>
+		<delete file="./${install_file_name}"/>
+	</target>
+
+	<target name="zip" depends="delete">
+		<echo>make zip file</echo>
+		<zip destfile="./${install_file_name}" basedir="./build template" excludes=".*" />
+	</target>
+</project>
