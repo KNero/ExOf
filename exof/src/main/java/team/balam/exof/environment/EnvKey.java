@@ -24,16 +24,6 @@ public interface EnvKey
 		
 		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
 		String AUTORELOAD_SERVICE_VARIABLE = "autoReload.serviceVariable";
-		
-		String JETTY_USE = "jetty.use";
-		String JETTY_HTTP = "jetty.http";
-		String JETTY_HTTPS = "jetty.https";
-		String JETTY_MAX_IDLE = "jetty.maxIdleTime";
-		String JETTY_HEADER_SIZE = "jetty.requestHeaderSize";
-		String JETTY_DESCRIPTOR = "jetty.descriptor";
-		String JETTY_RESOURCE_BASE = "jetty.resourceBase";
-		String JETTY_CONTEXT_PATH = "jetty.contextPath";
-		String JETTY_SSL_CONTEXT = "jetty.sslContextClass";
 	}
 	
 	interface Service
@@ -82,5 +72,15 @@ public interface EnvKey
 		String PRIVATE_KEY_PATH = "privateKeyPath";
 		
 		String CONSOLE = "console";
+		
+		String JETTY = "jetty";
+		String HTTP = "http";
+		String HTTPS = "https";
+		String MAX_IDLE = "maxIdleTime";
+		String HEADER_SIZE = "requestHeaderSize";
+		String DESCRIPTOR = "descriptor";
+		String RESOURCE_BASE = "resourceBase";
+		String CONTEXT_PATH = "contextPath";
+		String SSL_CONTEXT = "sslContextClass";
 	}
 }

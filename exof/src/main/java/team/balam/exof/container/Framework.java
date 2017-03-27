@@ -11,7 +11,7 @@ import team.balam.exof.module.was.JettyModule;
 
 public class Framework implements Container
 {
-	private Module[] moduleList = new Module[]{Listener.getInstance(), ServiceProvider.getInstance(), new JettyModule()};
+	private Module[] moduleList = new Module[]{new JettyModule(), Listener.getInstance(), ServiceProvider.getInstance()};
 	private FileModifyChecker fileModifyChecker;
 	
 	@Override
