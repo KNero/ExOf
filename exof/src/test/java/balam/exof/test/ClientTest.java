@@ -1,7 +1,9 @@
 package balam.exof.test;
 
 import java.nio.charset.Charset;
+import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import io.netty.channel.ChannelHandler;
@@ -10,11 +12,12 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import junit.framework.Assert;
 import team.balam.exof.Constant;
 import team.balam.exof.client.Sender;
+import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.CommandBuilder;
 import team.balam.exof.container.console.client.Client;
+import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
 public class ClientTest
@@ -43,12 +46,44 @@ public class ClientTest
 	}
 	
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testConsoleGetServiceList() throws Exception
 	{
 		Client.init();
 		
-		Client.send(CommandBuilder.buildServiceListGetter(), _result -> {
-			
+		Client.send(CommandBuilder.buildServiceListGetter(), _successResult -> {
+			try
+			{
+				_successResult.forEach((_key, _value) -> {
+					Map<String, Object> valueMap = (Map<String, Object>)_value;
+					
+					Assert.assertNotNull(valueMap.get(Command.Key.CLASS));
+					
+					valueMap.keySet().forEach(_valueKey -> {
+						if(! Command.Key.CLASS.equals(_valueKey))
+						{
+							if(! _valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE))
+							{
+								Assert.assertNotNull(valueMap.get(_valueKey));
+								
+								Map<String, String> variables = (Map<String, String>)valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
+								variables.keySet().forEach(_name -> {
+									Assert.assertNotNull(variables.get(_name));
+								});
+							}
+						}
+					});
+					
+					System.out.println();
+				});
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				Assert.fail();
+			}
+		}, _failResult -> {
+			Assert.fail();
 		});
 	}
 	
@@ -57,8 +92,18 @@ public class ClientTest
 	{
 		Client.init();
 		
-		Client.send(CommandBuilder.buildScheduleListGetter(), _result -> {
-			
+		Client.send(CommandBuilder.buildScheduleListGetter(), _successResult -> {
+			try
+			{
+				Assert.assertNotNull(_successResult.get("list"));
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				Assert.fail();
+			}
+		}, _failResult -> {
+			Assert.fail();
 		});
 	}
 }

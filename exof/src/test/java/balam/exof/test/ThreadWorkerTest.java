@@ -1,8 +1,8 @@
 package balam.exof.test;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import junit.framework.Assert;
 import team.balam.exof.ThreadWorker;
 import team.balam.exof.ThreadWorkerRegister;
 
