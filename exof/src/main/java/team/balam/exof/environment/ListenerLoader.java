@@ -37,9 +37,7 @@ public class ListenerLoader implements Loader
 					if(this._equalsNodeName(portNode, EnvKey.Listener.PORT))
 					{
 						NamedNodeMap attr =  portNode.getAttributes();
-						String number = attr.getNamedItem(EnvKey.Listener.NUMBER).getNodeValue();
-						
-						PortInfo info = new PortInfo(Integer.parseInt(number));
+						PortInfo info = new PortInfo();
 						
 						for(int a = 0; a < attr.getLength(); ++a)
 						{

@@ -4,23 +4,12 @@ import java.util.Properties;
 
 public class PortInfo
 {
-	private int number;
-
 	private String sessionHandler;
 	private String channelHandler;
 	private String messageTransform;
 	
 	private Properties attr = new Properties();
 	
-	public PortInfo(int _number)
-	{
-		this.number = _number;
-	}
-	
-	public int getNumber()
-	{
-		return this.number;
-	}
 	public String getSessionHandler()
 	{
 		return sessionHandler;

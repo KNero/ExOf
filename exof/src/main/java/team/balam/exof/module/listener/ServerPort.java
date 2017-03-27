@@ -37,7 +37,7 @@ public class ServerPort
 	
 	public int getNumber()
 	{
-		return this.portInfo.getNumber();
+		return this.portInfo.getAttributeToInt(EnvKey.Listener.PORT, 0);
 	}
 	
 	public void open() throws Exception
@@ -96,7 +96,8 @@ public class ServerPort
 			.childOption(ChannelOption.SO_KEEPALIVE, true)
 			.childOption(ChannelOption.SO_REUSEADDR, true);
 		
-		ChannelFuture future = b.bind(this.portInfo.getNumber()).sync(); 
+		int port = this.portInfo.getAttributeToInt(EnvKey.Listener.PORT, 0);
+		ChannelFuture future = b.bind(port).sync(); 
 		this.channel = future.channel();
 	}
 	

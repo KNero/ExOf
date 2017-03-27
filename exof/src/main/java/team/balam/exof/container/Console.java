@@ -73,7 +73,8 @@ public class Console implements Container
 					}
 				});
 			
-			ChannelFuture future = bootstrap.bind(consolePort.getNumber()).sync();
+			int port = consolePort.getAttributeToInt(EnvKey.Listener.PORT, 0);
+			ChannelFuture future = bootstrap.bind(port).sync();
 			this.channle = future.channel();
 			
 			portList.remove(consolePort);
