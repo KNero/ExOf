@@ -18,8 +18,6 @@ import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.service.annotation.Shutdown;
 import team.balam.exof.module.service.annotation.Startup;
 import team.balam.exof.module.service.annotation.Variable;
-import team.balam.exof.module.service.component.Inbound;
-import team.balam.exof.module.service.component.Outbound;
 
 public class ServiceProvider implements Module, Observer
 {
@@ -155,10 +153,7 @@ public class ServiceProvider implements Module, Observer
 		
 		if(inboundAnn != null && inboundAnn.classObject() != null)
 		{
-			for(Class<?> inClass : inboundAnn.classObject())
-			{
-				_service.addInbound((Inbound)inClass.newInstance());
-			}
+			_service.addInbound(inboundAnn.classObject().newInstance());
 		}
 	}
 	
@@ -169,10 +164,7 @@ public class ServiceProvider implements Module, Observer
 		
 		if(outboundAnn != null && outboundAnn.classObject() != null)
 		{
-			for(Class<?> outClass : outboundAnn.classObject())
-			{
-				_service.addOutbound((Outbound<?, ?>)outClass.newInstance());
-			}
+			_service.addOutbound(outboundAnn.classObject().newInstance());
 		}
 	}
 	
