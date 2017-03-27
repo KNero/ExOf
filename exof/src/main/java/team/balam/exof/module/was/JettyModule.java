@@ -22,7 +22,7 @@ public class JettyModule implements Module
 	@Override
 	public void start() throws Exception 
 	{
-		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT);
+		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT);
 		portList.forEach(_portInfo -> {
 			if(Constant.YES.equals(_portInfo.getAttribute(EnvKey.Listener.JETTY)))
 			{

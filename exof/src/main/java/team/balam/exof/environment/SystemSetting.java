@@ -22,37 +22,37 @@ public class SystemSetting
 		return self;
 	}
 	
-	public void set(String _prefix, String _key, Object _value) 
+	public void set(String _fileName, String _key, Object _value) 
 	{
-		this.setting.put(_prefix + _key, _value);
+		this.setting.put(_fileName + _key, _value);
 	}
 	
-	public Object get(String _prefix, String _key)
+	public Object get(String _fileName, String _key)
 	{
-		return this.setting.get(_prefix + _key);
+		return this.setting.get(_fileName + _key);
 	}
 
-	public String getString(String _prefix, String _key) 
+	public String getString(String _fileName, String _key) 
 	{
-		return this.setting.get(_prefix + _key).toString();
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> List<T> getList(String _prefix, String _key) 
-	{
-		return (List<T>)this.setting.get(_prefix + _key);
+		return this.setting.get(_fileName + _key).toString();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> Map<K, V> getMap(String _prefix, String _key) 
+	public <T> List<T> getList(String _fileName, String _key) 
 	{
-		return (Map<K, V>)this.setting.get(_prefix + _key);
+		return (List<T>)this.setting.get(_fileName + _key);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <K, V> Map<K, V> getMap(String _fileName, String _key) 
+	{
+		return (Map<K, V>)this.setting.get(_fileName + _key);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getFramework(String _key)
 	{
-		return (T)this.setting.get(EnvKey.PreFix.FRAMEWORK + _key);
+		return (T)this.setting.get(EnvKey.FileName.FRAMEWORK + _key);
 	}
 	
 	@Override

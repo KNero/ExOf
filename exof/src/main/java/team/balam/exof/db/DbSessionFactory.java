@@ -82,7 +82,7 @@ public class DbSessionFactory
 	public void loadSqlSessionFactory(String _datasource)
 	{
 		MyBatisLoader loader = new MyBatisLoader();
-		String envPath = SystemSetting.getInstance().getString(EnvKey.PreFix.FRAMEWORK, EnvKey.HOME);
+		String envPath = SystemSetting.getInstance().getString(EnvKey.FileName.FRAMEWORK, EnvKey.HOME);
 		
 		try
 		{

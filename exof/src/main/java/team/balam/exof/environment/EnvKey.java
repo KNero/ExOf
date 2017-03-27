@@ -9,7 +9,7 @@ public interface EnvKey
 {
 	String HOME = "exof.envPath";
 	
-	interface PreFix
+	interface FileName
 	{
 		String FRAMEWORK = "framework.";
 		String SERVICE = "service.";

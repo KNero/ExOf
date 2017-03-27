@@ -39,7 +39,7 @@ public class Console implements Container
 	{
 		PortInfo consolePort = null;
 		
-		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT);
+		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT);
 		for(PortInfo info : portList)
 		{
 			String isConsole = info.getAttribute(EnvKey.Listener.CONSOLE);

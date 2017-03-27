@@ -23,10 +23,10 @@ public class ServiceLoader implements Loader
 	public void load(String _envPath) throws LoadEnvException 
 	{
 		List<ServiceDirectoryInfo> serviceDirectoryList = new LinkedList<>();
-		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SERVICES, serviceDirectoryList);
+		SystemSetting.getInstance().set(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES, serviceDirectoryList);
 		
 		List<SchedulerInfo> schedulerList = new LinkedList<>();
-		SystemSetting.getInstance().set(EnvKey.PreFix.SERVICE, EnvKey.Service.SCHEDULER, schedulerList);
+		SystemSetting.getInstance().set(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER, schedulerList);
 		
 		this._loadServiceAndScheduler(_envPath + "/service.xml", serviceDirectoryList, schedulerList);
 	}

@@ -32,7 +32,7 @@ public class FrameworkLoader implements Loader
 				if(_key.equals(EnvKey.Framework.SCHEDULER))
 				{
 					Properties sp = new Properties();
-					SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
+					SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
 					
 					Map<String, Object> scheduler = (Map<String, Object>)fw.get(EnvKey.Framework.SCHEDULER);
 					scheduler.keySet().forEach(_quartzKey -> {
@@ -50,12 +50,12 @@ public class FrameworkLoader implements Loader
 						mapValues.keySet().forEach(_mapKey -> {
 							String key = _key + "." + _mapKey;
 							Object value = mapValues.get(_mapKey);
-							SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, key, value);
+							SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, key, value);
 						});
 					}
 					else
 					{
-						SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, _key, values);
+						SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, _key, values);
 					}
 				}
 			});

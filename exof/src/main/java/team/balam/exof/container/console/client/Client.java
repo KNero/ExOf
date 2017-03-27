@@ -38,7 +38,7 @@ public class Client
 		ListenerLoader loader = new ListenerLoader();
 		loader.load(envPath);
 		
-		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT);
+		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT);
 		for(PortInfo port : portList)
 		{
 			if(Constant.YES.equals(port.getAttribute(EnvKey.Listener.CONSOLE)))

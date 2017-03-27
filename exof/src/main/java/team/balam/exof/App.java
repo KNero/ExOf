@@ -35,7 +35,7 @@ public class App
 		});
 		
 		String envPath = System.getProperty(EnvKey.HOME, "./env");
-		SystemSetting.getInstance().set(EnvKey.PreFix.FRAMEWORK, EnvKey.HOME, envPath);
+		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.HOME, envPath);
 		
 		Logger logger = LoggerFactory.getLogger(App.class);
 		

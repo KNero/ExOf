@@ -19,7 +19,7 @@ public class ListenerLoader implements Loader
 	public void load(String _envPath) throws LoadEnvException
 	{
 		List<PortInfo> portList = new LinkedList<>();
-		SystemSetting.getInstance().set(EnvKey.PreFix.LISTENER, EnvKey.Listener.PORT, portList);
+		SystemSetting.getInstance().set(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT, portList);
 		
 		String filePath = _envPath + "/listener.xml";
 		
