@@ -42,7 +42,7 @@ public class Client
 		{
 			if(Constant.YES.equals(port.getAttribute(EnvKey.Listener.CONSOLE)))
 			{
-				consolePort = port.getAttributeToInt(EnvKey.Listener.PORT, 0);
+				consolePort = port.getAttributeToInt(EnvKey.Listener.NUMBER, 0);
 				break;
 			}
 		}

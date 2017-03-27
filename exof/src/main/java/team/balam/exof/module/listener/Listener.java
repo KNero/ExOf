@@ -44,7 +44,7 @@ public class Listener implements Module
 			}
 			catch(Exception e)
 			{
-				this.logger.error("Can not open port[{}].", _info.getAttribute(EnvKey.Listener.PORT), e);
+				this.logger.error("Can not open port[{}].", _info.getAttribute(EnvKey.Listener.NUMBER), e);
 			}
 		});
 	}

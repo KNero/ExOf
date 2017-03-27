@@ -2,6 +2,8 @@ package team.balam.exof.container;
 
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -73,11 +75,13 @@ public class Console implements Container
 					}
 				});
 			
-			int port = consolePort.getAttributeToInt(EnvKey.Listener.PORT, 0);
+			int port = consolePort.getAttributeToInt(EnvKey.Listener.NUMBER, 0);
 			ChannelFuture future = bootstrap.bind(port).sync();
 			this.channle = future.channel();
 			
 			portList.remove(consolePort);
+			
+			LoggerFactory.getLogger(this.getClass()).info("Console Monitoring Port : " + port);
 		}
 	}
 
