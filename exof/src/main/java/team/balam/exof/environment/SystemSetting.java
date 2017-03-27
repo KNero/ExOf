@@ -55,6 +55,12 @@ public class SystemSetting
 		return (T)this.setting.get(EnvKey.FileName.FRAMEWORK + _key);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <T> T getExternal()
+	{
+		return (T)this.setting.get(EnvKey.FileName.FRAMEWORK + EnvKey.Framework.EXTERNAL);
+	}
+	
 	@Override
 	public String toString()
 	{

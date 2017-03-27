@@ -24,6 +24,8 @@ public interface EnvKey
 		
 		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
 		String AUTORELOAD_SERVICE_VARIABLE = "autoReload.serviceVariable";
+		
+		String EXTERNAL = "external";
 	}
 	
 	interface Service

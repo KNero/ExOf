@@ -29,7 +29,7 @@ public class FrameworkLoader implements Loader
 			Map<String, ?> fw = (Map<String, ?>)root.get(EnvKey.Framework.FRAMEWORK);
 			
 			fw.keySet().forEach(_key -> {
-				if(_key.equals(EnvKey.Framework.SCHEDULER))
+				if(EnvKey.Framework.SCHEDULER.equals(_key))
 				{
 					Properties sp = new Properties();
 					SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.SCHEDULER, sp);
@@ -44,7 +44,11 @@ public class FrameworkLoader implements Loader
 				{
 					Object values = fw.get(_key);
 					
-					if(values instanceof Map)
+					if(EnvKey.Framework.EXTERNAL.equals(_key))
+					{
+						SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, _key, values);
+					}
+					else if(values instanceof Map)
 					{
 						Map<String, ?> mapValues = (Map<String, ?>)values;
 						mapValues.keySet().forEach(_mapKey -> {
