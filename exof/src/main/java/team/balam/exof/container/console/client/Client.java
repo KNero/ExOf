@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -48,7 +49,8 @@ public class Client
 		}
 	}
 	
-	public static void send(Command _command, java.util.function.Consumer<Map<String, Object>> _callback) throws IOException
+	@SafeVarargs
+	public static void send(Command _command, Consumer<Map<String, Object>>... _callback) throws IOException
 	{
 		Socket socket = null;
 		
@@ -66,8 +68,16 @@ public class Client
 			
 			ObjectMapper objectMapper = new ObjectMapper();
 			TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
+			Map<String, Object> result = objectMapper.readValue(new String(res), mapType);
 			
-			_callback.accept(objectMapper.readValue(new String(res), mapType));
+			if(_callback.length > 0 && _isExistData(result))
+			{
+				_callback[0].accept(result);
+			}
+			else if(_callback.length > 1)
+			{
+				_callback[1].accept(result);
+			}
 		}
 		finally
 		{
@@ -82,6 +92,20 @@ public class Client
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+	
+	private static boolean _isExistData(Map<String, Object> _result)
+	{
+		String resultValue = (String)_result.get(Command.Key.NO_DATA);
+		if(resultValue != null)
+		{
+			System.out.println(resultValue);
+			return false;
+		}
+		else
+		{
+			return true;
 		}
 	}
 }

@@ -12,7 +12,7 @@ public class Command
 {
 	public interface Key
 	{
-		String RESULT = "result";
+		String NO_DATA = "noData";
 		String CLASS = "class";
 	}
 	
@@ -26,7 +26,7 @@ public class Command
 	
 	static
 	{
-		NO_DATA_RESPONSE.put(Command.Key.RESULT, "No data.");
+		NO_DATA_RESPONSE.put(Command.Key.NO_DATA, "No data.");
 	}
 	
 	@Expose
