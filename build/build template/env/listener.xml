@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listener>
-	<port number="3001" console="yes"/>
+	<port console="yes" number="3001"/>
 	
 	<port number="2000" maxLength="2000" description="for maven build">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
@@ -16,5 +16,9 @@
 									privateKeyPath="C:/Users/kwonsm/Desktop/keyutil_example.com.key" maxLength="8000">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
 		<messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>
-	</port> -->
+	</port> 
+	
+	<port jetty="yes" http="8080" https="8081" maxIdleTime="30000" requestHeaderSize="8192"
+		sslContextClass="" 
+		descriptor="./webapp/WEB-INF/web.xml" resourceBase="./webapp" contextPath="/"/> -->
 </listener>
