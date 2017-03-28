@@ -1,6 +1,5 @@
 package team.balam.exof.container.scheduler;
 
-import java.util.Date;
 import java.util.UUID;
 
 import org.quartz.CronExpression;
@@ -25,17 +24,17 @@ public class PauseAwareCronTrigger extends CronTriggerImpl
 		this.setName(UUID.randomUUID().toString());
 	}
 	
-	@Override
-	public Date getNextFireTime()
-	{
-		Date nextFireTime = super.getNextFireTime();
-		if(nextFireTime.getTime() < System.currentTimeMillis())
-		{
-			// next fire time after now
-			nextFireTime = super.getFireTimeAfter(null);
-			super.setNextFireTime(nextFireTime);
-		}
-		
-		return nextFireTime;
-	}
+//	@Override
+//	public Date getNextFireTime()
+//	{
+//		Date nextFireTime = super.getNextFireTime();
+//		if(nextFireTime.getTime() < System.currentTimeMillis())
+//		{
+//			// next fire time after now
+//			nextFireTime = super.getFireTimeAfter(null);
+//			super.setNextFireTime(nextFireTime);
+//		}
+//		
+//		return nextFireTime;
+//	}
 }

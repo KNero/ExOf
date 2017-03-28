@@ -55,13 +55,12 @@ public class SchedulerManager implements Container, Observer
 	@Override
 	public void start() throws Exception
 	{
-		this.isAutoReload = (Boolean)SystemSetting.getInstance()
-				.get(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER);
+		this.isAutoReload = (Boolean)SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
 		
 		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
 		if(infoList.size() > 0)
 		{
-			Properties pro = (Properties)SystemSetting.getInstance().get(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.SCHEDULER);
+			Properties pro = (Properties)SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
 			this.scheduler = factory.getScheduler();
 			
