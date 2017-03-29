@@ -63,7 +63,7 @@ public class JettyModule implements Module
 				}
 				
 				SslContextFactoryBuilder sslCtxFactoryBuilder = (SslContextFactoryBuilder)Class.forName(sslCtxClass).newInstance();
-				SslContextFactory sslCtxFactory = sslCtxFactoryBuilder.build();
+				SslContextFactory sslCtxFactory = sslCtxFactoryBuilder.build(this.portInfo);
 				
 				SslSelectChannelConnector sslConnector = new SslSelectChannelConnector(sslCtxFactory);
 				sslConnector.setPort(https);
