@@ -1,5 +1,10 @@
 package team.balam.exof.module.listener;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -79,7 +84,9 @@ public class ServerPort
 		
 		int defaultWorkerSize = Runtime.getRuntime().availableProcessors() + 1;
 		int workerSize = this.portInfo.getAttributeToInt(EnvKey.Listener.WORKER_SIZE, defaultWorkerSize);
-		this.workerGroup = new NioEventLoopGroup(workerSize);
+		Executor workerExecutor = new ThreadPoolExecutor(workerSize, workerSize, 1, TimeUnit.SECONDS, new SynchronousQueue<>());
+		
+		this.workerGroup = new NioEventLoopGroup(workerSize, workerExecutor);
 		
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(this.bossGroup, this.workerGroup)
