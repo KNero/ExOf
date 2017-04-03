@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.MapToVoConverter;
 import team.balam.exof.module.service.component.Outbound;
@@ -125,6 +126,11 @@ public class ServiceImpl implements Service
 				for(Outbound outbound : this.outbound)
 				{
 					result = outbound.execute(result);
+				}
+				
+				if(result != null)
+				{
+					RequestContext.writeAndFlushResponse(result);
 				}
 			}
 			catch(Exception e)

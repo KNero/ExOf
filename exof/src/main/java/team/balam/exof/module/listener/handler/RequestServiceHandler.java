@@ -48,7 +48,8 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     		}
     		
     		RequestContext.createContext();
-    		RequestContext.setSession(ctx);
+    		RequestContext.set(RequestContext.CHANNEL_CONTEXT, ctx);
+    		RequestContext.set(RequestContext.ORIGINAL_REQUEST, msg);
     		
     		serviceObject = this.transform.transform(msg);
     		
@@ -57,7 +58,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     			throw new Exception("serviceObject is null.");
     		}
     		
-    		RequestContext.setServiceObject(serviceObject);
+    		RequestContext.set(RequestContext.SERVICE_OBJECT, serviceObject);
     		
 			String servicePath = serviceObject.getServicePath();
 			Service service = ServiceProvider.lookup(servicePath);
