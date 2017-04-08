@@ -22,7 +22,7 @@ public class MapToVoConverter
 			
 			if(methodName.startsWith("set"))
 			{
-				this.methodMap.put(methodName.substring(3), m);
+				this.methodMap.put(methodName.substring(3).toLowerCase(), m);
 			}
 		}
 	}
@@ -43,7 +43,7 @@ public class MapToVoConverter
 		for(String key : keySet)
 		{
 			Object value = mapReq.get(key);
-			Method method = this.methodMap.get(key);
+			Method method = this.methodMap.get(key.toLowerCase());
 			
 			method.invoke(vo, value);
 		}
