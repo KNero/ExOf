@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.MapToVoConverter;
@@ -16,8 +13,6 @@ import team.balam.exof.module.service.component.Outbound;
 
 public class ServiceImpl implements Service
 {
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-			
 	private Method method;
 	private Object host;
 	private int methodParamCount;
@@ -100,16 +95,10 @@ public class ServiceImpl implements Service
 			_so.setRequest(vo);
 		}
 		
-		this.inbound.forEach(_in -> {
-			try
-			{
-				_in.execute(_so);
-			}
-			catch(Exception e)
-			{
-				this.logger.error("Inbound error.", e);
-			}
-		});
+		for(Inbound in : this.inbound)
+		{
+			in.execute(_so);
+		}
 		
 		Object[] methodParameter = null;
 		if(this.methodParamCount > 0) 
@@ -121,21 +110,14 @@ public class ServiceImpl implements Service
 		
 		if(result != null)
 		{
-			try
+			for(Outbound outbound : this.outbound)
 			{
-				for(Outbound outbound : this.outbound)
-				{
-					result = outbound.execute(result);
-				}
-				
-				if(result != null)
-				{
-					RequestContext.writeAndFlushResponse(result);
-				}
+				result = outbound.execute(result);
 			}
-			catch(Exception e)
+			
+			if(result != null)
 			{
-				this.logger.error("Outbound error.", e);
+				RequestContext.writeAndFlushResponse(result);
 			}
 		}
 	}
