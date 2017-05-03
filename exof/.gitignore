@@ -1,4 +1,4 @@
 /target/
 /.gitignore
-/webapp/
 /logs/
+/.DS_Store
