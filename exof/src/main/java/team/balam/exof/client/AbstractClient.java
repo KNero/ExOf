@@ -21,7 +21,7 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 {
 	protected Channel channel;
 
-	private EventLoopGroup workerGorup;
+	private EventLoopGroup workerGroup;
 	private ChannelHandlerMaker channelHandler;
 	
 	private int connectTimeout;
@@ -37,7 +37,7 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 	public AbstractClient(ChannelHandlerMaker _channelHandler, NioEventLoopGroup _loopGroup)
 	{
 		this.channelHandler = _channelHandler;
-		this.workerGorup = _loopGroup;
+		this.workerGroup = _loopGroup;
 		this.connectTimeout = Client.DEFAULT_CONNECT_TIMEOUT;
 	}
 	
@@ -57,7 +57,7 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 	public void connect(String _host, int _port) throws IOException 
 	{
 		Bootstrap b = new Bootstrap();
-		b.group(this.workerGorup);
+		b.group(this.workerGroup);
 		b.channel(NioSocketChannel.class);
 		b.option(ChannelOption.SO_KEEPALIVE, true);
 		b.handler(new ChannelInitializer<SocketChannel>(){
@@ -94,7 +94,7 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 			this.channel.close();
 		}
 		
-		this.workerGorup.shutdownGracefully();
+		this.workerGroup.shutdownGracefully();
 	}
 	
 	@Override
