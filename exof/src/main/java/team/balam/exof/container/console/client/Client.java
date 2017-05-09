@@ -61,7 +61,8 @@ public class Client
 			socket.setSoTimeout(5000);
 			
 			OutputStream out = socket.getOutputStream();
-			out. write(_command.toJson().getBytes());
+			out.write(_command.toJson().getBytes());
+			out.write('\0');
 			
 			InputStream in = socket.getInputStream();
 			byte[] res = StreamUtil.read(in, '\0');
