@@ -15,7 +15,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import team.balam.exof.Constant;
 import team.balam.exof.client.Sender;
 import team.balam.exof.container.console.Command;
-import team.balam.exof.container.console.CommandBuilder;
+import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
@@ -51,7 +51,7 @@ public class ClientTest
 	{
 		Client.init();
 		
-		Client.send(CommandBuilder.buildServiceListGetter(), _successResult -> {
+		Client.send(new Command(ServiceList.SHOW_SERVICE_LIST), _successResult -> {
 			try
 			{
 				_successResult.forEach((_key, _value) -> {
@@ -92,7 +92,7 @@ public class ClientTest
 	{
 		Client.init();
 		
-		Client.send(CommandBuilder.buildScheduleListGetter(), _successResult -> {
+		Client.send(new Command(ServiceList.SHOW_SCHEDULE_LIST), _successResult -> {
 			try
 			{
 				Assert.assertNotNull(_successResult.get("list"));
