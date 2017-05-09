@@ -15,8 +15,7 @@ import com.google.gson.GsonBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
-{
+public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String> {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
@@ -24,29 +23,36 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String>
 	
 	private ConsoleService consoleService;
 	
-	public ConsoleCommandHandler()
-	{
+	public ConsoleCommandHandler() {
 		this.consoleService = new ConsoleService();
 		this.gson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.STATIC)
 				.excludeFieldsWithoutExposeAnnotation().create();
 	}
 	
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception
-	{
-		Command command = this.gson.fromJson(msg, Command.class);
+	protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+		String responseJson = this.executeConsoleService(msg);
 		
-		if(this.logger.isInfoEnabled())
-		{
+		ctx.writeAndFlush(responseJson + "\0");
+	}
+	
+	public String executeConsoleService(String _json) throws Exception {
+		Command command = this.gson.fromJson(_json, Command.class);
+		
+		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Command type : {}", command.getType());
 		}
 		
 		Method service = ConsoleService.class.getMethod(command.getType(), Map.class);
 		Object response = service.invoke(this.consoleService, command.getParameter());
 		
-		StringWriter writer = new StringWriter();
-		this.objectMapper.writeValue(writer, response);
-		
-		ctx.writeAndFlush(writer.toString() + "\0");
+		if (response instanceof Map) {
+			StringWriter writer = new StringWriter();
+			this.objectMapper.writeValue(writer, response);
+			
+			return writer.toString();
+		} else {
+			return (String)response;			
+		}
 	}
 }
