@@ -16,12 +16,6 @@ public class Command
 		String CLASS = "class";
 	}
 	
-	public interface Type
-	{
-		String SHOW_SERVICE_LIST = "getServiceList";
-		String SHOW_SCHEDULE_LIST = "getScheduleList";
-	}
-	
 	public static final Map<String, String> NO_DATA_RESPONSE = new HashMap<>();
 	
 	static
@@ -35,9 +29,9 @@ public class Command
 	@Expose
 	private Map<String, Object> parameter = new HashMap<>();
 	
-	public Command(String _type)
+	public Command(ServiceList _service)
 	{
-		this.type = _type;
+		this.type = _service.value();
 	}
 	
 	public String getType()
@@ -65,6 +59,6 @@ public class Command
 		Gson gson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.STATIC)
 				.excludeFieldsWithoutExposeAnnotation().create();
 		
-		return gson.toJson(this) + "\0";
+		return gson.toJson(this);
 	}
 }
