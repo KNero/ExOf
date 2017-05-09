@@ -73,7 +73,7 @@ public class DynamicSettingDao {
 	
 	public static List<HashMap<String, Object>> selectList(String _name) throws Exception {
 		QueryVo vo = QueryVoFactory.create(Type.SELECT);
-		vo.setQuery("SELECT NAME, VALUE, DESCRIPTION FROM ENVIRONMENT WHERE NAME LIKE ?");
+		vo.setQuery("SELECT NAME, VALUE, DESCRIPTION FROM ENVIRONMENT WHERE NAME LIKE ? ORDER BY NAME");
 		vo.setParam(new Object[]{"%" + _name + "%"});
 		
 		PoolManager.getInstance().executeQuery(DB_NAME, vo);
