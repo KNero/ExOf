@@ -4,10 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
+import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.ServiceProvider;
 
 public class ConsoleService {
@@ -21,11 +26,14 @@ public class ConsoleService {
 		
 		if (portId != null && portId.equals(id)) {
 			if (portPw != null && portPw.equals(password)) {
-				return WebServlet.LOGIN_SUCCESS;
+				HttpServletRequest httpReq = RequestContext.get(RequestContext.HTTP_SERVLET_REQ);
+				httpReq.getSession().setAttribute(WebServlet.LOGIN_SUCCESS, Constant.YES);
+
+				return "main.html";
 			}
 		}
 		
-		return Command.NO_DATA_RESPONSE;
+		return "index.html";
 	}
 	
 	public Object getServiceList(Map<String, Object> _param) {
@@ -49,5 +57,15 @@ public class ConsoleService {
 
 			return result;
 		}
+	}
+	
+	public Object getDynamicSettingList(Map<String, Object> _param) {
+		String settingName = (String) _param.get("name");
+		
+		if (settingName == null) {
+			settingName = "";
+		} 
+		
+		return DynamicSetting.getInstance().getList(settingName);
 	}
 }
