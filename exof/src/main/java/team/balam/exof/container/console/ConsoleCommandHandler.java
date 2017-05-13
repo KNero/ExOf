@@ -4,6 +4,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String> {
 	private Gson gson;
 	
 	private ConsoleService consoleService;
+	private Function<Command, Boolean> filter;
 	
 	public ConsoleCommandHandler() {
 		this.consoleService = new ConsoleService();
@@ -29,11 +31,17 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String> {
 				.excludeFieldsWithoutExposeAnnotation().create();
 	}
 	
+	public void setFilter(Function<Command, Boolean> filter) {
+		this.filter = filter;
+	}
+	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
 		String responseJson = this.executeConsoleService(msg);
 		
-		ctx.writeAndFlush(responseJson + "\0");
+		if (responseJson != null) {
+			ctx.writeAndFlush(responseJson + "\0");
+		}
 	}
 	
 	public String executeConsoleService(String _json) throws Exception {
@@ -43,16 +51,22 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String> {
 			this.logger.info("Command type : {}", command.getType());
 		}
 		
-		Method service = ConsoleService.class.getMethod(command.getType(), Map.class);
-		Object response = service.invoke(this.consoleService, command.getParameter());
+		Object response = null;
 		
-		if (response instanceof Map) {
+		if (this.filter.apply(command)) {
+			Method service = ConsoleService.class.getMethod(command.getType(), Map.class);
+			response = service.invoke(this.consoleService, command.getParameter());
+		} else {
+			response = Command.NO_DATA_RESPONSE;
+		}
+		
+		if (response instanceof String) {
+			return (String)response;	
+		} else {
 			StringWriter writer = new StringWriter();
 			this.objectMapper.writeValue(writer, response);
 			
 			return writer.toString();
-		} else {
-			return (String)response;			
 		}
 	}
 }

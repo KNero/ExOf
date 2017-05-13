@@ -3,6 +3,7 @@ package team.balam.exof.container.console;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.function.Function;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,9 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import team.balam.exof.Constant;
+import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.util.StreamUtil;
 
-public class WebServlet extends HttpServlet {
+public class WebServlet extends HttpServlet implements Function<Command, Boolean> {
 	private static final long serialVersionUID = 1L;
 	
 	private ConsoleCommandHandler commandHandler;
@@ -21,10 +23,14 @@ public class WebServlet extends HttpServlet {
 	public WebServlet() {
 		super();
 		this.commandHandler = new ConsoleCommandHandler();
+		this.commandHandler.setFilter(this);
 	}
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		RequestContext.set(RequestContext.HTTP_SERVLET_REQ, req);
+		RequestContext.set(RequestContext.HTTP_SERVLET_RES, resp);
+		
 		InputStream bodyIn = null;
 		
 		try {
@@ -33,19 +39,33 @@ public class WebServlet extends HttpServlet {
 			
 			String res = this.commandHandler.executeConsoleService(new String(buf));
 			
-			if (LOGIN_SUCCESS.equals(res)) {
-				req.getSession().setAttribute(LOGIN_SUCCESS, Constant.YES);
-			} 
-
-			PrintWriter out = resp.getWriter();
-			out.write(res);
-			out.flush();
+			if (res != null) {
+				PrintWriter out = resp.getWriter();
+				out.write(res);
+				out.flush();
+			}
 		} catch(Exception e) {
 			throw new ServletException(e);
 		} finally {
+			RequestContext.remove();
+			
 			if (bodyIn != null) {
 				bodyIn.close();
 			}
 		}
+	}
+
+	@Override
+	public Boolean apply(Command t) {
+		if ("loginWebConsole".equals(t.getType())) {
+			return true;
+		} else {
+			HttpServletRequest httpReq = RequestContext.get(RequestContext.HTTP_SERVLET_REQ);
+			if (Constant.YES.equals(httpReq.getSession().getAttribute(WebServlet.LOGIN_SUCCESS))) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }
