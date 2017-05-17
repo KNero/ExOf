@@ -6,9 +6,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.environment.DynamicSetting;
+import team.balam.exof.environment.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.listener.PortInfo;
@@ -16,6 +20,8 @@ import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.ServiceProvider;
 
 public class ConsoleService {
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	public Object loginWebConsole(Map<String, Object> _param) {
 		String id = (String)_param.get("id");
 		String password = (String)_param.get("password");
@@ -67,5 +73,45 @@ public class ConsoleService {
 		} 
 		
 		return DynamicSetting.getInstance().getList(settingName);
+	}
+	
+	public String updateDynamicSetting(Map<String, Object> _param) {
+		String name = (String) _param.get("name");
+		String value = (String) _param.get("value");
+		String des = (String) _param.get("des");
+		
+		try {
+			DynamicSetting.getInstance().change(new DynamicSettingVo(name, value, des));
+			return Command.SUCCESS_RESPONSE;
+		} catch (Exception e) {
+			this.logger.error("DynamicSetting UPDATE error.", e);
+			return Command.makeSimpleResult(e.getMessage());
+		}
+	}
+	
+	public String removeDynamicSetting(Map<String, Object> _param) {
+		String name = (String) _param.get("name");
+		
+		try {
+			DynamicSetting.getInstance().remove(name);
+			return Command.SUCCESS_RESPONSE;
+		} catch (Exception e) {
+			this.logger.error("DynamicSetting DELETE error.", e);
+			return Command.makeSimpleResult(e.getMessage());
+		}
+	}
+	
+	public String addDynamicSetting(Map<String, Object> _param) {
+		String name = (String) _param.get("name");
+		String value = (String) _param.get("value");
+		String des = (String) _param.get("des");
+		
+		try {
+			DynamicSetting.getInstance().put(new DynamicSettingVo(name, value, des));
+			return Command.SUCCESS_RESPONSE;
+		} catch (Exception e) {
+			this.logger.error("DynamicSetting INSERT error.", e);
+			return Command.makeSimpleResult(e.getMessage());
+		}
 	}
 }

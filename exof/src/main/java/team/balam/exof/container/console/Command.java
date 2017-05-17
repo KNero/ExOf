@@ -12,15 +12,16 @@ public class Command
 {
 	public interface Key
 	{
-		String NO_DATA = "noData";
+		String RESULT = "result";
 		String CLASS = "class";
 	}
 	
-	public static final Map<String, String> NO_DATA_RESPONSE = new HashMap<>();
+	public static final String NO_DATA_RESPONSE = makeSimpleResult("No data.");
+	public static final String SUCCESS_RESPONSE = makeSimpleResult("Success");
+	public static final String FAIL_RESPONSE = makeSimpleResult("Fail");
 	
-	static
-	{
-		NO_DATA_RESPONSE.put(Command.Key.NO_DATA, "No data.");
+	public static String makeSimpleResult(String _value) {
+		return "{\"" + Key.RESULT + "\":\"" + _value + "\"}";
 	}
 	
 	@Expose

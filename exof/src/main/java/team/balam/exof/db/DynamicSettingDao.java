@@ -96,8 +96,20 @@ public class DynamicSettingDao {
 	
 	public static void update(String _name, String _value, String _description) throws Exception {
 		QueryVo vo = QueryVoFactory.create(Type.UPDATE);
-		vo.setQuery("UPDATE ENVIRONMENT SET NAME=?, VALUE=?, DESCRIPTION=? WHERE NAME=?");
-		vo.setParam(new Object[]{_name, _value, _description, _name});
+		vo.setQuery("UPDATE ENVIRONMENT SET VALUE=?, DESCRIPTION=? WHERE NAME=?");
+		vo.setParam(new Object[]{_value, _description, _name});
+		
+		PoolManager.getInstance().executeQuery(DB_NAME, vo);
+		
+		if (!vo.getResult().isSuccess()) {
+			throw vo.getResult().getException();
+		}
+	}
+	
+	public static void delete(String _name) throws Exception {
+		QueryVo vo = QueryVoFactory.create(Type.DELETE);
+		vo.setQuery("DELETE FROM ENVIRONMENT WHERE NAME=?");
+		vo.setParam(new Object[]{_name});
 		
 		PoolManager.getInstance().executeQuery(DB_NAME, vo);
 		

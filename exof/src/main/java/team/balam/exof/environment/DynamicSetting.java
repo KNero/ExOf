@@ -27,20 +27,16 @@ public class DynamicSetting {
 		return self;
 	}
 	
-	public void put(DynamicSettingVo _vo) {
-		try {
-			if (StringUtil.isNullOrEmpty(_vo.getName())) {
-				throw new Exception("DynamicSetting name is not null.");
-			}
-			
-			if (StringUtil.isNullOrEmpty(_vo.getValue())) {
-				throw new Exception("DynamicSetting value is not null.");
-			}
-			
-			DynamicSettingDao.insert(_vo.getName(), _vo.getValue(), _vo.getDescription());
-		} catch(Exception e) {
-			LOGGER.error("Fail to put dynamic setting. {}/{}/{}", _vo.getName(), _vo.getValue(), _vo.getDescription(), e);
+	public void put(DynamicSettingVo _vo) throws Exception {
+		if (StringUtil.isNullOrEmpty(_vo.getName())) {
+			throw new IllegalArgumentException("DynamicSetting name is not null.");
 		}
+		
+		if (StringUtil.isNullOrEmpty(_vo.getValue())) {
+			throw new IllegalArgumentException("DynamicSetting value is not null.");
+		}
+		
+		DynamicSettingDao.insert(_vo.getName(), _vo.getValue(), _vo.getDescription());
 	}
 	
 	public DynamicSettingVo get(String _name) {
@@ -79,23 +75,27 @@ public class DynamicSetting {
 		}
 	}
 	
-	public void change(DynamicSettingVo _vo) {
-		try {
-			if (StringUtil.isNullOrEmpty(_vo.getName())) {
-				throw new Exception("DynamicSetting name is not null.");
-			}
-			
-			if (StringUtil.isNullOrEmpty(_vo.getValue())) {
-				throw new Exception("DynamicSetting value is not null.");
-			}
-			
-			if (_vo.getDescription() == null) {
-				_vo.setDescription("");
-			}
-			
-			DynamicSettingDao.update(_vo.getName(), _vo.getValue(), _vo.getDescription());
-		} catch(Exception e) {
-			LOGGER.error("Fail to change dynamic setting. {}/{}/{}", _vo.getName(), _vo.getValue(), _vo.getDescription(), e);
+	public void change(DynamicSettingVo _vo) throws Exception {
+		if (StringUtil.isNullOrEmpty(_vo.getName())) {
+			throw new IllegalArgumentException("DynamicSetting name is not null.");
 		}
+		
+		if (StringUtil.isNullOrEmpty(_vo.getValue())) {
+			throw new IllegalArgumentException("DynamicSetting value is not null.");
+		}
+		
+		if (_vo.getDescription() == null) {
+			_vo.setDescription("");
+		}
+		
+		DynamicSettingDao.update(_vo.getName(), _vo.getValue(), _vo.getDescription());
+	}
+	
+	public void remove(String _name) throws Exception {
+		if (StringUtil.isNullOrEmpty(_name)) {
+			throw new IllegalArgumentException("DynamicSetting name is not null.");
+		}
+		
+		DynamicSettingDao.delete(_name);
 	}
 }

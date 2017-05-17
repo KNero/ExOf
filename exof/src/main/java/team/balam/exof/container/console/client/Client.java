@@ -98,7 +98,7 @@ public class Client
 	
 	private static boolean _isExistData(Map<String, Object> _result)
 	{
-		String resultValue = (String)_result.get(Command.Key.NO_DATA);
+		String resultValue = (String)_result.get(Command.Key.RESULT);
 		if(resultValue != null)
 		{
 			System.out.println(resultValue);

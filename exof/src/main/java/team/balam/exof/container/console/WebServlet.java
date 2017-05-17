@@ -30,6 +30,7 @@ public class WebServlet extends HttpServlet implements Function<Command, Boolean
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		RequestContext.set(RequestContext.HTTP_SERVLET_REQ, req);
 		RequestContext.set(RequestContext.HTTP_SERVLET_RES, resp);
+		resp.setContentType("text/plain; charset=utf-8");
 		
 		InputStream bodyIn = null;
 		

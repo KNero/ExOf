@@ -20,7 +20,7 @@ function sendRequest(_type, _data, _success) {
 				}
 			}
 			
-			if (resData.noData) {
+			if (resData.result == "No data.") {
 				location.replace("index.html");
 				return
 			}
@@ -31,5 +31,9 @@ function sendRequest(_type, _data, _success) {
 			alert("Fail!");
 		}
 	});
+}
+
+function isResultSuccess(_res) {
+	return _res.result == "Success";
 }
 
