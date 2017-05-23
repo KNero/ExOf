@@ -111,6 +111,11 @@ public class ServiceProvider implements Module, Observer
 			if(variableAnn != null)
 			{
 				Map<String, String> serviceVariables = _info.getVariable(variableAnn.serviceName());
+				
+				if (serviceVariables == null) {
+					throw new NullPointerException("Service name not found. " + variableAnn.serviceName());
+				}
+				
 				String value = serviceVariables.get(field.getName());
 				Class<?> fieldType = field.getType();
 
@@ -284,28 +289,38 @@ public class ServiceProvider implements Module, Observer
 		}
 	}
 	
-	public Map<String, HashMap<String, Object>> getAllServiceInfo() 
-	{
+	public Map<String, HashMap<String, Object>> getAllServiceInfo() {
 		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();
-		
+
 		this.serviceDirectory.keySet().forEach(_dirPath -> {
 			ServiceDirectory serviceDir = this.serviceDirectory.get(_dirPath);
 			HashMap<String, Object> serviceMap = new HashMap<>();
 			serviceList.put(_dirPath, serviceMap);
-			
+
 			serviceDir.getServiceNameList().forEach(_name -> {
-				ServiceImpl service = (ServiceImpl)serviceDir.getService(_name);
-				
-				if(! serviceMap.containsKey(EnvKey.Service.CLASS))
-				{
+				ServiceImpl service = (ServiceImpl) serviceDir.getService(_name);
+
+				if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
 					serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
 				}
 				
+				Map<String, String> serviceVariableMap = this.makeServiceVariableMap(service);
+
 				serviceMap.put(_name, service.getMethod().getName());
-				serviceMap.put(_name + EnvKey.Service.SERVICE_VARIABLE, service.getAllServiceVariable());
+				serviceMap.put(_name + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
 			});
 		});
-		
+
 		return serviceList;
+	}
+	
+	private Map<String, String> makeServiceVariableMap(Service _service) {
+		Map<String, String> variables = new HashMap<>();
+		
+		for (String key : _service.getServiceVariableKeys()) {
+			variables.put(key, _service.getServiceVariable(key));
+		}
+		
+		return variables;
 	}
 }
