@@ -1,8 +1,9 @@
 package team.balam.exof.util;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
+import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -14,6 +15,7 @@ public class SimpleHttpInvoker {
 	private URL url;
 	private int connectTimeout;
 	private int readTimeout;
+	private String charset;
 
 	public SimpleHttpInvoker(String _url) throws MalformedURLException {
 		this(new URL(_url));
@@ -36,6 +38,10 @@ public class SimpleHttpInvoker {
 		this.readTimeout = readTimeout;
 	}
 
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+	
 	public URL getUrl() {
 		return url;
 	}
@@ -61,7 +67,7 @@ public class SimpleHttpInvoker {
 	
 	private String invoke(String _method, byte[] _body) throws Exception {
 		HttpURLConnection con = null;
-		BufferedInputStream resIn = null;
+		BufferedReader resIn = null;
 
 		try {
 			con = this._createConnection(_method);
@@ -81,17 +87,18 @@ public class SimpleHttpInvoker {
 			}
 
 			if (con.getResponseCode() == SUCCESS_RES) {
-				resIn = new BufferedInputStream(con.getInputStream());
+				InputStreamReader inputReader = new InputStreamReader(con.getInputStream(), this.charset); 
+				resIn = new BufferedReader(inputReader);
 				int read = 0;
-				byte[] buf = new byte[1024];
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-
+				char[] buf = new char[1024];
+				CharArrayWriter out = new CharArrayWriter();
+				
 				while ((read = resIn.read(buf)) != -1) {
 					out.write(buf, 0, read);
 				}
 
 				if (out.size() > 0) {
-					return new String(out.toByteArray());
+					return out.toString();
 				} else {
 					return "";
 				}
