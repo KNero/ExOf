@@ -14,6 +14,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
@@ -53,77 +54,72 @@ public class SchedulerManager implements Container, Observer
 	}
 	
 	@Override
-	public void start() throws Exception
-	{
-		this.isAutoReload = (Boolean)SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
-		
+	public void start() throws Exception {
+		this.isAutoReload = (Boolean) SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
 		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
-		if(infoList.size() > 0)
-		{
-			Properties pro = (Properties)SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
+
+		if (infoList.size() > 0) {
+			Properties pro = (Properties) SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
 			this.scheduler = factory.getScheduler();
-			
+
 			infoList.forEach(_info -> {
-				try
-				{
-					if(this.jobKeyMap.containsKey(_info.getId()))
-					{
-						throw new SchedulerAlreadyExists(_info.getId());
-					}
-					
-					JobDetail jd = JobBuilder.newJob(SchedulerJob.class).build();
-					jd.getJobDataMap().put("info", _info);
-					
-					CronExpression ce = new CronExpression(_info.getCronExpression());
-					PauseAwareCronTrigger t = new PauseAwareCronTrigger(ce);
-					
-					this.scheduler.scheduleJob(jd, t);
-					
-					this.jobKeyMap.put(_info.getId(), jd.getKey());
-					
-					if(! _info.isUse()) this.scheduler.pauseJob(jd.getKey());
-					
-					if(this.logger.isInfoEnabled())
-					{
-						this.logger.info("Loading schedule [{}]", _info.toString());
-					}
-				}
-				catch(Exception e)
-				{
-					this.logger.error("Loading schedule is failed.[{}]", _info.getServicePath(), e);
-				}
+				this._loadScheduler(_info);
 			});
-			
-			if(this.logger.isInfoEnabled())
-			{
+
+			if (this.logger.isInfoEnabled()) {
 				this.logger.info("Scheduler is Loaded. Schedule Count : {}", infoList.size());
 			}
-			
-			this._executeScheduleInitTime(infoList);
-			
-			this.scheduler.start();
 		}
 	}
 	
-	private void _executeScheduleInitTime(List<SchedulerInfo> _infoList)
-	{
-		_infoList.forEach(info -> {
-			if(info.isUse() && info.isInitExecution())
-			{
+	private void _loadScheduler(SchedulerInfo _info) {
+		try {
+			if (this.jobKeyMap.containsKey(_info.getId())) {
+				throw new SchedulerAlreadyExists(_info.getId());
+			}
+
+			JobDetail jd = JobBuilder.newJob(SchedulerJob.class).build();
+			jd.getJobDataMap().put("info", _info);
+
+			CronExpression ce = new CronExpression(_info.getCronExpression());
+			PauseAwareCronTrigger t = new PauseAwareCronTrigger(ce);
+
+			this.scheduler.scheduleJob(jd, t);
+			this.jobKeyMap.put(_info.getId(), jd.getKey());
+
+			if (!_info.isUse()) {
+				this.scheduler.pauseJob(jd.getKey());
+			}
+
+			if (this.logger.isInfoEnabled()) {
+				this.logger.info("Loading schedule [{}]", _info.toString());
+			}
+		} catch (Exception e) {
+			this.logger.error("Loading schedule is failed.[{}]", _info.getServicePath(), e);
+		}
+	}
+	
+	public void executeInitTimeAndStart() {
+		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
+		infoList.forEach(info -> {
+			if (info.isUse() && info.isInitExecution()) {
 				ExecutionContext exeCtx = new ExecutionContext(info);
 				SchedulerJob job = new SchedulerJob();
-				
-				try 
-				{
+
+				try {
 					job.execute(exeCtx);
-				} 
-				catch(Exception e) 
-				{
-					this.logger.error("Failed to execute scheduler in init time. ServicePath : " + info.getServicePath(), e);
+				} catch (Exception e) {
+					this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
 				}
 			}
 		});
+		
+		try {
+			this.scheduler.start();
+		} catch (SchedulerException e) {
+			this.logger.error("Scheduler start error.", e);
+		}
 	}
 	
 	@Override
