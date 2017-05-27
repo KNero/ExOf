@@ -1,5 +1,6 @@
 package team.balam.exof.module.listener.handler.transform;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,19 +30,22 @@ public class JsonTransform implements ServiceObjectTransform<String>
 	}
 
 	@Override
-	public ServiceObject transform(String _msg) throws Exception 
-	{
-		HashMap<String, Object> requestMap = this.jsonMapper.readValue(_msg, this.mapType);
-		
-		return this.transform(requestMap);
+	public ServiceObject transform(String _msg) throws Exception {
+		Map<String, Object> requestMap = this.toMap(_msg);
+
+		ServiceObject serviceObject = new ServiceObject((String) requestMap.get(this.servicePathKey));
+		serviceObject.setRequest(requestMap);
+
+		return serviceObject;
 	}
 	
-	public ServiceObject transform(Map<String, Object> _reqMap)
-	{
-		//타입키 관련 클래스추가
-		ServiceObject serviceObject = new ServiceObject((String)_reqMap.get(this.servicePathKey));
-		serviceObject.setRequest(_reqMap);
-		
-		return serviceObject;
+	public Map<String, Object> toMap(String _msg) throws Exception {
+		return this.jsonMapper.readValue(_msg, this.mapType);
+	}
+	
+	public String toString(Object _value) throws Exception {
+		StringWriter writer = new StringWriter();
+		this.jsonMapper.writeValue(writer, _value);
+		return writer.toString();
 	}
 }
