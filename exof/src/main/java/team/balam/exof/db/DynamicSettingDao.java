@@ -59,7 +59,7 @@ public class DynamicSettingDao {
 				if (result.getSelectResult().size() > 0) {
 					return result.getSelectResult().get(0);
 				} else {
-					return new HashMap<>();
+					return null;
 				}
 			} else {
 				throw result.getException();
