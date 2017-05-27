@@ -26,7 +26,7 @@ public class ConsoleService {
 		String id = (String)_param.get("id");
 		String password = (String)_param.get("password");
 
-		PortInfo port = (PortInfo)SystemSetting.getInstance().get(EnvKey.FileName.LISTENER, EnvKey.Listener.WEB_CONSOLE);
+		PortInfo port = (PortInfo)SystemSetting.getInstance().get(EnvKey.FileName.LISTENER, EnvKey.Listener.ADMIN_CONSOLE);
 		String portId = port.getAttribute(EnvKey.Listener.ID);
 		String portPw = port.getAttribute(EnvKey.Listener.PASSWORD);
 		

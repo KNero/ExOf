@@ -74,7 +74,7 @@ public interface EnvKey
 		String PRIVATE_KEY_PATH = "privateKeyPath";
 		
 		String CONSOLE = "console";
-		String WEB_CONSOLE = "webConsole";
+		String ADMIN_CONSOLE = "adminConsole";
 		String ID = "id";
 		String PASSWORD = "password";
 		

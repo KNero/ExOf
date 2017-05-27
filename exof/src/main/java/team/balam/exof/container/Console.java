@@ -48,7 +48,7 @@ public class Console implements Container {
 				deleteList.add(info);
 			}
 			
-			String isWebConsole = info.getAttribute(EnvKey.Listener.WEB_CONSOLE);
+			String isWebConsole = info.getAttribute(EnvKey.Listener.ADMIN_CONSOLE);
 			if (Constant.YES.equals(isWebConsole)) {
 				this.createWebConsole(info);
 				
@@ -87,16 +87,16 @@ public class Console implements Container {
 	
 	private void createWebConsole(PortInfo port) throws Exception {
 		port.addAttribute(EnvKey.Listener.HTTP, port.getAttribute(EnvKey.Listener.NUMBER));
-		port.addAttribute(EnvKey.Listener.DESCRIPTOR, "./webconsole/WEB-INF/web.xml");
-		port.addAttribute(EnvKey.Listener.RESOURCE_BASE, "./webconsole");
+		port.addAttribute(EnvKey.Listener.DESCRIPTOR, "./admin_console/WEB-INF/web.xml");
+		port.addAttribute(EnvKey.Listener.RESOURCE_BASE, "./admin_console");
 		port.addAttribute(EnvKey.Listener.CONTEXT_PATH, "/");
 		
 		this.webConsole = new JettyModule();
 		this.webConsole.setPortInfo(port);
 		this.webConsole.start();
 		
-		SystemSetting.getInstance().set(EnvKey.FileName.LISTENER, EnvKey.Listener.WEB_CONSOLE, port);
-		LoggerFactory.getLogger(this.getClass()).info("WebConsole Port : " + port);
+		SystemSetting.getInstance().set(EnvKey.FileName.LISTENER, EnvKey.Listener.ADMIN_CONSOLE, port);
+		LoggerFactory.getLogger(this.getClass()).info("Admin console Port : " + port);
 	}
 
 	@Override
