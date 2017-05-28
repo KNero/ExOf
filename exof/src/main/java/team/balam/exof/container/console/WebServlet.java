@@ -58,7 +58,7 @@ public class WebServlet extends HttpServlet implements Function<Command, Boolean
 
 	@Override
 	public Boolean apply(Command t) {
-		if ("loginWebConsole".equals(t.getType())) {
+		if (ServiceList.LOGIN_ADMIN_CONSOLE.value().equals(t.getType())) {
 			return true;
 		} else {
 			HttpServletRequest httpReq = RequestContext.get(RequestContext.HTTP_SERVLET_REQ);

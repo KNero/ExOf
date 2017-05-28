@@ -22,7 +22,7 @@ import team.balam.exof.module.service.ServiceProvider;
 public class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	public Object loginWebConsole(Map<String, Object> _param) {
+	public Object loginAdminConsole(Map<String, Object> _param) {
 		String id = (String)_param.get("id");
 		String password = (String)_param.get("password");
 
