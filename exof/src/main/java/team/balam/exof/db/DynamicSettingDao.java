@@ -1,6 +1,5 @@
 package team.balam.exof.db;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +70,7 @@ public class DynamicSettingDao {
 		}
 	}
 	
-	public static List<HashMap<String, Object>> selectList(String _name) throws Exception {
+	public static List<Map<String, Object>> selectList(String _name) throws Exception {
 		QueryVo vo = QueryVoFactory.create(Type.SELECT);
 		vo.setQuery("SELECT NAME, VALUE, DESCRIPTION FROM ENVIRONMENT WHERE NAME LIKE ? ORDER BY NAME");
 		vo.setParam(new Object[]{"%" + _name + "%"});

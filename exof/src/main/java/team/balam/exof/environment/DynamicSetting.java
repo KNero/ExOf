@@ -1,7 +1,6 @@
 package team.balam.exof.environment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +58,8 @@ public class DynamicSetting {
 		try {
 			List<DynamicSettingVo> list = new ArrayList<>();
 			
-			List<HashMap<String, Object>> result = DynamicSettingDao.selectList(_containName);
-			for (HashMap<String, Object> m : result) {
+			List<Map<String, Object>> result = DynamicSettingDao.selectList(_containName);
+			for (Map<String, Object> m : result) {
 				DynamicSettingVo vo = new DynamicSettingVo();
 				vo.setName((String)m.get("name"));
 				vo.setValue((String)m.get("value"));
