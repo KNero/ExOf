@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="build-exof" default="zip" basedir=".">
-	<property name="version" value="1.0.4"/>
+	<property name="version" value="1.1.0"/>
 	<property name="install_file_name" value="exof-${version}-install.zip"/>
 
 	<target name="delete">
