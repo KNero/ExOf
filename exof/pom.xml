@@ -4,7 +4,7 @@
 
 	<groupId>team.balam</groupId>
 	<artifactId>exof</artifactId>
-	<version>1.0.4</version>
+	<version>1.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>exof</name>
@@ -31,7 +31,7 @@
 			<artifactId>SQLite-Helper</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>/Users/kwonsm/git/ExOf/build/build template/lib/SQLite-Helper-0.1.0-SNAPSHOT.jar</systemPath>
+			<systemPath>/Users/kwonsm/git/ExOf/build/build template/lib/SQLite-Helper-0.1.1-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 		    <groupId>org.xerial</groupId>
