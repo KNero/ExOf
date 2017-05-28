@@ -47,7 +47,6 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     			throw new Exception("messageTransform setting is empty.");
     		}
     		
-    		RequestContext.createContext();
     		RequestContext.set(RequestContext.CHANNEL_CONTEXT, ctx);
     		RequestContext.set(RequestContext.ORIGINAL_REQUEST, msg);
     		

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import team.balam.exof.container.console.Command;
-import team.balam.exof.container.console.CommandBuilder;
+import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.environment.EnvKey;
 
 public class InfoGetter
@@ -15,7 +15,7 @@ public class InfoGetter
 	{
 		try
 		{
-			Client.send(CommandBuilder.buildServiceListGetter(), _result -> {
+			Client.send(new Command(ServiceList.SHOW_SERVICE_LIST), _result -> {
 				_result.forEach((_key, _value) -> {
 					Map<String, Object> valueMap = (Map<String, Object>)_value;
 					System.out.println("Directory path : " + _key);
@@ -52,7 +52,7 @@ public class InfoGetter
 	{
 		try
 		{
-			Client.send(CommandBuilder.buildScheduleListGetter(), _result -> {
+			Client.send(new Command(ServiceList.SHOW_SCHEDULE_LIST), _result -> {
 				List<String> list = (List<String>)_result.get("list");
 				list.forEach(scheduleName -> {
 					System.out.println("- " + scheduleName);

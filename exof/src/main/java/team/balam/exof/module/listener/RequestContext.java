@@ -12,16 +12,18 @@ public class RequestContext
 	public static final String SERVICE_OBJECT = "s_o";
 	public static final String ORIGINAL_REQUEST = "o_r";
 	
+	public static final String HTTP_SERVLET_REQ = "h_s_q";
+	public static final String HTTP_SERVLET_RES = "h_s_s";
+	
 	private static ThreadLocal<HashMap<String, Object>> context = new ThreadLocal<HashMap<String, Object>>();
 	
-	public static void createContext()
-	{
-		context.set(new HashMap<>());
-	}
-	
-	public static void set(String _key, Object _obj)
-	{
-		HashMap<String, Object> c =  context.get();
+	public static void set(String _key, Object _obj) {
+		HashMap<String, Object> c = context.get();
+		if (c == null) {
+			c = new HashMap<>();
+			context.set(c);
+		}
+
 		c.put(_key, _obj);
 	}
 	

@@ -61,7 +61,8 @@ public class Client
 			socket.setSoTimeout(5000);
 			
 			OutputStream out = socket.getOutputStream();
-			out. write(_command.toJson().getBytes());
+			out.write(_command.toJson().getBytes());
+			out.write('\0');
 			
 			InputStream in = socket.getInputStream();
 			byte[] res = StreamUtil.read(in, '\0');
@@ -97,7 +98,7 @@ public class Client
 	
 	private static boolean _isExistData(Map<String, Object> _result)
 	{
-		String resultValue = (String)_result.get(Command.Key.NO_DATA);
+		String resultValue = (String)_result.get(Command.Key.RESULT);
 		if(resultValue != null)
 		{
 			System.out.println(resultValue);

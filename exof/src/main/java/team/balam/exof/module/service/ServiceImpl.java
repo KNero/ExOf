@@ -2,9 +2,10 @@ package team.balam.exof.module.service;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
@@ -29,15 +30,11 @@ public class ServiceImpl implements Service
 	}
 	
 	@Override
-	public Map<String, String> getAllServiceVariable() 
-	{
-		if(this.variable != null)
-		{
-			return new HashMap<>(this.variable);
-		}
-		else
-		{
-			return new HashMap<>();
+	public Set<String> getServiceVariableKeys() {
+		if (this.variable != null) {
+			return this.variable.keySet();
+		} else {
+			return new HashSet<>();
 		}
 	}
 	
@@ -52,9 +49,10 @@ public class ServiceImpl implements Service
 		this.methodParamCount = this.method.getParameterCount();
 	}
 
-	public Object getHost()
+	@SuppressWarnings("unchecked")
+	public <T> T getHost()
 	{
-		return host;
+		return (T) host;
 	}
 
 	public void setHost(Object host)

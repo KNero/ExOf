@@ -5,9 +5,10 @@ package team.balam.exof;
  * @author kwonsm
  *
  */
-public interface Constant
-{
+public interface Constant {
 	String NETWORK_CHARSET = "UTF-8";
 	String YES = "yes";
 	String NO = "no";
+	String FAIL = "fail";
+	String SUCCESS = "success";
 }

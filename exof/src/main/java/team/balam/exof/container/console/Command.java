@@ -12,21 +12,16 @@ public class Command
 {
 	public interface Key
 	{
-		String NO_DATA = "noData";
+		String RESULT = "result";
 		String CLASS = "class";
 	}
 	
-	public interface Type
-	{
-		String SHOW_SERVICE_LIST = "getServiceList";
-		String SHOW_SCHEDULE_LIST = "getScheduleList";
-	}
+	public static final String NO_DATA_RESPONSE = makeSimpleResult("No data.");
+	public static final String SUCCESS_RESPONSE = makeSimpleResult("Success");
+	public static final String FAIL_RESPONSE = makeSimpleResult("Fail");
 	
-	public static final Map<String, String> NO_DATA_RESPONSE = new HashMap<>();
-	
-	static
-	{
-		NO_DATA_RESPONSE.put(Command.Key.NO_DATA, "No data.");
+	public static String makeSimpleResult(String _value) {
+		return "{\"" + Key.RESULT + "\":\"" + _value + "\"}";
 	}
 	
 	@Expose
@@ -35,9 +30,9 @@ public class Command
 	@Expose
 	private Map<String, Object> parameter = new HashMap<>();
 	
-	public Command(String _type)
+	public Command(ServiceList _service)
 	{
-		this.type = _type;
+		this.type = _service.value();
 	}
 	
 	public String getType()
@@ -65,6 +60,6 @@ public class Command
 		Gson gson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.STATIC)
 				.excludeFieldsWithoutExposeAnnotation().create();
 		
-		return gson.toJson(this) + "\0";
+		return gson.toJson(this);
 	}
 }

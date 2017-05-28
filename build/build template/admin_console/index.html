@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ExOf WebConsole</title>
+</head>
+<script type="text/javascript" src="/js/jquery/jquery-3.2.1.js"></script>
+<script type="text/javascript" src="/js/jquery/semantic.min.js"></script>
+
+<link rel="stylesheet" href="/js/font-awesome-4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/js/jquery/semantic.min.css">
+
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+	function init() {
+		$("#id").keypress(function(_event) {
+			if (_event.which == 13) {
+				login();
+			}
+		});
+		$("#password").keypress(function(_event) {
+			if (_event.which == 13) {
+				login();
+			}
+		});
+	}
+	function login() {
+		var id = $("#id").val();
+		var password = $("#password").val();
+		
+		if (id.length > 0 && password.length > 0) {
+			sendRequest("loginAdminConsole", {"id" : id, "password" : password}, function(_res) {
+				location.replace(_res);
+			});
+		}
+	}
+</script>	
+<body onload="init()">
+	<div style="padding-top:200px;" align="center">
+		<div class="ui inverted segment" style="width: 500px;">
+			<div class="ui inverted form">
+				<div class="field" align="left">
+					<label>ExOf Admin Console</label>
+				</div>
+				<div class="two fields">
+					<div class="field" align="left">
+						<label>ID</label>
+						<input id="id" placeholder="ID" type="text">
+					</div>
+					<div class="field" align="left">
+						<label>Password</label> 
+						<input id="password" placeholder="Password" type="text">
+					</div>
+				</div>
+				<div align="right">
+					<button class="ui right labeled icon button" onclick="login()">
+						<i class="right arrow icon"></i> Login
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

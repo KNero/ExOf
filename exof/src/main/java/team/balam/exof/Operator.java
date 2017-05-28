@@ -57,28 +57,28 @@ public class Operator
 		}
 	}
 	
-	public static void start()
-	{
+	public static void start() {
 		containerList.forEach(_container -> {
-			try
-			{
+			try {
 				_container.start();
-			}
-			catch(Exception e) 
-			{ 
-				if(e instanceof InitializeFatalException)
-				{
+			} catch (Exception e) {
+				if (e instanceof InitializeFatalException) {
 					logger.error("Init fatal error occurred by starting container[{}].", _container.getName(), e);
-					
+
 					System.exit(0);
-				}
-				else
-				{
+				} else {
 					logger.error("Container[{}] can not start.", _container.getName(), e);
 				}
 			}
 		});
 		
+		_showLogo();
+		_showSystemInfo();
+		
+		SchedulerManager.getInstance().executeInitTimeAndStart();
+	}
+	
+	private static void _showLogo() {
 		logger.error("");
 		logger.error("   =======             ===");
 		logger.error("   |                  =   =     ==");
@@ -86,8 +86,6 @@ public class Operator
 		logger.error("   |           =      =   =  =====");
 		logger.error("   =======   =   =     ===     |");
 		logger.error("");
-		
-		_showSystemInfo();
 	}
 	
 	private static void _showSystemInfo()
