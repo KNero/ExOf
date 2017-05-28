@@ -1,5 +1,7 @@
-function getAllList(_settingName) {
-	sendRequest("getDynamicSettingList", {"name" : _settingName}, function(_res) {
+function getList() {
+	var search = $("#input_search").val();
+	
+	sendRequest("getDynamicSettingList", {"name" : search}, function(_res) {
 		$("#settingTable").empty();
 		var table = $("#settingTable").get(0);
 		
@@ -56,6 +58,13 @@ var dynamicSetting = (function() {
 		dynamicSetting.remove($("#modal_name").val());
 	});
 	
+
+	$("#input_search").keypress(function(_event) {
+		if (_event.which == 13) {
+			getList();
+		}
+	});
+	
 	return {
 		update : function(_name, _value, _des) {
 			$(".ui .message").attr("ui hidden message");
@@ -72,7 +81,7 @@ var dynamicSetting = (function() {
 					param.des = _des;
 					sendRequest("updateDynamicSetting", param, function(_res) {
 						if(isResultSuccess(_res)) {
-							getAllList("");
+							getList();
 							$("#update_setting").modal("hide");
 						} else {
 							$("#modal_alert").text(_res.result);
@@ -97,7 +106,7 @@ var dynamicSetting = (function() {
 					param.name = _name;
 					sendRequest("removeDynamicSetting", param, function(_res) {
 						if (isResultSuccess(_res)) {
-							getAllList("");
+							getList();
 							$("#update_setting").modal("hide");
 						} else {
 							$("#modal_alert").text(_res.result);
@@ -120,7 +129,7 @@ var dynamicSetting = (function() {
 			param.des = _des;
 			sendRequest("addDynamicSetting", param, function(_res) {
 				if (isResultSuccess(_res)) {
-					getAllList("");
+					getList();
 					$("#update_setting").modal("hide");
 				} else {
 					$("#modal_alert").text(_res.result);

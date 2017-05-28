@@ -12,7 +12,7 @@
 		var password = $("#password").val();
 		
 		if (id.length > 0 && password.length > 0) {
-			sendRequest("loginWebConsole", {"id" : id, "password" : password}, function(_res) {
+			sendRequest("loginAdminConsole", {"id" : id, "password" : password}, function(_res) {
 				location.replace(_res);
 			});
 		}

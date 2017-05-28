@@ -12,10 +12,25 @@
 <script type="text/javascript" src="/js/common.js"></script>
 
 </head>
-<body onload="getAllList('')">
+<body onload="getList()">
 	<div align="center">
-		<div style="width: 500px; padding-top: 15px;" align="right">
-			<div class="ui button" tabindex="0" onclick="showAddModal()">Add</div>
+		<div class="ui grid" style="width: 500px; padding-top: 50px;">
+			<div class="eight wide column" align="left">
+				<div class="ui search">
+					<div class="ui icon input">
+						<input id="input_search" class="prompt" type="text" placeholder="Search...">
+						<i class="search icon"></i>
+					</div>
+				</div>
+			</div>
+			<div class="eight wide column" align="right">
+				<button class="circular ui icon button"  onclick="refresh()">
+					<i class="icon refresh"></i>
+				</button>
+				<button class="circular ui icon button"  onclick="showAddModal()">
+					<i class="icon plus"></i>
+				</button>
+			</div>
 		</div>
 		<table class="ui selectable celled table" style="width: 500px;">
 			<thead>
@@ -56,5 +71,5 @@
 		</div>
 	</div>
 </body>
-<script type="text/javascript" src="js/dynamic-setting.js"></script>
+<script type="text/javascript" src="js/dynamic-setting.js?ver=0.1"></script>
 </html>
