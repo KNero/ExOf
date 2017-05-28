@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 public class SimpleHttpInvoker {
 	private static final int SUCCESS_RES = 200;
@@ -28,6 +29,7 @@ public class SimpleHttpInvoker {
 		}
 
 		this.url = _url;
+		this.charset = Charset.defaultCharset().name();
 	}
 
 	public void setConnectTimeout(int connectTimeout) {
