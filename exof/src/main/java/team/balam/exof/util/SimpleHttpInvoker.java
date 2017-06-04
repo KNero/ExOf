@@ -9,6 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleHttpInvoker {
 	private static final int SUCCESS_RES = 200;
@@ -17,6 +19,7 @@ public class SimpleHttpInvoker {
 	private int connectTimeout;
 	private int readTimeout;
 	private String charset;
+	private Map<String, String> header;
 
 	public SimpleHttpInvoker(String _url) throws MalformedURLException {
 		this(new URL(_url));
@@ -30,6 +33,7 @@ public class SimpleHttpInvoker {
 
 		this.url = _url;
 		this.charset = Charset.defaultCharset().name();
+		this.header = new HashMap<>();
 	}
 
 	public void setConnectTimeout(int connectTimeout) {
@@ -47,6 +51,10 @@ public class SimpleHttpInvoker {
 	public URL getUrl() {
 		return url;
 	}
+	
+	public void setHeader(String _key, String _value) {
+		this.header.put(_key, _value);
+	}
 
 	private HttpURLConnection _createConnection(String _method) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) this.url.openConnection();
@@ -55,6 +63,10 @@ public class SimpleHttpInvoker {
 		con.setRequestMethod(_method);
 		con.setDoInput(true);
 		con.setDoOutput(true);
+		
+		for (String key : this.header.keySet()) {
+			con.setRequestProperty(key, this.header.get(key));	
+		}
 
 		return con;
 	}
@@ -106,7 +118,7 @@ public class SimpleHttpInvoker {
 				}
 			} else {
 				throw new Exception("Fail to invoke " + _method + ". Response code [" + con.getResponseCode() + "] : "
-						+ con.getResponseMessage());
+						+ con.getResponseMessage() + "\n" + con.toString());
 			}
 		} finally {
 			if (resIn != null) {
