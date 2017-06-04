@@ -103,15 +103,18 @@ public class SchedulerManager implements Container, Observer
 	public void executeInitTimeAndStart() {
 		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
 		infoList.forEach(info -> {
-			if (info.isUse() && info.isInitExecution()) {
-				ExecutionContext exeCtx = new ExecutionContext(info);
-				SchedulerJob job = new SchedulerJob();
-
-				try {
-					job.execute(exeCtx);
-				} catch (Exception e) {
-					this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
+			if (this.jobKeyMap.containsKey(info.getId())) {
+				if (info.isUse() && info.isInitExecution()) {
+					ExecutionContext exeCtx = new ExecutionContext(info);
+					SchedulerJob job = new SchedulerJob();
+					
+					try {
+						job.execute(exeCtx);
+					} catch (Exception e) {
+						this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
+					}
 				}
+				
 			}
 		});
 		
