@@ -16,7 +16,7 @@ case "$1" in
 	if [ ! -f $PID_PATH_NAME ]; 
 	then
 		echo "Starting $SERVICE_NAME "
-                nohup "$JAVA_HOME"java -server -Xms256m -Xmx1024m -Dfile.encoding=utf-8 $JAVA_OPTS -Dlogback.configurationFile=./env/logback.xml -cp "$DIR/lib/*:$DIR/lib/external/*:$DIR/classes" team.balam.exof.App > /dev/null 2>&1 &
+                nohup java -server -Xms256m -Xmx1024m -Dfile.encoding=utf-8 -Dlogback.configurationFile=./env/logback.xml -cp "./lib/*:./lib/external/*:./classes" team.balam.exof.App > /dev/null 2>&1 &
 		echo $! > $PID_PATH_NAME
 		echo "$SERVICE_NAME Process started by PID : $!" 
 				sleep 3;
