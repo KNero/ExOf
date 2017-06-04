@@ -154,7 +154,7 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>balam</groupId>
+									<groupId>team.balam</groupId>
 									<artifactId>exof</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
