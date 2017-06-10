@@ -8,6 +8,14 @@
 			<variable name="b" value="b2"/>
 			<variable name="c" value="c3"/>
 		</serviceVariable>
+		<serviceVariable serviceName="arrayParam">
+			<variable name="a" value="a1"/>
+			<variable name="b" value="b2"/>
+			<variable name="c" value="c1"/>
+			<variable name="c" value="c2"/>
+			<variable name="c" value="c3"/>
+			<variable name="c" value="c4"/>
+		</serviceVariable>
 	</serviceDirectory>
 	
 	<scheduler id="" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="yes" initExecution="no"/>

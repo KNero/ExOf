@@ -1,7 +1,6 @@
 package team.balam.exof.module.service;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -13,7 +12,7 @@ public class ServiceDirectoryInfo
 {
 	private String className;
 	private String path;
-	private Map<String, LinkedHashMap<String, String>> variableMap = new HashMap<>();
+	private Map<String, ServiceVariable> variableMap = new HashMap<>();
 	
 	public String getClassName()
 	{
@@ -35,12 +34,12 @@ public class ServiceDirectoryInfo
 		this.path = path;
 	}
 	
-	public void setVariable(String _serviceName, LinkedHashMap<String, String> _variable)
+	public void setVariable(String _serviceName, ServiceVariable _variable)
 	{
 		this.variableMap.put(_serviceName, _variable);
 	}
 	
-	public Map<String, String> getVariable(String _serviceName)
+	public ServiceVariable getVariable(String _serviceName)
 	{
 		return this.variableMap.get(_serviceName);
 	}
@@ -62,12 +61,8 @@ public class ServiceDirectoryInfo
 		{
 			str.append("\n-- Service Name : ").append(serviceName);
 
-			Map<String, String> variable = this.variableMap.get(serviceName);
-			for(String variableName : variable.keySet())
-			{
-				str.append("\n--- [").append(variableName).append("] = [");
-				str.append(variable.get(variableName)).append("]");
-			}
+			ServiceVariable variable = this.variableMap.get(serviceName);
+			str.append("\n-- Service Variable\n").append(variable.toString());
 		}
 		
 		return str.toString();

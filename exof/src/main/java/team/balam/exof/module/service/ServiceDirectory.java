@@ -1,13 +1,13 @@
 package team.balam.exof.module.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ServiceDirectory
 {
@@ -74,22 +74,21 @@ public class ServiceDirectory
 	{
 		this.shutdown = shutdown;
 	}
-	
-	public ServiceImpl register(String _serviceName, Object _host, Method _method, Map<String, String> _variable)
-		throws ServiceAlreadyExistsException
-	{
-		if(this.serviceMap.containsKey(_serviceName))
-		{
+
+	public ServiceImpl register(String _serviceName, Object _host, Method _method, ServiceVariable _variable)
+			throws ServiceAlreadyExistsException {
+
+		if (this.serviceMap.containsKey(_serviceName)) {
 			throw new ServiceAlreadyExistsException(this.dirPath + "/" + _serviceName);
 		}
-		
+
 		ServiceImpl service = new ServiceImpl();
 		service.setHost(_host);
 		service.setMethod(_method);
 		service.setVariable(_variable);
-		
+
 		this.serviceMap.put(_serviceName, service);
-		
+
 		return service;
 	}
 	
@@ -102,12 +101,10 @@ public class ServiceDirectory
 	{
 		return this.serviceMap.keySet();
 	}
-	
-	public void reloadVariable(String _serviceName, Map<String, String> _variable)
-	{
-		ServiceImpl service = (ServiceImpl)this.serviceMap.get(_serviceName);
-		if(service != null)
-		{
+
+	public void reloadVariable(String _serviceName, ServiceVariable _variable) {
+		ServiceImpl service = (ServiceImpl) this.serviceMap.get(_serviceName);
+		if (service != null) {
 			service.setVariable(_variable);
 		}
 	}

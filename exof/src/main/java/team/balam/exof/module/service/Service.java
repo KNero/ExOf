@@ -11,7 +11,7 @@ public interface Service
 	 */
 	<T> T getHost();
 	
-	String getServiceVariable(String _name);
+	Object getServiceVariable(String _name);
 	
 	Set<String> getServiceVariableKeys();
 	

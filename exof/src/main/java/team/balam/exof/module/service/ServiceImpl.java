@@ -1,40 +1,38 @@
 package team.balam.exof.module.service;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.MapToVoConverter;
 import team.balam.exof.module.service.component.Outbound;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 public class ServiceImpl implements Service
 {
 	private Method method;
 	private Object host;
 	private int methodParamCount;
-	private Map<String, String> variable;
+	private ServiceVariable variable;
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
 	private MapToVoConverter mapToVoConverter;
 	
 	@Override
-	public String getServiceVariable(String _name)
-	{
+	public Object getServiceVariable(String _name) {
 		return this.variable.get(_name);
 	}
 	
 	@Override
 	public Set<String> getServiceVariableKeys() {
 		if (this.variable != null) {
-			return this.variable.keySet();
+			return this.variable.getKeys();
 		} else {
-			return new HashSet<>();
+			return Collections.emptySet();
 		}
 	}
 	
@@ -60,8 +58,7 @@ public class ServiceImpl implements Service
 		this.host = host;
 	}
 
-	public void setVariable(Map<String, String> variable)
-	{
+	public void setVariable(ServiceVariable variable) {
 		this.variable = variable;
 	}
 	
