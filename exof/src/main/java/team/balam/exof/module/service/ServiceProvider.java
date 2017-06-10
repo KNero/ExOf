@@ -38,113 +38,87 @@ public class ServiceProvider implements Module, Observer
 	{
 		return self;
 	}
-	
-	synchronized public static void register(ServiceDirectoryInfo _info) throws Exception
-	{
+
+	synchronized public static void register(ServiceDirectoryInfo _info) throws Exception {
 		Class<?> clazz = Class.forName(_info.getClassName());
-		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn = 
+		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn =
 				clazz.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
-		
-		if(serviceDirAnn != null)
-		{
+
+		if (serviceDirAnn != null) {
 			Object host = clazz.newInstance();
-			
+
 			_setServiceVariableByAnnotation(host, _info);
-			
+
 			ServiceDirectory serdir = self.serviceDirectory.get(_info.getPath());
-			if(serdir == null)
-			{
+			if (serdir == null) {
 				serdir = new ServiceDirectory(host, _info.getPath());
-				
 				self.serviceDirectory.put(_info.getPath(), serdir);
 			}
-			
+
 			Method[] method = clazz.getMethods();
-			for(Method m : method)
-			{
-				team.balam.exof.module.service.annotation.Service serviceAnn = 
+			for (Method m : method) {
+				team.balam.exof.module.service.annotation.Service serviceAnn =
 						m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
-				
-				if(serviceAnn != null)
-				{
+
+				if (serviceAnn != null) {
 					String serviceName = serviceAnn.name();
-					if(serviceName.length() == 0) serviceName = m.getName();
-					
+					if (serviceName.length() == 0) serviceName = m.getName();
+
 					ServiceImpl service = serdir.register(serviceName, host, m, _info.getVariable(serviceName));
-					
+
 					_checkInboundAnnotation(m, service);
-					
+
 					_checkOutboundAnnotation(m, service);
-					
+
 					_checkMapToVoAnnotation(m, service);
-					
-					if(logger.isInfoEnabled())
-					{
+
+					if (logger.isInfoEnabled()) {
 						logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
 					}
 				}
-				
+
 				Startup startupAnn = m.getAnnotation(Startup.class);
-				if(startupAnn != null)
-				{
+				if (startupAnn != null) {
 					serdir.setStartup(m);
 				}
-				
+
 				Shutdown shutdown = m.getAnnotation(Shutdown.class);
-				if(shutdown != null)
-				{
+				if (shutdown != null) {
 					serdir.setShutdown(m);
 				}
 			}
 		}
 	}
 	
-	private static void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception
-	{
+	private static void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception {
 		Field[] fields = _host.getClass().getDeclaredFields();
 		
-		for(Field field : fields)
-		{
+		for(Field field : fields) {
 			field.setAccessible(true);
 			
 			Variable variableAnn = field.getAnnotation(Variable.class);
-			if(variableAnn != null)
-			{
-				Map<String, String> serviceVariables = _info.getVariable(variableAnn.serviceName());
-				
+			if(variableAnn != null) {
+				ServiceVariable serviceVariables = _info.getVariable(variableAnn.serviceName());
 				if (serviceVariables == null) {
 					throw new NullPointerException("Service name not found. " + variableAnn.serviceName());
 				}
-				
-				String value = serviceVariables.get(field.getName());
+
+				String value = serviceVariables.getString(field.getName());
 				Class<?> fieldType = field.getType();
 
-				if("int".equals(fieldType.toGenericString()) || fieldType.equals(Integer.class))
-				{
+				if ("int".equals(fieldType.toGenericString()) || fieldType.equals(Integer.class)) {
 					field.set(_host, Integer.valueOf(value));
-				}
-				else if("long".equals(fieldType.toGenericString()) || fieldType.equals(Long.class))
-				{
+				} else if ("long".equals(fieldType.toGenericString()) || fieldType.equals(Long.class)) {
 					field.set(_host, Long.valueOf(value));
-				}
-				else if("float".equals(fieldType.toGenericString()) || fieldType.equals(Float.class))
-				{
+				} else if ("float".equals(fieldType.toGenericString()) || fieldType.equals(Float.class)) {
 					field.set(_host, Float.valueOf(value));
-				}
-				else if("double".equals(fieldType.toGenericString()) || fieldType.equals(Double.class))
-				{
+				} else if ("double".equals(fieldType.toGenericString()) || fieldType.equals(Double.class)) {
 					field.set(_host, Double.valueOf(value));
-				}
-				else if("byte".equals(fieldType.toGenericString()) || fieldType.equals(Byte.class))
-				{
+				} else if ("byte".equals(fieldType.toGenericString()) || fieldType.equals(Byte.class)) {
 					field.set(_host, Byte.valueOf(value));
-				}
-				else if("short".equals(fieldType.toGenericString()) || fieldType.equals(Short.class))
-				{
+				} else if ("short".equals(fieldType.toGenericString()) || fieldType.equals(Short.class)) {
 					field.set(_host, Short.valueOf(value));
-				}
-				else
-				{
+				} else {
 					field.set(_host, value);
 				}
 			}
@@ -207,9 +181,11 @@ public class ServiceProvider implements Module, Observer
 	@Override
 	public void start() throws Exception
 	{
-		this.isAutoReload = (Boolean)SystemSetting.getInstance().
-				get(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
-		
+		Boolean isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
+		if (isAutoReload != null) {
+			this.isAutoReload = isAutoReload;
+		}
+
 		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
 		directoryInfoList.forEach(_info -> {
 			try
@@ -271,7 +247,7 @@ public class ServiceProvider implements Module, Observer
 					String serviceName = serviceAnn.name();
 					if(serviceName.length() == 0) serviceName = m.getName();
 					
-					Map<String, String> serviceVariable = _serviceDirInfo.getVariable(serviceName);
+					ServiceVariable serviceVariable = _serviceDirInfo.getVariable(serviceName);
 					
 					ServiceDirectory serviceDir = this.serviceDirectory.get(_serviceDirInfo.getPath());
 					if(serviceDir != null)
@@ -304,7 +280,7 @@ public class ServiceProvider implements Module, Observer
 					serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
 				}
 				
-				Map<String, String> serviceVariableMap = this.makeServiceVariableMap(service);
+				Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(service);
 
 				serviceMap.put(_name, service.getMethod().getName());
 				serviceMap.put(_name + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
@@ -314,8 +290,8 @@ public class ServiceProvider implements Module, Observer
 		return serviceList;
 	}
 	
-	private Map<String, String> makeServiceVariableMap(Service _service) {
-		Map<String, String> variables = new HashMap<>();
+	private Map<String, Object> makeServiceVariableMap(Service _service) {
+		Map<String, Object> variables = new HashMap<>();
 		
 		for (String key : _service.getServiceVariableKeys()) {
 			variables.put(key, _service.getServiceVariable(key));

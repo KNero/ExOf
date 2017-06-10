@@ -1,12 +1,10 @@
 package team.balam.exof.module.service;
 
-import java.util.Map;
-
-public class ServiceObject
+public final class ServiceObject
 {
 	protected Object request;
 	private String servicePath;
-	protected Map<String, String> serviceVariables;
+	protected ServiceVariable serviceVariables;
 	protected Object[] serviceParameter;
 	
 	private boolean isAutoCloseSession;
@@ -27,12 +25,12 @@ public class ServiceObject
 		this.servicePath = servicePath;
 	}
 	
-	public void setServiceVariables(Map<String, String> _variable)
+	public void setServiceVariables(ServiceVariable _variable)
 	{
 		this.serviceVariables = _variable;
 	}
 	
-	public Map<String, String> getServiceVariables()
+	public ServiceVariable getServiceVariables()
 	{
 		return this.serviceVariables;
 	}
@@ -99,7 +97,7 @@ public class ServiceObject
 			param[0] = this.request;
 			
 			int i = 1;
-			for(String value : this.serviceVariables.values())
+			for(Object value : this.serviceVariables.getValues())
 			{
 				param[i++] = value;
 			}
@@ -115,7 +113,7 @@ public class ServiceObject
 			Object[] param = new Object[this.serviceVariables.size()];
 			
 			int i = 0;
-			for(String value : this.serviceVariables.values())
+			for(Object value : this.serviceVariables.getValues())
 			{
 				param[i++] = value;
 			}
