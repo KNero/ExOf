@@ -14,7 +14,7 @@ public class ServiceDirectoryInfo
 	private String path;
 	private Map<String, ServiceVariable> variableMap = new HashMap<>();
 	
-	public String getClassName()
+	String getClassName()
 	{
 		return className;
 	}
@@ -39,7 +39,7 @@ public class ServiceDirectoryInfo
 		this.variableMap.put(_serviceName, _variable);
 	}
 	
-	public ServiceVariable getVariable(String _serviceName)
+	ServiceVariable getVariable(String _serviceName)
 	{
 		return this.variableMap.get(_serviceName);
 	}

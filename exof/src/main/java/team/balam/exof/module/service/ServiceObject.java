@@ -87,7 +87,7 @@ public final class ServiceObject
 	 * 4. 서비스 변수만 있을 경우 : 변수1, 변수2 ...<br/>
 	 * @return 메소드를 호출할 때 사용될 파라미터
 	 */
-	final public Object[] getServiceParameter()
+	final Object[] getServiceParameter()
 	{
 		if(this.serviceParameter != null) return this.serviceParameter;
 		
@@ -104,11 +104,11 @@ public final class ServiceObject
 			
 			return param;
 		}
-		else if(this.request != null && this.serviceVariables == null)
+		else if(this.request != null)
 		{
 			return new Object[]{this.request};
 		}
-		else if(this.request == null && this.serviceVariables != null)
+		else if(this.serviceVariables != null)
 		{
 			Object[] param = new Object[this.serviceVariables.size()];
 			

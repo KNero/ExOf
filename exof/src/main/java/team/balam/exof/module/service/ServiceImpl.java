@@ -53,7 +53,7 @@ public class ServiceImpl implements Service
 		return (T) host;
 	}
 
-	public void setHost(Object host)
+	void setHost(Object host)
 	{
 		this.host = host;
 	}
@@ -61,19 +61,16 @@ public class ServiceImpl implements Service
 	public void setVariable(ServiceVariable variable) {
 		this.variable = variable;
 	}
-	
-	public void addInbound(Inbound _in)
-	{
+
+	void addInbound(Inbound _in) {
 		this.inbound.add(_in);
 	}
-	
-	public void addOutbound(Outbound<?, ?> _out)
-	{
+
+	void addOutbound(Outbound<?, ?> _out) {
 		this.outbound.add(_out);
 	}
-	
-	public void setMapToVoConverter(Class<?> _class) throws Exception
-	{
+
+	void setMapToVoConverter(Class<?> _class) throws Exception {
 		this.mapToVoConverter = new MapToVoConverter();
 		this.mapToVoConverter.init(_class);
 	}

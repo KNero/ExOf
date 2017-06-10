@@ -21,13 +21,13 @@ public class ServiceDirectory
 	
 	private Map<String, Service> serviceMap = new ConcurrentHashMap<>();
 	
-	public ServiceDirectory(Object _host, String _dirPath)
+	ServiceDirectory(Object _host, String _dirPath)
 	{
 		this.host = _host;
 		this.dirPath = _dirPath;
 	}
 	
-	public void startup()
+	void startup()
 	{
 		if(this.startup != null)
 		{
@@ -65,17 +65,17 @@ public class ServiceDirectory
 		}
 	}
 	
-	public void setStartup(Method startup)
+	void setStartup(Method startup)
 	{
 		this.startup = startup;
 	}
 	
-	public void setShutdown(Method shutdown)
+	void setShutdown(Method shutdown)
 	{
 		this.shutdown = shutdown;
 	}
 
-	public ServiceImpl register(String _serviceName, Object _host, Method _method, ServiceVariable _variable)
+	ServiceImpl register(String _serviceName, Object _host, Method _method, ServiceVariable _variable)
 			throws ServiceAlreadyExistsException {
 
 		if (this.serviceMap.containsKey(_serviceName)) {
@@ -92,17 +92,17 @@ public class ServiceDirectory
 		return service;
 	}
 	
-	public Service getService(String _serviceName)
+	Service getService(String _serviceName)
 	{
 		return this.serviceMap.get(_serviceName);
 	}
 	
-	public Set<String> getServiceNameList()
+	Set<String> getServiceNameList()
 	{
 		return this.serviceMap.keySet();
 	}
 
-	public void reloadVariable(String _serviceName, ServiceVariable _variable) {
+	void reloadVariable(String _serviceName, ServiceVariable _variable) {
 		ServiceImpl service = (ServiceImpl) this.serviceMap.get(_serviceName);
 		if (service != null) {
 			service.setVariable(_variable);

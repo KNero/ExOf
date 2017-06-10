@@ -1,10 +1,10 @@
 package team.balam.exof.module.service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by kwonsm on 2017. 6. 10..
+ * Created by kwonsm on 2017. 6. 10..<br>
+ * Service.xml에서 serviceVariable의 variable을 리스트 형태로 저장한다
  */
 public class ServiceVariable {
     private Map<String, List<String>> variable;
@@ -13,11 +13,11 @@ public class ServiceVariable {
         this.variable = new LinkedHashMap<>();
     }
 
-    public Set<String> getKeys() {
+    Set<String> getKeys() {
         return this.variable.keySet();
     }
 
-    public Set<Object> getValues() {
+    Set<Object> getValues() {
         Set<Object> values = new LinkedHashSet<>();
         for (String key : this.variable.keySet()) {
             values.add(this.get(key));
@@ -31,15 +31,15 @@ public class ServiceVariable {
     }
 
     public void put(String _key, String _value) {
-        List<String> valueList = this.variable.get(_key);
-        if (valueList == null) {
-            valueList = new LinkedList<>();
-            this.variable.put(_key, valueList);
-        }
-
+        List<String> valueList = this.variable.computeIfAbsent(_key, _variableKey -> new LinkedList<>());
         valueList.add(_value);
     }
 
+    /**
+     * serviceVariable의 값을 가져온다
+     * @param _key serviceVariable의 name
+     * @return name이 하나일 경우 String, 여러 개일 경우 List로 반환
+     */
     public Object get(String _key) {
         List<String> valueList = this.variable.get(_key);
         if (valueList != null && !valueList.isEmpty()) {
@@ -53,21 +53,17 @@ public class ServiceVariable {
         }
     }
 
-    public String getString(String _key) {
+    /**
+     * serviceVariable의 값을 가져온다
+     * @param _key serviceVariable의 name
+     * @return name에 개수에 상관없이 첫 번째 값을 반환
+     */
+    String getString(String _key) {
         List<String> valueList = this.variable.get(_key);
         if (valueList == null || valueList.isEmpty()) {
             return "";
         } else {
             return valueList.get(0);
-        }
-    }
-
-    public List<String> getList(String _key) {
-        List<String> valueList = this.variable.get(_key);
-        if (valueList == null) {
-            return Collections.emptyList();
-        } else {
-            return valueList;
         }
     }
 

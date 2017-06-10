@@ -49,11 +49,8 @@ public class ServiceProvider implements Module, Observer
 
 			_setServiceVariableByAnnotation(host, _info);
 
-			ServiceDirectory serdir = self.serviceDirectory.get(_info.getPath());
-			if (serdir == null) {
-				serdir = new ServiceDirectory(host, _info.getPath());
-				self.serviceDirectory.put(_info.getPath(), serdir);
-			}
+			ServiceDirectory servicedir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
+					_key -> new ServiceDirectory(host, _key));
 
 			Method[] method = clazz.getMethods();
 			for (Method m : method) {
@@ -64,7 +61,7 @@ public class ServiceProvider implements Module, Observer
 					String serviceName = serviceAnn.name();
 					if (serviceName.length() == 0) serviceName = m.getName();
 
-					ServiceImpl service = serdir.register(serviceName, host, m, _info.getVariable(serviceName));
+					ServiceImpl service = servicedir.register(serviceName, host, m, _info.getVariable(serviceName));
 
 					_checkInboundAnnotation(m, service);
 
@@ -79,12 +76,12 @@ public class ServiceProvider implements Module, Observer
 
 				Startup startupAnn = m.getAnnotation(Startup.class);
 				if (startupAnn != null) {
-					serdir.setStartup(m);
+					servicedir.setStartup(m);
 				}
 
 				Shutdown shutdown = m.getAnnotation(Shutdown.class);
 				if (shutdown != null) {
-					serdir.setShutdown(m);
+					servicedir.setShutdown(m);
 				}
 			}
 		} else {
@@ -126,36 +123,30 @@ public class ServiceProvider implements Module, Observer
 			}
 		}
 	}
-	
-	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception
-	{
-		team.balam.exof.module.service.annotation.Inbound inboundAnn = 
+
+	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
+		team.balam.exof.module.service.annotation.Inbound inboundAnn =
 				_method.getAnnotation(team.balam.exof.module.service.annotation.Inbound.class);
-		
-		if(inboundAnn != null && inboundAnn.classObject() != null)
-		{
+
+		if (inboundAnn != null) {
 			_service.addInbound(inboundAnn.classObject().newInstance());
 		}
 	}
-	
-	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception
-	{
-		team.balam.exof.module.service.annotation.Outbound outboundAnn = 
+
+	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
+		team.balam.exof.module.service.annotation.Outbound outboundAnn =
 				_method.getAnnotation(team.balam.exof.module.service.annotation.Outbound.class);
-		
-		if(outboundAnn != null && outboundAnn.classObject() != null)
-		{
+
+		if (outboundAnn != null) {
 			_service.addOutbound(outboundAnn.classObject().newInstance());
 		}
 	}
-	
-	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception
-	{
-		team.balam.exof.module.service.annotation.MapToVo mapTovoAnn = 
+
+	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception {
+		team.balam.exof.module.service.annotation.MapToVo mapTovoAnn =
 				_method.getAnnotation(team.balam.exof.module.service.annotation.MapToVo.class);
-		
-		if(mapTovoAnn != null && mapTovoAnn.classObject() != null)
-		{
+
+		if (mapTovoAnn != null) {
 			_service.setMapToVoConverter(mapTovoAnn.classObject());
 		}
 	}
@@ -202,17 +193,13 @@ public class ServiceProvider implements Module, Observer
 			}
 		});
 		
-		this.serviceDirectory.values().forEach(_serviceDir -> {
-			_serviceDir.startup();
-		});
+		this.serviceDirectory.values().forEach(ServiceDirectory::startup);
 	}
 
 	@Override
 	public void stop() throws Exception
 	{
-		this.serviceDirectory.values().forEach(_serviceDir -> {
-			_serviceDir.shutdown();
-		});
+		this.serviceDirectory.values().forEach(ServiceDirectory::shutdown);
 	}
 
 	@Override
@@ -226,13 +213,11 @@ public class ServiceProvider implements Module, Observer
 		{
 			this.updateVariableTime = System.currentTimeMillis();
 			
-			directoryInfoList.forEach(_info -> {
-				self.updateServiceDirectory(_info);
-			});
+			directoryInfoList.forEach(_info -> self.updateServiceDirectory(_info));
 		}
 	}
 	
-	public void updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo)
+	private void updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo)
 	{
 		try
 		{
