@@ -87,6 +87,8 @@ public class ServiceProvider implements Module, Observer
 					serdir.setShutdown(m);
 				}
 			}
+		} else {
+			throw new Exception("This class is not defined ServiceDirectory annotation.");
 		}
 	}
 	
