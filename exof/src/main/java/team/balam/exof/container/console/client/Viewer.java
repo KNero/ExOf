@@ -9,9 +9,9 @@ public class Viewer
 {
 	public BufferedReader standardReader = null;
 	private String selectMenuNumber;
-	
-	public void start() throws Exception
-	{
+	private ViewerCommand command;
+
+	public void start() throws Exception {
 		System.out.println("   =======             ===");
 		System.out.println("   |                  =   =     ==");
 		System.out.println("   =======   =   =   =     =   |");
@@ -19,105 +19,51 @@ public class Viewer
 		System.out.println("   =======   =   =     ===     |");
 		System.out.println();
 		System.out.println("+++ Welcom ExOf console monitoring +++");
-		
+
 		this.standardReader = new BufferedReader(new InputStreamReader(System.in));
-		
-		while(true)
-		{
-			try
-			{
-				if(this._showOneLevelQuestion())
-				{
-					while(true)
-					{
-						if(this._showTwoLevelQuestion())
-						{
-							Executor.execute(this.selectMenuNumber);
-						}
-						else
-						{
-							break;
-						}
-					}
-				}
-				else
-				{
-					break;
-				}
+
+		try {
+			while (true) {
+				this._showLevelOneMenu();
 			}
-			catch(TerminateException e)
-			{
-				break;
+		} catch (TerminateException e) {
+			//종료 예외는 무시
+		} finally {
+			if (this.standardReader != null) {
+				this.standardReader.close();
 			}
-		}
-		
-		if(this.standardReader != null)
-		{
-			this.standardReader.close();
-		}
-		
-		System.out.println("+++ Bye Bye +++");
-	}
-	
-	private boolean _showOneLevelQuestion() throws IOException
-	{
-		System.out.println("\n(1)get info   (2)set info   (3)quit");
-		
-		while(true)
-		{
-			String cmd = this.standardReader.readLine();
-			if(cmd == null)
-			{
-				throw new TerminateException();
-			}
-			
-			switch(cmd)
-			{
-				case Menu.OneLevel.GET:
-					this.selectMenuNumber = cmd;
-					return true;
-					
-				case Menu.OneLevel.SET:
-					System.out.println("Not support yet.");
-					return true;
-					
-				case Menu.QUIT:
-					return false;
-					
-				default:
-					System.out.println("\n(1)get info   (2)set info   (3)quit");
-					System.out.println("Enter numbaer 1 or 2 or 3");
-					break;
-			}
+
+			System.out.println("+++ Bye Bye +++");
 		}
 	}
-	
-	private boolean _showTwoLevelQuestion() throws IOException
-	{
-		System.out.println("\n(1)service list   (2)schedule list   (3)quit");
-		
-		while(true)
-		{
-			String cmd = this.standardReader.readLine();
-			if(cmd == null)
-			{
-				throw new TerminateException();
-			}
-			
-			int menu = Integer.parseInt(cmd);
-			if(1 <= menu && menu <= 2)
-			{
-				this.selectMenuNumber = cmd;
-				return true;
-			}
-			else if(Menu.QUIT.equals(cmd))
-			{
-				return false;
-			}
-			else
-			{
-				System.out.println("\n(1)service list   (2)schedule list   (3)quit");
-				System.out.println("Enter numbaer 1 ~ 3");
+
+	private void _showLevelOneMenu() throws IOException {
+        while (true) {
+	        System.out.println("\n(1)get info   (2)set info   (3)quit");
+
+        	this.command = new ViewerCommand();
+	        if (this.command.setLevelOne(this.standardReader.readLine())) {
+		        try {
+	        	    this._showLevelTwoMenu();
+		        } catch (TerminateException e) {
+		        	//종료 예외가 발생할 경우 입력을 다시 받는다.
+		        }
+	        } else {
+		        System.out.println("Enter numbaer 1 or 2 or 3");
+	        }
+        }
+	}
+
+	private void _showLevelTwoMenu() throws IOException {
+		while (true) {
+			System.out.println("\n(1)service list   (2)schedule list   (3)quit");
+
+			this.command.setLevelTwo(this.standardReader.readLine());
+
+			try {
+				Executor.execute(this.command);
+			} catch (NotFoundOperation e) {
+				System.out.println("There is no menu. (Enter numbaer 1 ~ 3)");
 			}
 		}
 	}
