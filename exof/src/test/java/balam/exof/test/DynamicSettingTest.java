@@ -19,7 +19,11 @@ public class DynamicSettingTest {
 		dbFile.delete();
 		
 		for (int i = 0; i < 10; ++i) {
-			DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, "des" + i));
+			if (i == 5) {
+				DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, null));
+			} else {
+				DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, "des" + i));
+			}
 		}
 	}
 	
@@ -42,7 +46,10 @@ public class DynamicSettingTest {
 		for (int i = 0; i < 10; ++i) {
 			Assert.assertEquals("name" + i, list.get(i).getName());
 			Assert.assertEquals("value" + i, list.get(i).getValue());
-			Assert.assertEquals("des" + i, list.get(i).getDescription());
+
+			if (i == 5) {
+				Assert.assertEquals(null, list.get(i).getDescription());
+			}
 		}
 	}
 	
