@@ -1,15 +1,14 @@
 package balam.exof.test;
 
-import java.io.File;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.DynamicSettingVo;
+
+import java.io.File;
+import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DynamicSettingTest {
@@ -19,7 +18,11 @@ public class DynamicSettingTest {
 		dbFile.delete();
 		
 		for (int i = 0; i < 10; ++i) {
-			DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, "des" + i));
+			if (i == 5) {
+				DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, null));
+			} else {
+				DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, "des" + i));
+			}
 		}
 	}
 	
@@ -42,7 +45,10 @@ public class DynamicSettingTest {
 		for (int i = 0; i < 10; ++i) {
 			Assert.assertEquals("name" + i, list.get(i).getName());
 			Assert.assertEquals("value" + i, list.get(i).getValue());
-			Assert.assertEquals("des" + i, list.get(i).getDescription());
+
+			if (i == 5) {
+				Assert.assertEquals(null, list.get(i).getDescription());
+			}
 		}
 	}
 	
