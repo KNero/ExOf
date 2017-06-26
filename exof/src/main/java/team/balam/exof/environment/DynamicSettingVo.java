@@ -4,7 +4,14 @@ public class DynamicSettingVo {
 	private String name;
 	private String value;
 	private String description;
-	
+
+	public static final DynamicSettingVo EMPTY_VO = new DynamicSettingVo(){
+		@Override
+		public boolean isValid() {
+			return false;
+		}
+	};
+
 	public DynamicSettingVo() {
 		
 	}
@@ -19,28 +26,20 @@ public class DynamicSettingVo {
 		this.value = _value;
 		this.description = _description;
 	}
+
+	public boolean isValid() {
+		return true;
+	}
 	
 	public String getName() {
 		return name;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
 	public String getValue() {
 		return value;
 	}
-	
-	public void setValue(String value) {
-		this.value = value;
-	}
-	
+
 	public String getDescription() {
 		return description;
-	}
-	
-	public void setDescription(String description) {
-		this.description = description;
 	}
 }
