@@ -27,11 +27,11 @@ public class InfoGetter
 						{
 							if(! _valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE))
 							{
-								System.out.println("  - " + _valueKey + "(method name : " + valueMap.get(_valueKey) + ")");
+								System.out.println(" -s- " + _valueKey + "(method name : " + valueMap.get(_valueKey) + ")");
 								
 								Map<String, String> variables = (Map<String, String>)valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
 								variables.keySet().forEach(_name -> {
-									System.out.println("   -- " + _name + " : " + variables.get(_name));
+									System.out.println("   -v- " + _name + " : " + variables.get(_name));
 								});
 							}
 						}
