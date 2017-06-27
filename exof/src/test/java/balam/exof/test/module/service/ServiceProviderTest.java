@@ -51,7 +51,7 @@ public class ServiceProviderTest {
 	@BeforeClass
 	public static void loadService() throws Exception {
 		ServiceDirectoryInfo info = new ServiceDirectoryInfo();
-		info.setClassName("team.balam.exof.test.module.service.ServiceProviderTest");
+		info.setClassName("balam.exof.test.module.service.ServiceProviderTest");
 		info.setPath("/test/serviceProviderTest");
 
 		ServiceVariable serviceVariable = new ServiceVariable();
@@ -69,7 +69,6 @@ public class ServiceProviderTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void test_serviceVariableReload() throws Exception {
 		ServiceDirectoryInfo info = new ServiceDirectoryInfo();
 		info.setClassName("team.balam.exof.test.module.service.ServiceProviderTest");

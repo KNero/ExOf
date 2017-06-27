@@ -15,9 +15,7 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.service.annotation.Shutdown;
-import team.balam.exof.module.service.annotation.Startup;
-import team.balam.exof.module.service.annotation.Variable;
+import team.balam.exof.module.service.annotation.*;
 
 public class ServiceProvider implements Module, Observer
 {
@@ -25,8 +23,7 @@ public class ServiceProvider implements Module, Observer
 	
 	private Map<String, ServiceDirectory> serviceDirectory = new ConcurrentHashMap<>();
 	private boolean isAutoReload;
-	private long updateVariableTime;
-	
+
 	private static ServiceProvider self = new ServiceProvider();
 	
 	private ServiceProvider() 
@@ -64,9 +61,7 @@ public class ServiceProvider implements Module, Observer
 					ServiceImpl service = servicedir.register(serviceName, host, m, _info.getVariable(serviceName));
 
 					_checkInboundAnnotation(m, service);
-
 					_checkOutboundAnnotation(m, service);
-
 					_checkMapToVoAnnotation(m, service);
 
 					if (logger.isInfoEnabled()) {
@@ -117,16 +112,20 @@ public class ServiceProvider implements Module, Observer
 					field.set(_host, Byte.valueOf(value));
 				} else if ("short".equals(fieldType.toGenericString()) || fieldType.equals(Short.class)) {
 					field.set(_host, Short.valueOf(value));
-				} else {
+				} else if (fieldType.equals(String.class)) {
 					field.set(_host, value);
+				} else if (fieldType.equals(List.class)) {
+					field.set(_host, serviceVariables.get(field.getName()));
+				} else {
+					logger.error("This type can not be set. Field type : {}", fieldType);
 				}
 			}
 		}
 	}
 
 	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		team.balam.exof.module.service.annotation.Inbound inboundAnn =
-				_method.getAnnotation(team.balam.exof.module.service.annotation.Inbound.class);
+		Inbound inboundAnn =
+				_method.getAnnotation(Inbound.class);
 
 		if (inboundAnn != null) {
 			_service.addInbound(inboundAnn.classObject().newInstance());
@@ -134,8 +133,8 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		team.balam.exof.module.service.annotation.Outbound outboundAnn =
-				_method.getAnnotation(team.balam.exof.module.service.annotation.Outbound.class);
+		Outbound outboundAnn =
+				_method.getAnnotation(Outbound.class);
 
 		if (outboundAnn != null) {
 			_service.addOutbound(outboundAnn.classObject().newInstance());
@@ -143,31 +142,33 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		team.balam.exof.module.service.annotation.MapToVo mapTovoAnn =
-				_method.getAnnotation(team.balam.exof.module.service.annotation.MapToVo.class);
+		MapToVo mapTovoAnn =
+				_method.getAnnotation(MapToVo.class);
 
 		if (mapTovoAnn != null) {
 			_service.setMapToVoConverter(mapTovoAnn.classObject());
 		}
 	}
-	
-	public static Service lookup(String _path) throws Exception
-	{
-		if(_path == null || _path.length() == 0) throw new IllegalArgumentException("Path is null : " + _path);
-			
+
+	public static Service lookup(String _path) throws ServiceNotFoundException {
+		if (_path == null || _path.length() == 0) throw new IllegalArgumentException("Path is null : " + _path);
+
 		int splitIdx = _path.lastIndexOf("/");
-		
-		if(splitIdx == -1) throw new IllegalArgumentException("Invalid path : " + _path);
-		
+		if (splitIdx == -1) {
+			throw new ServiceNotFoundException(_path);
+		}
+
 		String dirPath = _path.substring(0, splitIdx);
 		String serviceName = _path.substring(splitIdx + 1);
-		
+
 		ServiceDirectory serviceDir = self.serviceDirectory.get(dirPath);
-		if(serviceDir == null) throw new ServiceNotFoundException(_path);
-		
+		if (serviceDir == null) {
+			throw new ServiceNotFoundException(_path);
+		}
+
 		Service service = serviceDir.getService(serviceName);
-		if(service == null) throw new ServiceNotFoundException(_path);
-		
+		if (service == null) throw new ServiceNotFoundException(_path);
+
 		return service;
 	}
 
@@ -203,55 +204,58 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	@Override
-	public void update(Observable o, Object arg)
-	{
-		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
-		
-		if(! this.isAutoReload) return;
-		
-		if(System.currentTimeMillis() - this.updateVariableTime > 5000)
-		{
-			this.updateVariableTime = System.currentTimeMillis();
-			
-			directoryInfoList.forEach(_info -> self.updateServiceDirectory(_info));
+	public void update(Observable o, Object arg) {
+		if (!this.isAutoReload) {
+			return;
 		}
+
+		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
+		directoryInfoList.forEach(_info -> self._updateServiceDirectory(_info));
 	}
-	
-	private void updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo)
-	{
-		try
-		{
+
+	private void _updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo) {
+		try {
 			Class<?> clazz = Class.forName(_serviceDirInfo.getClassName());
 			Method[] methods = clazz.getMethods();
-			
-			for(Method m : methods)
-			{
-				team.balam.exof.module.service.annotation.Service serviceAnn = 
+
+			for (Method m : methods) {
+				team.balam.exof.module.service.annotation.Service serviceAnn =
 						m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
-				
-				if(serviceAnn != null)
-				{
+
+				if (serviceAnn != null) {
 					String serviceName = serviceAnn.name();
-					if(serviceName.length() == 0) serviceName = m.getName();
-					
-					ServiceVariable serviceVariable = _serviceDirInfo.getVariable(serviceName);
-					
+					if (serviceName.length() == 0) {
+						serviceName = m.getName();
+					}
+
 					ServiceDirectory serviceDir = this.serviceDirectory.get(_serviceDirInfo.getPath());
-					if(serviceDir != null)
-					{
-						serviceDir.reloadVariable(serviceName, serviceVariable);
-						
+					if (serviceDir != null) {
+						this._reloadServiceVariable(_serviceDirInfo.getPath(), serviceName, _serviceDirInfo);
+
 						logger.warn("Complete reloading ServiceVariable. [{}]", _serviceDirInfo.getPath() + "/" + serviceName);
 					}
 				}
 			}
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			logger.error("Can not reload the ServiceVariable. Class : {}", _serviceDirInfo.getClassName());
 		}
 	}
-	
+
+	private void _reloadServiceVariable(String _serviceDirPath, String _serviceName, ServiceDirectoryInfo _info) {
+		try {
+			ServiceImpl service = (ServiceImpl) lookup(_serviceDirPath + "/" + _serviceName);
+			service.setVariable(_info.getVariable(_serviceName));
+
+			try {
+				_setServiceVariableByAnnotation(service.getHost(), _info);
+			} catch (Exception e) {
+				logger.error("Can not reload service's member variable.", e);
+			}
+		} catch (ServiceNotFoundException e) {
+			logger.error("Can not reload service variable because Service is not exits.");
+		}
+	}
+
 	public Map<String, HashMap<String, Object>> getAllServiceInfo() {
 		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();
 
