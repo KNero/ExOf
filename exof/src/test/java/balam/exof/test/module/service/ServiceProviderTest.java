@@ -71,7 +71,7 @@ public class ServiceProviderTest {
 	@Test
 	public void test_serviceVariableReload() throws Exception {
 		ServiceDirectoryInfo info = new ServiceDirectoryInfo();
-		info.setClassName("team.balam.exof.module.service.ServiceProviderTest");
+		info.setClassName("balam.exof.test.module.service.ServiceProviderTest");
 		info.setPath("/test/serviceProviderTest");
 
 		ServiceVariable serviceVariable = new ServiceVariable();
