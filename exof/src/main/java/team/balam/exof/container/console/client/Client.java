@@ -49,8 +49,7 @@ public class Client
 		}
 	}
 	
-	@SafeVarargs
-	public static void send(Command _command, Consumer<Map<String, Object>>... _callback) throws IOException
+	public static void send(Command _command, Consumer<Object> _successCallback, Consumer<Object> _failCallback) throws IOException
 	{
 		Socket socket = null;
 		
@@ -66,18 +65,26 @@ public class Client
 			
 			InputStream in = socket.getInputStream();
 			byte[] res = StreamUtil.read(in, '\0');
-			
+			String jsonStr = new String(res);
+
+			Object result = null;
 			ObjectMapper objectMapper = new ObjectMapper();
-			TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
-			Map<String, Object> result = objectMapper.readValue(new String(res), mapType);
-			
-			if(_callback.length > 0 && _isExistData(result))
-			{
-				_callback[0].accept(result);
+
+			if (jsonStr.startsWith("{")) {
+				TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
+				result = objectMapper.readValue(jsonStr, mapType);
+			} else {
+				TypeReference<List<Object>> mapType = new TypeReference<List<Object>>(){};
+				result = objectMapper.readValue(jsonStr, mapType);
 			}
-			else if(_callback.length > 1)
+
+			if(_successCallback != null && _isExistData(result))
 			{
-				_callback[1].accept(result);
+				_successCallback.accept(result);
+			}
+			else if(_failCallback != null)
+			{
+				_failCallback.accept(result);
 			}
 		}
 		finally
@@ -95,17 +102,17 @@ public class Client
 			}
 		}
 	}
-	
-	private static boolean _isExistData(Map<String, Object> _result)
-	{
-		String resultValue = (String)_result.get(Command.Key.RESULT);
-		if(resultValue != null)
-		{
-			System.out.println(resultValue);
-			return false;
-		}
-		else
-		{
+
+	private static boolean _isExistData(Object _result) {
+		if (_result instanceof Map) {
+			String resultValue = (String) ((Map<String, Object>) _result).get(Command.Key.RESULT);
+			if (resultValue != null) {
+				System.out.println(resultValue);
+				return false;
+			} else {
+				return true;
+			}
+		} else {
 			return true;
 		}
 	}

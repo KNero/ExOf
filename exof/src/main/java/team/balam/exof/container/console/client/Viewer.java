@@ -7,8 +7,7 @@ import java.io.InputStreamReader;
 
 public class Viewer 
 {
-	public BufferedReader standardReader = null;
-	private String selectMenuNumber;
+	private BufferedReader standardReader = null;
 	private ViewerCommand command;
 
 	public void start() throws Exception {
@@ -56,14 +55,14 @@ public class Viewer
 
 	private void _showLevelTwoMenu() throws IOException {
 		while (true) {
-			System.out.println("\n(1)service list   (2)schedule list   (3)quit");
+			System.out.println("\n(1)service list   (2)schedule list   (3)dynamic setting list   (9)quit");
 
 			this.command.setLevelTwo(this.standardReader.readLine());
 
 			try {
 				Executor.execute(this.command);
 			} catch (NotFoundOperation e) {
-				System.out.println("There is no menu. (Enter numbaer 1 ~ 3)");
+				System.out.println("There is no menu. (Enter numbaer 1 ~ 4)");
 			}
 		}
 	}

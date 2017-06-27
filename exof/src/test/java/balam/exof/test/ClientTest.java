@@ -54,7 +54,8 @@ public class ClientTest
 		Client.send(new Command(ServiceList.SHOW_SERVICE_LIST), _successResult -> {
 			try
 			{
-				_successResult.forEach((_key, _value) -> {
+				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
+				resultMap.forEach((_key, _value) -> {
 					Map<String, Object> valueMap = (Map<String, Object>)_value;
 					
 					Assert.assertNotNull(valueMap.get(Command.Key.CLASS));
@@ -95,7 +96,8 @@ public class ClientTest
 		Client.send(new Command(ServiceList.SHOW_SCHEDULE_LIST), _successResult -> {
 			try
 			{
-				Assert.assertNotNull(_successResult.get("list"));
+				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
+				Assert.assertNotNull(resultMap.get("list"));
 			}
 			catch(Exception e)
 			{

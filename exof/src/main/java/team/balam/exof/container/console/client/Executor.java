@@ -16,6 +16,10 @@ public class Executor {
 		executorList.put(Menu.Execute.GET_SCHEDULE_LIST, () -> {
 			getter.getScheduleList();
 		});
+
+		executorList.put(Menu.Execute.SHOW_DYNAMIC_SETTING_LIST, () -> {
+			getter.getDynamicSettingList();
+		});
 	}
 
 	public static void execute(ViewerCommand command) throws NotFoundOperation {

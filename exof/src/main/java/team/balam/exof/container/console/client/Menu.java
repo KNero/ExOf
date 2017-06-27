@@ -1,7 +1,7 @@
 package team.balam.exof.container.console.client;
 
 public interface Menu {
-	String QUIT = "3";
+	String QUIT = "9";
 
 	interface LevelOne {
 		String GET = "1";
@@ -11,5 +11,6 @@ public interface Menu {
 	interface Execute {
 		String GET_SERVICE_LIST = "1.1";
 		String GET_SCHEDULE_LIST = "1.2";
+		String SHOW_DYNAMIC_SETTING_LIST = "1.3";
 	}
 }
