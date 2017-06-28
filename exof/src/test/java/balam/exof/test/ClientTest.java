@@ -1,6 +1,7 @@
 package balam.exof.test;
 
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -20,66 +21,57 @@ import team.balam.exof.container.console.client.Client;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
-public class ClientTest
-{
+public class ClientTest {
 	@Test
-	public void testSender() throws Exception
-	{
-		Sender<String, String> client = new Sender<>(new ChannelHandlerMaker(){
+	public void testSender() throws Exception {
+		Sender<String, String> client = new Sender<>(new ChannelHandlerMaker() {
 			@Override
-			public ChannelHandler[] make(SocketChannel _socketChannel) 
-			{
-				return new ChannelHandler[]{new StringEncoder(), 
+			public ChannelHandler[] make(SocketChannel _socketChannel) {
+				return new ChannelHandler[]{new StringEncoder(),
 						new DelimiterBasedFrameDecoder(2048, Delimiters.nulDelimiter()),
 						new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET))};
 			}
 		});
-		
+
 		client.setConnectTimeout(5000);
 		client.setReadTimeout(3000);
 		client.connect("localhost", 2000);
 
 		String res = client.sendAndWait("{\"aaa\":\"ababa\", \"servicePath\":\"/test/receive\"}\0");
 		client.close();
-		
+
 		Assert.assertEquals(res, "response");
 	}
-	
+
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testConsoleGetServiceList() throws Exception
-	{
+	public void testConsoleGetServiceList() throws Exception {
 		Client.init();
-		
+
 		Client.send(new Command(ServiceList.SHOW_SERVICE_LIST), _successResult -> {
-			try
-			{
+			try {
 				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
 				resultMap.forEach((_key, _value) -> {
-					Map<String, Object> valueMap = (Map<String, Object>)_value;
-					
+					Map<String, Object> valueMap = (Map<String, Object>) _value;
+
 					Assert.assertNotNull(valueMap.get(Command.Key.CLASS));
-					
+
 					valueMap.keySet().forEach(_valueKey -> {
-						if(! Command.Key.CLASS.equals(_valueKey))
-						{
-							if(! _valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE))
-							{
+						if (!Command.Key.CLASS.equals(_valueKey)) {
+							if (!_valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
 								Assert.assertNotNull(valueMap.get(_valueKey));
-								
-								Map<String, String> variables = (Map<String, String>)valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
+
+								Map<String, String> variables = (Map<String, String>) valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
 								variables.keySet().forEach(_name -> {
 									Assert.assertNotNull(variables.get(_name));
 								});
 							}
 						}
 					});
-					
+
 					System.out.println();
 				});
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail();
 			}
@@ -87,20 +79,32 @@ public class ClientTest
 			Assert.fail();
 		});
 	}
-	
+
 	@Test
-	public void testConsoleGetScheduleList() throws Exception
-	{
+	public void testConsoleGetScheduleList() throws Exception {
 		Client.init();
-		
+
 		Client.send(new Command(ServiceList.SHOW_SCHEDULE_LIST), _successResult -> {
-			try
-			{
+			try {
 				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
 				Assert.assertNotNull(resultMap.get("list"));
+			} catch (Exception e) {
+				e.printStackTrace();
+				Assert.fail();
 			}
-			catch(Exception e)
-			{
+		}, _failResult -> {
+			Assert.fail();
+		});
+	}
+
+	@Test
+	public void test_ConsoleGetDynamicSettingList() throws Exception {
+		Client.init();
+
+		Client.send(new Command(ServiceList.SHOW_DYNAMIC_SETTING_LIST), _successResult -> {
+			try {
+				Assert.assertNotEquals(0, ((List<Object>) _successResult).size());
+			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail();
 			}
