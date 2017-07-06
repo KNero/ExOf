@@ -49,6 +49,7 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String> {
 		
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Command type : {}", command.getType());
+			this.logger.info("Command parameter : {}", command.getParameter());
 		}
 		
 		Object response = null;
