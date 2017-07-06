@@ -7,8 +7,7 @@ import java.io.InputStreamReader;
 
 public class Viewer 
 {
-	public BufferedReader standardReader = null;
-	private String selectMenuNumber;
+	private BufferedReader standardReader = null;
 	private ViewerCommand command;
 
 	public void start() throws Exception {
@@ -49,21 +48,32 @@ public class Viewer
 		        	//종료 예외가 발생할 경우 입력을 다시 받는다.
 		        }
 	        } else {
-		        System.out.println("Enter numbaer 1 or 2 or 3");
+		        System.out.println("Enter number 1 or 2 or 3");
 	        }
         }
 	}
 
 	private void _showLevelTwoMenu() throws IOException {
 		while (true) {
-			System.out.println("\n(1)service list   (2)schedule list   (3)quit");
+			if (Menu.LevelOne.GET.equals(this.command.getLevelOne())) {
+				System.out.println("\n(1)service list   (2)schedule list   (3)dynamic setting list   (4)dynamic setting single   (9)quit");
+			} else if (Menu.LevelOne.SET.equals(this.command.getLevelOne())) {
+				System.out.println("here is no menu. (Enter numbaer 1 ~ 4)");
+				throw new TerminateException();
+			} else {
+				System.out.println("Not suppoted yes.");
+				throw new TerminateException();
+			}
 
 			this.command.setLevelTwo(this.standardReader.readLine());
+
+			CommandParameterReader parameterReader = new CommandParameterReader(this.standardReader, this.command);
+			parameterReader.execute();
 
 			try {
 				Executor.execute(this.command);
 			} catch (NotFoundOperation e) {
-				System.out.println("There is no menu. (Enter numbaer 1 ~ 3)");
+				System.out.println("There is no menu. (Enter numbaer 1 ~ 4)");
 			}
 		}
 	}

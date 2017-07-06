@@ -1,12 +1,12 @@
 package team.balam.exof.container.console.client;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.environment.EnvKey;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class InfoGetter
 {
@@ -16,7 +16,8 @@ public class InfoGetter
 		try
 		{
 			Client.send(new Command(ServiceList.SHOW_SERVICE_LIST), _result -> {
-				_result.forEach((_key, _value) -> {
+				Map<String, Object> resultMap = (Map<String, Object>) _result;
+				resultMap.forEach((_key, _value) -> {
 					Map<String, Object> valueMap = (Map<String, Object>)_value;
 					System.out.println("Directory path : " + _key);
 					System.out.println("Class : " + valueMap.get(Command.Key.CLASS));
@@ -39,7 +40,7 @@ public class InfoGetter
 					
 					System.out.println();
 				});
-			});
+			}, null);
 		}
 		catch(IOException e)
 		{
@@ -53,14 +54,42 @@ public class InfoGetter
 		try
 		{
 			Client.send(new Command(ServiceList.SHOW_SCHEDULE_LIST), _result -> {
-				List<String> list = (List<String>)_result.get("list");
+				Map<String, Object> resultMap = (Map<String, Object>) _result;
+				List<String> list = (List<String>) resultMap.get("list");
 				list.forEach(scheduleName -> {
 					System.out.println("- " + scheduleName);
 				});
-			});
+			}, null);
 		}
 		catch(IOException e)
 		{
+			e.printStackTrace();
+		}
+	}
+
+	public void getDynamicSettingList() {
+		try
+		{
+			Client.send(new Command(ServiceList.SHOW_DYNAMIC_SETTING_LIST), _result -> {
+				List<Object> resultList = (List<Object>) _result;
+				resultList.forEach(object -> System.out.println(object));
+			}, null);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void getDynamicSettingSingle(String _name) {
+		try {
+			Command command = new Command(ServiceList.SHOW_DYNAMIC_SETTING_SINGLE);
+			command.addParameter("name", _name);
+
+			Client.send(command, _result -> {
+
+			}, null);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
