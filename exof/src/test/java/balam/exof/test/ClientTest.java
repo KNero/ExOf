@@ -1,18 +1,13 @@
 package balam.exof.test;
 
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import org.junit.Assert;
+import org.junit.Test;
 import team.balam.exof.Constant;
 import team.balam.exof.client.Sender;
 import team.balam.exof.container.console.Command;
@@ -20,6 +15,10 @@ import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
+
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
 
 public class ClientTest {
 	@Test
@@ -75,9 +74,7 @@ public class ClientTest {
 				e.printStackTrace();
 				Assert.fail();
 			}
-		}, _failResult -> {
-			Assert.fail();
-		});
+		}, _failResult -> Assert.fail());
 	}
 
 	@Test
@@ -92,9 +89,7 @@ public class ClientTest {
 				e.printStackTrace();
 				Assert.fail();
 			}
-		}, _failResult -> {
-			Assert.fail();
-		});
+		}, _failResult -> Assert.fail());
 	}
 
 	@Test
@@ -108,8 +103,23 @@ public class ClientTest {
 				e.printStackTrace();
 				Assert.fail();
 			}
-		}, _failResult -> {
-			Assert.fail();
-		});
+		}, _failResult -> Assert.fail());
+	}
+
+	@Test
+	public void test_ConsoleGetDynamicSettingSingle() throws Exception {
+		Client.init();
+
+		Command command = new Command(ServiceList.SHOW_DYNAMIC_SETTING_SINGLE);
+		command.addParameter("name", "name0");
+
+		Client.send(command, _successResult -> {
+			try {
+				Assert.assertEquals(1, ((List<Object>) _successResult).size());
+			} catch (Exception e) {
+				e.printStackTrace();
+				Assert.fail();
+			}
+		}, _failResult -> Assert.fail());
 	}
 }

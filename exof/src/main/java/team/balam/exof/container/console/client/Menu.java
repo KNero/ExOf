@@ -11,6 +11,9 @@ public interface Menu {
 	interface Execute {
 		String GET_SERVICE_LIST = "1.1";
 		String GET_SCHEDULE_LIST = "1.2";
-		String SHOW_DYNAMIC_SETTING_LIST = "1.3";
+		String GET_DYNAMIC_SETTING_LIST = "1.3";
+		String GET_DYNAMIC_SETTING_SINGLE = "1.4";
+
+		String SET_DYNAMIC_SETTING = "2.1";
 	}
 }

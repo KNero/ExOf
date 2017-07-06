@@ -1,12 +1,12 @@
 package team.balam.exof.container.console.client;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.environment.EnvKey;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class InfoGetter
 {
@@ -77,6 +77,19 @@ public class InfoGetter
 		}
 		catch(IOException e)
 		{
+			e.printStackTrace();
+		}
+	}
+
+	public void getDynamicSettingSingle(String _name) {
+		try {
+			Command command = new Command(ServiceList.SHOW_DYNAMIC_SETTING_SINGLE);
+			command.addParameter("name", _name);
+
+			Client.send(command, _result -> {
+
+			}, null);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
