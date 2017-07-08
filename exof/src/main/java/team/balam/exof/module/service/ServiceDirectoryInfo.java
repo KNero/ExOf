@@ -39,14 +39,9 @@ public class ServiceDirectoryInfo
 		this.variableMap.put(_serviceName, _variable);
 	}
 	
-	ServiceVariable getVariable(String _serviceName)
+	public ServiceVariable getVariable(String _serviceName)
 	{
 		return this.variableMap.get(_serviceName);
-	}
-	
-	public int getServiceVariableSize()
-	{
-		return this.variableMap.size();
 	}
 	
 	@Override
