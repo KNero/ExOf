@@ -52,40 +52,42 @@ public class Client
 	public static void send(Command _command, Consumer<Object> _successCallback, Consumer<Object> _failCallback) throws IOException
 	{
 		Socket socket = null;
+		String jsonStr = null;
 		
-		try
-		{
+		try {
 			socket = new Socket();
 			socket.connect(new InetSocketAddress(consolePort), 3000);
 			socket.setSoTimeout(5000);
-			
+
 			OutputStream out = socket.getOutputStream();
 			out.write(_command.toJson().getBytes());
 			out.write('\0');
-			
+
 			InputStream in = socket.getInputStream();
 			byte[] res = StreamUtil.read(in, '\0');
-			String jsonStr = new String(res);
+			jsonStr = new String(res);
 
-			Object result = null;
+			Object result;
 			ObjectMapper objectMapper = new ObjectMapper();
 
 			if (jsonStr.startsWith("{")) {
-				TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>(){};
+				TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>() {};
+				result = objectMapper.readValue(jsonStr, mapType);
+			} else if (jsonStr.startsWith("[")) {
+				TypeReference<List<Object>> mapType = new TypeReference<List<Object>>() {};
 				result = objectMapper.readValue(jsonStr, mapType);
 			} else {
-				TypeReference<List<Object>> mapType = new TypeReference<List<Object>>(){};
-				result = objectMapper.readValue(jsonStr, mapType);
+				result = jsonStr;
 			}
 
-			if(_successCallback != null && _isExistData(result))
-			{
+			if (_successCallback != null && _isExistData(result)) {
 				_successCallback.accept(result);
-			}
-			else if(_failCallback != null)
-			{
+			} else if (_failCallback != null) {
 				_failCallback.accept(result);
 			}
+		} catch (IOException e) {
+			System.err.println("Response : " + jsonStr);
+			throw e;
 		}
 		finally
 		{
@@ -103,6 +105,7 @@ public class Client
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private static boolean _isExistData(Object _result) {
 		if (_result instanceof Map) {
 			String resultValue = (String) ((Map<String, Object>) _result).get(Command.Key.RESULT);
