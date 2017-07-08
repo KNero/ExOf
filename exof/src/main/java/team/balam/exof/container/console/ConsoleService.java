@@ -17,9 +17,12 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
+import team.balam.exof.module.service.Service;
+import team.balam.exof.module.service.ServiceDirectoryInfo;
 import team.balam.exof.module.service.ServiceProvider;
+import team.balam.exof.module.service.ServiceVariable;
 
-public class ConsoleService {
+class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	public Object loginAdminConsole(Map<String, Object> _param) {
@@ -41,7 +44,7 @@ public class ConsoleService {
 		
 		return "index.html";
 	}
-	
+
 	public Object getServiceList(Map<String, Object> _param) {
 		Map<String, HashMap<String, Object>> result = ServiceProvider.getInstance().getAllServiceInfo();
 		
@@ -64,9 +67,9 @@ public class ConsoleService {
 			return result;
 		}
 	}
-	
+
 	public Object getDynamicSettingList(Map<String, Object> _param) {
-		String settingName = (String) _param.get("name");
+		String settingName = (String) _param.get(Command.Key.NAME);
 		
 		if (settingName == null) {
 			settingName = "";
@@ -74,12 +77,12 @@ public class ConsoleService {
 		
 		return DynamicSetting.getInstance().getList(settingName);
 	}
-	
+
 	public String updateDynamicSetting(Map<String, Object> _param) {
-		String name = (String) _param.get("name");
-		String value = (String) _param.get("value");
-		String des = (String) _param.get("des");
-		
+		String name = (String) _param.get(Command.Key.NAME);
+		String value = (String) _param.get(Command.Key.VALUE);
+		String des = (String) _param.get(Command.Key.DESCRIPTION);
+
 		try {
 			DynamicSetting.getInstance().change(new DynamicSettingVo(name, value, des));
 			return Command.SUCCESS_RESPONSE;
@@ -88,9 +91,9 @@ public class ConsoleService {
 			return Command.makeSimpleResult(e.getMessage());
 		}
 	}
-	
+
 	public String removeDynamicSetting(Map<String, Object> _param) {
-		String name = (String) _param.get("name");
+		String name = (String) _param.get(Command.Key.NAME);
 		
 		try {
 			DynamicSetting.getInstance().remove(name);
@@ -100,11 +103,11 @@ public class ConsoleService {
 			return Command.makeSimpleResult(e.getMessage());
 		}
 	}
-	
+
 	public String addDynamicSetting(Map<String, Object> _param) {
-		String name = (String) _param.get("name");
-		String value = (String) _param.get("value");
-		String des = (String) _param.get("des");
+		String name = (String) _param.get(Command.Key.NAME);
+		String value = (String) _param.get(Command.Key.VALUE);
+		String des = (String) _param.get(Command.Key.DESCRIPTION);
 		
 		try {
 			DynamicSetting.getInstance().put(new DynamicSettingVo(name, value, des));
@@ -113,5 +116,52 @@ public class ConsoleService {
 			this.logger.error("DynamicSetting INSERT error.", e);
 			return Command.makeSimpleResult(e.getMessage());
 		}
+	}
+
+	public Object setServiceVariableValue(Map<String, Object> _parameter) {
+		String servicePath = (String) _parameter.get(Command.Key.SERVICE_PATH);
+		String variableName = (String) _parameter.get(Command.Key.VARIABLE_NAME);
+		String variableValue = (String) _parameter.get(Command.Key.VARIABLE_VALUE);
+
+		try {
+			String[] pathArray = servicePath.split("/");
+			String serviceName = pathArray[pathArray.length - 1];
+			String serviceDirPath = servicePath.split("/" + serviceName)[0];
+
+			List<ServiceDirectoryInfo> serviceList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
+			for (ServiceDirectoryInfo service : serviceList) {
+				if (service.getPath().equals(serviceDirPath)) {
+					ServiceVariable variable = service.getVariable(serviceName);
+
+					if (variable.get(variableName) instanceof String) {
+						this._changeVariable(variable, variableName, variableValue);
+					} else {
+						variable.put(variableName, variableValue);
+					}
+
+					break;
+				}
+			}
+
+			Service service = ServiceProvider.lookup(servicePath);
+			return service.getServiceVariable(variableName);
+		} catch (Exception e) {
+			this.logger.error("Service variable SET error.", e);
+			return Command.makeSimpleResult(e.getMessage());
+		}
+	}
+
+	/**
+	 * ServiceVariable은 내부 적으로 모두 List 로 관리되는데
+	 * 하나였던 variable 에 새로운 variable 이 들어갈 경우 List 로 인식된다.
+	 * 그러므로 처음 하나를 삭제해서 String 으로 인식되도록 해줘야 한다
+	 * @param _serviceVariable ServiceDirectory 의 모든 variable 을 관리하는 객체
+	 * @param _variableName serviceVariable name
+	 */
+	private void _changeVariable(ServiceVariable _serviceVariable, String _variableName, String _variableValue) {
+		_serviceVariable.put(_variableName, _variableValue);
+
+		List<String> variableList = (List<String>) _serviceVariable.get(_variableName);
+		variableList.remove(0);
 	}
 }

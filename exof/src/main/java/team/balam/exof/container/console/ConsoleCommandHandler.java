@@ -44,7 +44,7 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String> {
 		}
 	}
 	
-	public String executeConsoleService(String _json) throws Exception {
+	String executeConsoleService(String _json) throws Exception {
 		Command command = this.gson.fromJson(_json, Command.class);
 		
 		if (this.logger.isInfoEnabled()) {

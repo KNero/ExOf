@@ -14,6 +14,12 @@ public class Command
 	{
 		String RESULT = "result";
 		String CLASS = "class";
+		String NAME = "name";
+		String VALUE = "value";
+		String DESCRIPTION = "des";
+		String SERVICE_PATH = "servicePath";
+		String VARIABLE_NAME = "variableName";
+		String VARIABLE_VALUE = "variableValue";
 	}
 	
 	public static final String NO_DATA_RESPONSE = makeSimpleResult("No data.");

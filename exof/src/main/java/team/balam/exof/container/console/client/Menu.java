@@ -14,6 +14,6 @@ public interface Menu {
 		String GET_DYNAMIC_SETTING_LIST = "1.3";
 		String GET_DYNAMIC_SETTING_SINGLE = "1.4";
 
-		String SET_DYNAMIC_SETTING = "2.1";
+		String SET_SERVICE_VARIABLE = "2.1";
 	}
 }
