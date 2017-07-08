@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class InfoGetter
+class InfoGetter
 {
 	@SuppressWarnings("unchecked")
-	public void getServiceList()
+	void getServiceList()
 	{
 		try
 		{
@@ -31,9 +31,7 @@ public class InfoGetter
 								System.out.println(" -s- " + _valueKey + "(method name : " + valueMap.get(_valueKey) + ")");
 								
 								Map<String, String> variables = (Map<String, String>)valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
-								variables.keySet().forEach(_name -> {
-									System.out.println("   -v- " + _name + " : " + variables.get(_name));
-								});
+								variables.keySet().forEach(_name -> System.out.println("   -v- " + _name + " : " + variables.get(_name)));
 							}
 						}
 					});
@@ -49,16 +47,15 @@ public class InfoGetter
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void getScheduleList()
+	void getScheduleList()
 	{
 		try
 		{
 			Client.send(new Command(ServiceList.SHOW_SCHEDULE_LIST), _result -> {
 				Map<String, Object> resultMap = (Map<String, Object>) _result;
 				List<String> list = (List<String>) resultMap.get("list");
-				list.forEach(scheduleName -> {
-					System.out.println("- " + scheduleName);
-				});
+
+				list.forEach(scheduleName -> System.out.println("- " + scheduleName));
 			}, null);
 		}
 		catch(IOException e)
@@ -67,12 +64,13 @@ public class InfoGetter
 		}
 	}
 
-	public void getDynamicSettingList() {
+	@SuppressWarnings("unchecked")
+	void getDynamicSettingList() {
 		try
 		{
 			Client.send(new Command(ServiceList.SHOW_DYNAMIC_SETTING_LIST), _result -> {
 				List<Object> resultList = (List<Object>) _result;
-				resultList.forEach(object -> System.out.println(object));
+				resultList.forEach(object -> System.out.println(object.toString()));
 			}, null);
 		}
 		catch(IOException e)
@@ -81,14 +79,12 @@ public class InfoGetter
 		}
 	}
 
-	public void getDynamicSettingSingle(String _name) {
+	void getDynamicSettingSingle(String _name) {
+		Command command = new Command(ServiceList.SHOW_DYNAMIC_SETTING_SINGLE);
+		command.addParameter(Command.Key.NAME, _name);
+
 		try {
-			Command command = new Command(ServiceList.SHOW_DYNAMIC_SETTING_SINGLE);
-			command.addParameter("name", _name);
-
-			Client.send(command, _result -> {
-
-			}, null);
+			Client.send(command, _result -> System.out.println(_result.toString()), null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
