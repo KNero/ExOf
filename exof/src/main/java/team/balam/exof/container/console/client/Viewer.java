@@ -58,10 +58,9 @@ public class Viewer
 			if (Menu.LevelOne.GET.equals(this.command.getLevelOne())) {
 				System.out.println("\n(1)service list   (2)schedule list   (3)dynamic setting list   (4)dynamic setting single   (9)quit");
 			} else if (Menu.LevelOne.SET.equals(this.command.getLevelOne())) {
-				System.out.println("here is no menu. (Enter numbaer 1 ~ 4)");
-				throw new TerminateException();
+				System.out.println("\n(1)service variable (9)quit");
 			} else {
-				System.out.println("Not suppoted yes.");
+				System.out.println("\nNot supported yes.");
 				throw new TerminateException();
 			}
 
@@ -73,7 +72,7 @@ public class Viewer
 			try {
 				Executor.execute(this.command);
 			} catch (NotFoundOperation e) {
-				System.out.println("There is no menu. (Enter numbaer 1 ~ 4)");
+				System.out.println("\nThere is no menu. (Enter number 1 ~ 4)");
 			}
 		}
 	}
