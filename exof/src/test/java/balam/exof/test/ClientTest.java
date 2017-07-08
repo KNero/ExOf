@@ -1,7 +1,6 @@
 package balam.exof.test;
 
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
@@ -14,7 +13,6 @@ import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -23,14 +21,10 @@ import java.util.Map;
 public class ClientTest {
 	@Test
 	public void testSender() throws Exception {
-		Sender<String, String> client = new Sender<>(new ChannelHandlerMaker() {
-			@Override
-			public ChannelHandler[] make(SocketChannel _socketChannel) {
-				return new ChannelHandler[]{new StringEncoder(),
-						new DelimiterBasedFrameDecoder(2048, Delimiters.nulDelimiter()),
-						new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET))};
-			}
-		});
+		Sender<String, String> client = new Sender<>(_socketChannel ->
+			new ChannelHandler[]{new StringEncoder(),
+					new DelimiterBasedFrameDecoder(2048, Delimiters.nulDelimiter()),
+					new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET))});
 
 		client.setConnectTimeout(5000);
 		client.setReadTimeout(3000);
@@ -61,9 +55,7 @@ public class ClientTest {
 								Assert.assertNotNull(valueMap.get(_valueKey));
 
 								Map<String, String> variables = (Map<String, String>) valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
-								variables.keySet().forEach(_name -> {
-									Assert.assertNotNull(variables.get(_name));
-								});
+								variables.keySet().forEach(_name -> Assert.assertNotNull(variables.get(_name)));
 							}
 						}
 					});
@@ -78,6 +70,7 @@ public class ClientTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testConsoleGetScheduleList() throws Exception {
 		Client.init();
 
@@ -93,6 +86,7 @@ public class ClientTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void test_ConsoleGetDynamicSettingList() throws Exception {
 		Client.init();
 
@@ -107,15 +101,35 @@ public class ClientTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void test_ConsoleGetDynamicSettingSingle() throws Exception {
 		Client.init();
 
 		Command command = new Command(ServiceList.SHOW_DYNAMIC_SETTING_SINGLE);
-		command.addParameter("name", "name0");
+		command.addParameter(Command.Key.NAME, "name0");
 
 		Client.send(command, _successResult -> {
 			try {
 				Assert.assertEquals(1, ((List<Object>) _successResult).size());
+			} catch (Exception e) {
+				e.printStackTrace();
+				Assert.fail();
+			}
+		}, _failResult -> Assert.fail());
+	}
+
+	@Test
+	public void test_consoleSetServiceVariable() throws Exception {
+		Client.init();
+
+		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
+		command.addParameter(Command.Key.SERVICE_PATH, "/test/schedule");
+		command.addParameter(Command.Key.VARIABLE_NAME, "a");
+		command.addParameter(Command.Key.VARIABLE_VALUE, "aaaaa1111");
+
+		Client.send(command, _result -> {
+			try {
+				Assert.assertEquals("aaaaa1111", _result);
 			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail();

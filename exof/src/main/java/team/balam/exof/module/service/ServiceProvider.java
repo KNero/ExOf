@@ -49,7 +49,7 @@ public class ServiceProvider implements Module, Observer
 
 			_setServiceVariableByAnnotation(host, _info);
 
-			ServiceDirectory servicedir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
+			ServiceDirectory serviceDir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
 					_key -> new ServiceDirectory(host, _key));
 
 			Method[] method = clazz.getMethods();
@@ -61,7 +61,7 @@ public class ServiceProvider implements Module, Observer
 					String serviceName = serviceAnn.name();
 					if (serviceName.length() == 0) serviceName = m.getName();
 
-					ServiceImpl service = servicedir.register(serviceName, host, m, _info.getVariable(serviceName));
+					ServiceImpl service = serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
 
 					_checkInboundAnnotation(m, service);
 
@@ -76,12 +76,12 @@ public class ServiceProvider implements Module, Observer
 
 				Startup startupAnn = m.getAnnotation(Startup.class);
 				if (startupAnn != null) {
-					servicedir.setStartup(m);
+					serviceDir.setStartup(m);
 				}
 
 				Shutdown shutdown = m.getAnnotation(Shutdown.class);
 				if (shutdown != null) {
-					servicedir.setShutdown(m);
+					serviceDir.setShutdown(m);
 				}
 			}
 		} else {
@@ -185,7 +185,7 @@ public class ServiceProvider implements Module, Observer
 			{
 				ServiceProvider.register(_info);
 				
-				logger.warn("Service Directory is loaded.\n{}", _info.toString());
+ 				logger.warn("Service Directory is loaded.\n{}", _info.toString());
 			}
 			catch(Exception e)
 			{

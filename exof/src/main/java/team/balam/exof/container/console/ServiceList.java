@@ -5,7 +5,8 @@ public enum ServiceList {
 	SHOW_SCHEDULE_LIST("getScheduleList"),
 	LOGIN_ADMIN_CONSOLE("loginAdminConsole"),
 	SHOW_DYNAMIC_SETTING_LIST("getDynamicSettingList"),
-	SHOW_DYNAMIC_SETTING_SINGLE("getDynamicSettingList");
+	SHOW_DYNAMIC_SETTING_SINGLE("getDynamicSettingList"),
+	SET_SERVICE_VARIABLE_VALUE("setServiceVariableValue");
 	
 	private String value;
 	
