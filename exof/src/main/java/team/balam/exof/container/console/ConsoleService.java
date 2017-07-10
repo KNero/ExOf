@@ -133,10 +133,12 @@ class ConsoleService {
 				if (service.getPath().equals(serviceDirPath)) {
 					ServiceVariable variable = service.getVariable(serviceName);
 
-					if (variable.get(variableName) instanceof String) {
-						this._changeVariable(variable, variableName, variableValue);
-					} else {
-						variable.put(variableName, variableValue);
+					synchronized (variable) {
+						if (variable.get(variableName) instanceof String) {
+							this._changeVariable(variable, variableName, variableValue);
+						} else {
+							variable.put(variableName, variableValue);
+						}
 					}
 
 					break;
