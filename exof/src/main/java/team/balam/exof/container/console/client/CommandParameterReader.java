@@ -39,7 +39,7 @@ class CommandParameterReader {
 
 	private void _readDynamicSettingSingleParameter() throws IOException {
 		System.out.print("Enter dynamic setting name : ");
-		String name = this.standardReader.readLine();
+		String name = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(name)) {
 			this.viewerCommand.putParameter(Command.Key.NAME, name);
@@ -50,7 +50,7 @@ class CommandParameterReader {
 
 	private void _readServiceVariableParameter() throws IOException {
 		System.out.print("Enter service path : ");
-		String serviceName = this.standardReader.readLine();
+		String serviceName = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(serviceName)) {
 			 this.viewerCommand.putParameter("serviceName", serviceName);
@@ -59,7 +59,7 @@ class CommandParameterReader {
 		}
 
 		System.out.print("Enter variable name : ");
-		String variableName = this.standardReader.readLine();
+		String variableName = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(variableName)) {
 			this.viewerCommand.putParameter("variableName", variableName);
@@ -68,7 +68,7 @@ class CommandParameterReader {
 		}
 
 		System.out.print("Enter variable value : ");
-		String variableValue = this.standardReader.readLine();
+		String variableValue = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(variableValue)) {
 			this.viewerCommand.putParameter("variableName", variableValue);
