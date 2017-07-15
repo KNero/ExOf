@@ -54,17 +54,15 @@ public class SchedulerManager implements Container, Observer
 	
 	@Override
 	public void start() throws Exception {
-		this.isAutoReload = (Boolean) SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
+		this.isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
 		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
 
 		if (infoList.size() > 0) {
-			Properties pro = (Properties) SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
+			Properties pro = SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
 			this.scheduler = factory.getScheduler();
 
-			infoList.forEach(_info -> {
-				this._loadScheduler(_info);
-			});
+			infoList.forEach(this::_loadScheduler);
 
 			if (this.logger.isInfoEnabled()) {
 				this.logger.info("Scheduler is Loaded. Schedule Count : {}", infoList.size());
@@ -131,32 +129,30 @@ public class SchedulerManager implements Container, Observer
 	}
 
 	@Override
-	public void update(Observable o, Object arg) 
-	{
+	public void update(Observable o, Object arg) {
+		if (!this.isAutoReload) return;
+
 		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
-		
-		if(! this.isAutoReload) return;
-		
 		infoList.forEach(_info -> {
 			JobKey jobkey = this.jobKeyMap.get(_info.getId());
 			if (jobkey != null) {
-				try
-				{
+				try {
 					JobDataMap dataMap = this.scheduler.getJobDetail(jobkey).getJobDataMap();
-					SchedulerInfo realInfo = (SchedulerInfo)dataMap.get("info");
+					SchedulerInfo realInfo = (SchedulerInfo) dataMap.get("info");
 
-					if(_info.isUse() != realInfo.isUse())
-					{
+//					if (_info.isUse() != realInfo.isUse()) {
 						realInfo.setUse(_info.isUse());
 
-						if(! _info.isUse()) this.scheduler.pauseJob(jobkey);
-						else this.scheduler.resumeJob(jobkey);
+						if (!_info.isUse()) {
+							this.scheduler.pauseJob(jobkey);
+						} else {
+							this.scheduler.resumeJob(jobkey);
+						}
+
 
 						this.logger.warn("Complete reloading schedulerInfo. [{}]", _info.getServicePath());
-					}
-				}
-				catch(Exception e)
-				{
+//					}
+				} catch (Exception e) {
 					this.logger.error("Can not update scheduler. [{}]", _info.toString(), e);
 				}
 			}
@@ -175,7 +171,8 @@ public class SchedulerManager implements Container, Observer
 				
 				
 				list.add("ID:" + info.getId() + ", service path:" + info.getServicePath() 
-						+ ", cron:" + info.getCronExpression() + ", use:" + (info.isUse() ? "yes" : "no"));
+						+ ", cron:" + info.getCronExpression() + ", use:" + (info.isUse() ? "yes" : "no")
+						+ ", duplicateExecution:" + (info.isDuplicateExecution() ? "yes" : "no"));
 			}
 			catch(Exception e)
 			{

@@ -1,16 +1,20 @@
 package team.balam.exof.container.console;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.jnlp.ServiceManager;
 import javax.servlet.http.HttpServletRequest;
 
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
+import team.balam.exof.container.scheduler.SchedulerInfo;
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
@@ -46,8 +50,21 @@ class ConsoleService {
 	}
 
 	public Object getServiceList(Map<String, Object> _param) {
+		String findServicePath = (String) _param.get(Command.Key.SERVICE_PATH);
+
 		Map<String, HashMap<String, Object>> result = ServiceProvider.getInstance().getAllServiceInfo();
-		
+
+		if (!StringUtil.isNullOrEmpty(findServicePath)) {
+			result.forEach((_key, _value) -> _value.keySet().forEach(_valueKey -> {
+				if(!Command.Key.CLASS.equals(_valueKey) && !_valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
+					String servicePath = _key + "/" + _valueKey;
+					if (!servicePath.contains(findServicePath)) {
+						_value.put(_valueKey, null);
+					}
+				}
+			}));
+		}
+
 		if (result.size() == 0) {
 			return Command.NO_DATA_RESPONSE;
 		} else {
@@ -56,13 +73,25 @@ class ConsoleService {
 	}
 
 	public Object getScheduleList(Map<String, Object> _param) {
+		List<String> resultList = new ArrayList<>();
 		List<String> list = SchedulerManager.getInstance().getScheduleList();
-		
-		if (list.size() == 0) {
+
+		String id = (String) _param.get(Command.Key.NAME);
+		if (!StringUtil.isNullOrEmpty(id)) {
+			for (String info : list) {
+				if (info.contains(id)) {
+					resultList.add(info);
+				}
+			}
+		} else {
+			resultList.addAll(list);
+		}
+
+		if (resultList.size() == 0) {
 			return Command.NO_DATA_RESPONSE;
 		} else {
 			Map<String, Object> result = new HashMap<>();
-			result.put("list", list);
+			result.put("list", resultList);
 
 			return result;
 		}
@@ -133,10 +162,8 @@ class ConsoleService {
 				if (service.getPath().equals(serviceDirPath)) {
 					ServiceVariable variable = service.getVariable(serviceName);
 
-					if (variable.get(variableName) instanceof String) {
+					synchronized (variable) {
 						this._changeVariable(variable, variableName, variableValue);
-					} else {
-						variable.put(variableName, variableValue);
 					}
 
 					break;
@@ -158,10 +185,34 @@ class ConsoleService {
 	 * @param _serviceVariable ServiceDirectory 의 모든 variable 을 관리하는 객체
 	 * @param _variableName serviceVariable name
 	 */
+	@SuppressWarnings("unchecked")
 	private void _changeVariable(ServiceVariable _serviceVariable, String _variableName, String _variableValue) {
-		_serviceVariable.put(_variableName, _variableValue);
+		if (_serviceVariable.get(_variableName) instanceof String) {
+			_serviceVariable.put(_variableName, _variableValue);
 
-		List<String> variableList = (List<String>) _serviceVariable.get(_variableName);
-		variableList.remove(0);
+			List<String> variableList = (List<String>) _serviceVariable.get(_variableName);
+			variableList.remove(0);
+		} else {
+			_serviceVariable.put(_variableName, _variableValue);
+		}
+	}
+
+	public Object setSchedulerOnOff(Map<String, Object> _parameter) {
+		String id = (String) _parameter.get(Command.Key.ID);
+		String value = (String) _parameter.get(Command.Key.VALUE);
+
+		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
+		for (SchedulerInfo info : infoList) {
+			if (info.getId().equals(id)) {
+				info.setUse(Boolean.parseBoolean(value));
+				SchedulerManager.getInstance().update(null, null);
+
+				Map<String, Object> param = new HashMap<>();
+				param.put(Command.Key.NAME, id);
+				return this.getScheduleList(param);
+			}
+		}
+
+		return Command.makeSimpleResult("Write the id exactly");
 	}
 }

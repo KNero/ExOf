@@ -1,12 +1,12 @@
 package team.balam.exof.container.console;
 
 public enum ServiceList {
-	SHOW_SERVICE_LIST("getServiceList"),
-	SHOW_SCHEDULE_LIST("getScheduleList"),
+	GET_SERVICE_LIST("getServiceList"),
+	GET_SCHEDULE_LIST("getScheduleList"),
 	LOGIN_ADMIN_CONSOLE("loginAdminConsole"),
-	SHOW_DYNAMIC_SETTING_LIST("getDynamicSettingList"),
-	SHOW_DYNAMIC_SETTING_SINGLE("getDynamicSettingList"),
-	SET_SERVICE_VARIABLE_VALUE("setServiceVariableValue");
+	GET_DYNAMIC_SETTING_LIST("getDynamicSettingList"),
+	SET_SERVICE_VARIABLE_VALUE("setServiceVariableValue"),
+	SET_SCHEDULER_ON_OFF("setSchedulerOnOff");
 	
 	private String value;
 	

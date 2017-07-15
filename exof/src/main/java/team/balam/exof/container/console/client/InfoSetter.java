@@ -23,4 +23,17 @@ class InfoSetter {
 			e.printStackTrace();
 		}
 	}
+
+	void setSchedulerOnOff(String _id, String _onOff) {
+		Command command = new Command(ServiceList.SET_SCHEDULER_ON_OFF);
+		command.addParameter(Command.Key.ID, _id);
+		command.addParameter(Command.Key.VALUE, _onOff);
+
+		try {
+			Client.send(command, _result -> System.out.println(_result.toString()),
+					null);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

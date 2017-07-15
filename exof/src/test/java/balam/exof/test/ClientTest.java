@@ -41,7 +41,7 @@ public class ClientTest {
 	public void testConsoleGetServiceList() throws Exception {
 		Client.init();
 
-		Client.send(new Command(ServiceList.SHOW_SERVICE_LIST), _successResult -> {
+		Client.send(new Command(ServiceList.GET_SERVICE_LIST), _successResult -> {
 			try {
 				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
 				resultMap.forEach((_key, _value) -> {
@@ -74,7 +74,7 @@ public class ClientTest {
 	public void testConsoleGetScheduleList() throws Exception {
 		Client.init();
 
-		Client.send(new Command(ServiceList.SHOW_SCHEDULE_LIST), _successResult -> {
+		Client.send(new Command(ServiceList.GET_SCHEDULE_LIST), _successResult -> {
 			try {
 				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
 				Assert.assertNotNull(resultMap.get("list"));
@@ -90,7 +90,7 @@ public class ClientTest {
 	public void test_ConsoleGetDynamicSettingList() throws Exception {
 		Client.init();
 
-		Client.send(new Command(ServiceList.SHOW_DYNAMIC_SETTING_LIST), _successResult -> {
+		Client.send(new Command(ServiceList.GET_DYNAMIC_SETTING_LIST), _successResult -> {
 			try {
 				Assert.assertNotEquals(0, ((List<Object>) _successResult).size());
 			} catch (Exception e) {
@@ -105,7 +105,7 @@ public class ClientTest {
 	public void test_ConsoleGetDynamicSettingSingle() throws Exception {
 		Client.init();
 
-		Command command = new Command(ServiceList.SHOW_DYNAMIC_SETTING_SINGLE);
+		Command command = new Command(ServiceList.GET_DYNAMIC_SETTING_LIST);
 		command.addParameter(Command.Key.NAME, "name0");
 
 		Client.send(command, _successResult -> {

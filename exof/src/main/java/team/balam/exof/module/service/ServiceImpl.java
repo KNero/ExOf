@@ -16,7 +16,7 @@ public class ServiceImpl implements Service
 	private Method method;
 	private Object host;
 	private int methodParamCount;
-	private ServiceVariable variable;
+	volatile private ServiceVariable variable;
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
@@ -75,40 +75,33 @@ public class ServiceImpl implements Service
 		this.mapToVoConverter.init(_class);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public void call(ServiceObject _so) throws Exception
-	{
-		_so.setServiceVariables(this.variable);
-		
-		if(this.mapToVoConverter != null)
-		{
+	public void call(ServiceObject _so) throws Exception {
+		_so.setServiceVariables(this.variable.clone());
+
+		if (this.mapToVoConverter != null) {
 			Object vo = this.mapToVoConverter.convert(_so.getRequest());
 			_so.setRequest(vo);
 		}
-		
-		for(Inbound in : this.inbound)
-		{
+
+		for (Inbound in : this.inbound) {
 			in.execute(_so);
 		}
-		
+
 		Object[] methodParameter = null;
-		if(this.methodParamCount > 0) 
-		{
+		if (this.methodParamCount > 0) {
 			methodParameter = _so.getServiceParameter();
 		}
-		
+
 		Object result = this.method.invoke(this.host, methodParameter);
-		
-		if(result != null)
-		{
-			for(Outbound outbound : this.outbound)
-			{
+
+		if (result != null) {
+			for (Outbound outbound : this.outbound) {
 				result = outbound.execute(result);
 			}
-			
-			if(result != null)
-			{
+
+			if (result != null) {
 				RequestContext.writeAndFlushResponse(result);
 			}
 		}
