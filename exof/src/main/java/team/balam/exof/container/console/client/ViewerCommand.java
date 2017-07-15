@@ -11,7 +11,7 @@ class ViewerCommand {
 	private String levelOne;
 	private String levelTwo;
 
-	private Map<String, Object> parameter = new HashMap<>();
+	private Map<String, String> parameter = new HashMap<>();
 
 	boolean setLevelOne(String levelOne) throws TerminateException {
 		if (Menu.QUIT.equals(levelOne)) {
@@ -36,11 +36,11 @@ class ViewerCommand {
 		this.levelTwo = levelTwo;
 	}
 
-	void putParameter(String _key, Object _value) {
+	void putParameter(String _key, String _value) {
 		this.parameter.put(_key, _value);
 	}
 
-	public Map<String, Object> getParameter() {
+	public Map<String, String> getParameter() {
 		return parameter;
 	}
 

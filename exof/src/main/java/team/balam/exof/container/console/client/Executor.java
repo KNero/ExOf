@@ -11,20 +11,20 @@ import java.util.function.Consumer;
  * ServiceDelegate : InfoGetter, InfoSetter
  */
 public class Executor {
-	private static Map<String, Consumer<Map<String, Object>>> executorList = new HashMap<>();
+	private static Map<String, Consumer<Map<String, String>>> executorList = new HashMap<>();
 	
 	private static InfoGetter getter = new InfoGetter();
 	private static InfoSetter setter = new InfoSetter();
 
 	static {
-		executorList.put(Menu.Execute.GET_SERVICE_LIST, parameter -> getter.getServiceList());
-		executorList.put(Menu.Execute.GET_SCHEDULE_LIST, parameter -> getter.getScheduleList());
+		executorList.put(Menu.Execute.GET_SERVICE_LIST, parameter -> getter.getServiceList(parameter.get(Command.Key.SERVICE_PATH)));
+		executorList.put(Menu.Execute.GET_SCHEDULE_LIST, parameter -> getter.getScheduleList(parameter.get(Command.Key.NAME)));
 		executorList.put(Menu.Execute.GET_DYNAMIC_SETTING_LIST, parameter -> getter.getDynamicSettingList());
-		executorList.put(Menu.Execute.GET_DYNAMIC_SETTING_SINGLE, parameter -> getter.getDynamicSettingSingle((String) parameter.get(Command.Key.NAME)));
+		executorList.put(Menu.Execute.GET_DYNAMIC_SETTING_SINGLE, parameter -> getter.getDynamicSettingSingle(parameter.get(Command.Key.NAME)));
 		executorList.put(Menu.Execute.SET_SERVICE_VARIABLE, parameter -> {
-			String servicePath = (String) parameter.get(Command.Key.SERVICE_PATH);
-			String variableName = (String) parameter.get(Command.Key.VARIABLE_NAME);
-			String variableValue = (String) parameter.get(Command.Key.VARIABLE_VALUE);
+			String servicePath = parameter.get(Command.Key.SERVICE_PATH);
+			String variableName = parameter.get(Command.Key.VARIABLE_NAME);
+			String variableValue = parameter.get(Command.Key.VARIABLE_VALUE);
 
 			setter.setServiceVariable(servicePath, variableName, variableValue);
 		});

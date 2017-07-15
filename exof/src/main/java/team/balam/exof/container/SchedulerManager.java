@@ -175,7 +175,8 @@ public class SchedulerManager implements Container, Observer
 				
 				
 				list.add("ID:" + info.getId() + ", service path:" + info.getServicePath() 
-						+ ", cron:" + info.getCronExpression() + ", use:" + (info.isUse() ? "yes" : "no"));
+						+ ", cron:" + info.getCronExpression() + ", use:" + (info.isUse() ? "yes" : "no")
+						+ ", duplicateExecution:" + (info.isDuplicateExecution() ? "yes" : "no"));
 			}
 			catch(Exception e)
 			{

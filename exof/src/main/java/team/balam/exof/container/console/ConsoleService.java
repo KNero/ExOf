@@ -1,11 +1,13 @@
 package team.balam.exof.container.console;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +48,21 @@ class ConsoleService {
 	}
 
 	public Object getServiceList(Map<String, Object> _param) {
+		String findServicePath = (String) _param.get(Command.Key.SERVICE_PATH);
+
 		Map<String, HashMap<String, Object>> result = ServiceProvider.getInstance().getAllServiceInfo();
-		
+
+		if (!StringUtil.isNullOrEmpty(findServicePath)) {
+			result.forEach((_key, _value) -> _value.keySet().forEach(_valueKey -> {
+				if(!Command.Key.CLASS.equals(_valueKey) && !_valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
+					String servicePath = _key + "/" + _valueKey;
+					if (!servicePath.contains(findServicePath)) {
+						_value.put(_valueKey, null);
+					}
+				}
+			}));
+		}
+
 		if (result.size() == 0) {
 			return Command.NO_DATA_RESPONSE;
 		} else {
@@ -56,13 +71,25 @@ class ConsoleService {
 	}
 
 	public Object getScheduleList(Map<String, Object> _param) {
+		List<String> resultList = new ArrayList<>();
 		List<String> list = SchedulerManager.getInstance().getScheduleList();
-		
-		if (list.size() == 0) {
+
+		String id = (String) _param.get(Command.Key.NAME);
+		if (!StringUtil.isNullOrEmpty(id)) {
+			for (String info : list) {
+				if (info.contains(id)) {
+					resultList.add(info);
+				}
+			}
+		} else {
+			resultList.addAll(list);
+		}
+
+		if (resultList.size() == 0) {
 			return Command.NO_DATA_RESPONSE;
 		} else {
 			Map<String, Object> result = new HashMap<>();
-			result.put("list", list);
+			result.put("list", resultList);
 
 			return result;
 		}
@@ -134,11 +161,7 @@ class ConsoleService {
 					ServiceVariable variable = service.getVariable(serviceName);
 
 					synchronized (variable) {
-						if (variable.get(variableName) instanceof String) {
-							this._changeVariable(variable, variableName, variableValue);
-						} else {
-							variable.put(variableName, variableValue);
-						}
+						this._changeVariable(variable, variableName, variableValue);
 					}
 
 					break;
@@ -161,9 +184,13 @@ class ConsoleService {
 	 * @param _variableName serviceVariable name
 	 */
 	private void _changeVariable(ServiceVariable _serviceVariable, String _variableName, String _variableValue) {
-		_serviceVariable.put(_variableName, _variableValue);
+		if (_serviceVariable.get(_variableName) instanceof String) {
+			_serviceVariable.put(_variableName, _variableValue);
 
-		List<String> variableList = (List<String>) _serviceVariable.get(_variableName);
-		variableList.remove(0);
+			List<String> variableList = (List<String>) _serviceVariable.get(_variableName);
+			variableList.remove(0);
+		} else {
+			_serviceVariable.put(_variableName, _variableValue);
+		}
 	}
 }

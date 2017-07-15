@@ -23,6 +23,14 @@ class CommandParameterReader {
 	public void execute() throws IOException {
 		try {
 			switch(this.viewerCommand.toString()) {
+				case Menu.Execute.GET_SERVICE_LIST:
+					this._readServicePath();
+					break;
+
+				case Menu.Execute.GET_SCHEDULE_LIST:
+					this._readSchedulerId();
+					break;
+
 				case Menu.Execute.GET_DYNAMIC_SETTING_SINGLE:
 					this._readDynamicSettingSingleParameter();
 					break;
@@ -34,6 +42,24 @@ class CommandParameterReader {
 		} catch (TerminateException e) {
 			System.out.println(e.getMessage());
 			throw e;
+		}
+	}
+
+	private void _readServicePath() throws IOException {
+		System.out.print("Enter service path : ");
+		String serviceName = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(serviceName)) {
+			this.viewerCommand.putParameter(Command.Key.SERVICE_PATH, serviceName);
+		}
+	}
+
+	private void _readSchedulerId() throws IOException {
+		System.out.print("Enter scheduler info : ");
+		String id = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(id)) {
+			this.viewerCommand.putParameter(Command.Key.NAME, id);
 		}
 	}
 
@@ -53,7 +79,7 @@ class CommandParameterReader {
 		String serviceName = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(serviceName)) {
-			 this.viewerCommand.putParameter("serviceName", serviceName);
+			 this.viewerCommand.putParameter(Command.Key.SERVICE_PATH, serviceName);
 		} else {
 			throw new TerminateException("service name is empty.");
 		}
@@ -62,7 +88,7 @@ class CommandParameterReader {
 		String variableName = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(variableName)) {
-			this.viewerCommand.putParameter("variableName", variableName);
+			this.viewerCommand.putParameter(Command.Key.VARIABLE_NAME, variableName);
 		} else {
 			throw new TerminateException("service variable name is empty.");
 		}
@@ -71,7 +97,7 @@ class CommandParameterReader {
 		String variableValue = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(variableValue)) {
-			this.viewerCommand.putParameter("variableName", variableValue);
+			this.viewerCommand.putParameter(Command.Key.VARIABLE_VALUE, variableValue);
 		} else {
 			throw new TerminateException("service variable value is empty.");
 		}
