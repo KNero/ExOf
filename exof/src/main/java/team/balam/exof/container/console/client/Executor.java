@@ -28,6 +28,12 @@ public class Executor {
 
 			setter.setServiceVariable(servicePath, variableName, variableValue);
 		});
+		executorList.put(Menu.Execute.SET_SCHEDULER_USE_ON_OFF, parameter -> {
+			String id = parameter.get(Command.Key.ID);
+			String onOff = parameter.get(Command.Key.VALUE);
+
+			setter.setSchedulerOnOff(id, onOff);
+		});
 	}
 
 	public static void execute(ViewerCommand command) throws NotFoundOperation {

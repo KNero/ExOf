@@ -15,6 +15,7 @@ public class Command
 		String RESULT = "result";
 		String CLASS = "class";
 		String NAME = "name";
+		String ID = "id";
 		String VALUE = "value";
 		String DESCRIPTION = "des";
 		String SERVICE_PATH = "servicePath";

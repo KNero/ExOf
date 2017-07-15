@@ -15,5 +15,6 @@ public interface Menu {
 		String GET_DYNAMIC_SETTING_SINGLE = "1.4";
 
 		String SET_SERVICE_VARIABLE = "2.1";
+		String SET_SCHEDULER_USE_ON_OFF = "2.2";
 	}
 }

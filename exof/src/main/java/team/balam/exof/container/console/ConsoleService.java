@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.jnlp.ServiceManager;
 import javax.servlet.http.HttpServletRequest;
 
 import io.netty.util.internal.StringUtil;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
+import team.balam.exof.container.scheduler.SchedulerInfo;
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
@@ -183,6 +185,7 @@ class ConsoleService {
 	 * @param _serviceVariable ServiceDirectory 의 모든 variable 을 관리하는 객체
 	 * @param _variableName serviceVariable name
 	 */
+	@SuppressWarnings("unchecked")
 	private void _changeVariable(ServiceVariable _serviceVariable, String _variableName, String _variableValue) {
 		if (_serviceVariable.get(_variableName) instanceof String) {
 			_serviceVariable.put(_variableName, _variableValue);
@@ -192,5 +195,24 @@ class ConsoleService {
 		} else {
 			_serviceVariable.put(_variableName, _variableValue);
 		}
+	}
+
+	public Object setSchedulerOnOff(Map<String, Object> _parameter) {
+		String id = (String) _parameter.get(Command.Key.ID);
+		String value = (String) _parameter.get(Command.Key.VALUE);
+
+		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
+		for (SchedulerInfo info : infoList) {
+			if (info.getId().equals(id)) {
+				info.setUse(Boolean.parseBoolean(value));
+				SchedulerManager.getInstance().update(null, null);
+
+				Map<String, Object> param = new HashMap<>();
+				param.put(Command.Key.NAME, id);
+				return this.getScheduleList(param);
+			}
+		}
+
+		return Command.makeSimpleResult("Write the id exactly");
 	}
 }

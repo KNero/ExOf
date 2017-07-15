@@ -31,6 +31,10 @@ class CommandParameterReader {
 					this._readSchedulerId();
 					break;
 
+				case Menu.Execute.SET_SCHEDULER_USE_ON_OFF:
+					this._readSchedulerOnOff();
+					break;
+
 				case Menu.Execute.GET_DYNAMIC_SETTING_SINGLE:
 					this._readDynamicSettingSingleParameter();
 					break;
@@ -60,6 +64,36 @@ class CommandParameterReader {
 
 		if (!StringUtil.isNullOrEmpty(id)) {
 			this.viewerCommand.putParameter(Command.Key.NAME, id);
+		}
+	}
+
+	private void _readSchedulerOnOff() throws IOException {
+		System.out.print("Enter scheduler ID : ");
+		String id = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(id)) {
+			this.viewerCommand.putParameter(Command.Key.ID, id);
+		} else {
+			throw new TerminateException("scheduler id is empty.");
+		}
+
+		System.out.println();
+		System.out.println("(1)on   (2)off   (9)quit");
+		String cmd = this.standardReader.readLine().trim();
+		int number;
+
+		try {
+			number = Integer.parseInt(cmd);
+		} catch (NumberFormatException e) {
+			throw new TerminateException();
+		}
+
+		if (number == 1 || number == 2) {
+			this.viewerCommand.putParameter(Command.Key.VALUE, number == 1 ? "true" : "false");
+		} else if (number == 9) {
+			throw new TerminateException();
+		} else {
+			throw new TerminateException("There is no menu. (Enter number 1, 2 or 9)");
 		}
 	}
 

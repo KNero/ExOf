@@ -58,7 +58,7 @@ public class Viewer
 			if (Menu.LevelOne.GET.equals(this.command.getLevelOne())) {
 				System.out.println("\n(1)service list   (2)schedule list   (3)dynamic setting list   (4)dynamic setting single   (9)quit");
 			} else if (Menu.LevelOne.SET.equals(this.command.getLevelOne())) {
-				System.out.println("\n(1)service variable (9)quit");
+				System.out.println("\n(1)service variable (2)scheduler on/off (9)quit");
 			} else {
 				System.out.println("\nNot supported yes.");
 				throw new TerminateException();
