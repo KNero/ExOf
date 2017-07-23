@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listener>
 	<port console="yes" number="3001"/>
-	<port adminConsole="yes" number="3002" id="admin" password="admin"/>
 	
 	<port number="2000" maxLength="2000" description="for maven build">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
