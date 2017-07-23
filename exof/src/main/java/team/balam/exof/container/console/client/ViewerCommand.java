@@ -24,7 +24,7 @@ class ViewerCommand {
 		return true;
 	}
 
-	public String getLevelOne() {
+	String getLevelOne() {
 		return levelOne;
 	}
 
@@ -40,8 +40,12 @@ class ViewerCommand {
 		this.parameter.put(_key, _value);
 	}
 
-	public Map<String, String> getParameter() {
+	Map<String, String> getParameter() {
 		return parameter;
+	}
+
+	void clearParameter() {
+		this.parameter = new HashMap<>();
 	}
 
 	@Override
