@@ -17,7 +17,7 @@ public class Viewer
 		System.out.println("   |           =      =   =  =====");
 		System.out.println("   =======   =   =     ===     |");
 		System.out.println();
-		System.out.println("+++ Welcom ExOf console monitoring +++");
+		System.out.println("+++ Welcome ExOf console monitoring +++");
 
 		this.standardReader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -41,7 +41,7 @@ public class Viewer
 	        System.out.println("\n(1)get info   (2)set info   (3)quit");
 
         	this.command = new ViewerCommand();
-	        if (this.command.setLevelOne(this.standardReader.readLine())) {
+	        if (this.command.setLevelOne(this.standardReader.readLine().trim())) {
 		        try {
 	        	    this._showLevelTwoMenu();
 		        } catch (TerminateException e) {
@@ -56,18 +56,24 @@ public class Viewer
 	private void _showLevelTwoMenu() throws IOException {
 		while (true) {
 			if (Menu.LevelOne.GET.equals(this.command.getLevelOne())) {
-				System.out.println("\n(1)service list   (2)schedule list   (3)dynamic setting list   (4)dynamic setting single   (9)quit");
+				System.out.println("\n(1)service list   (2)schedule list   (3)dynamic setting   (9)quit");
 			} else if (Menu.LevelOne.SET.equals(this.command.getLevelOne())) {
-				System.out.println("\n(1)service variable (2)scheduler on/off (9)quit");
+				System.out.println("\n(1)service variable\n(2)scheduler on/off\n" +
+						"(3)add dynamic setting\n(4)update dynamic setting value, description\n(5)remove dynamic setting\n(9)quit");
 			} else {
 				System.out.println("\nNot supported yes.");
 				throw new TerminateException();
 			}
 
-			this.command.setLevelTwo(this.standardReader.readLine());
+			this.command.setLevelTwo(this.standardReader.readLine().trim());
 
-			CommandParameterReader parameterReader = new CommandParameterReader(this.standardReader, this.command);
-			parameterReader.execute();
+			try {
+				CommandParameterReader parameterReader = new CommandParameterReader(this.standardReader, this.command);
+				parameterReader.execute();
+			} catch (TerminateException e) {
+				this.command.clearParameter();
+				continue;
+			}
 
 			try {
 				Executor.execute(this.command);

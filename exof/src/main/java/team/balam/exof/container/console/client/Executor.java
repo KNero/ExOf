@@ -19,8 +19,7 @@ public class Executor {
 	static {
 		executorList.put(Menu.Execute.GET_SERVICE_LIST, parameter -> getter.getServiceList(parameter.get(Command.Key.SERVICE_PATH)));
 		executorList.put(Menu.Execute.GET_SCHEDULE_LIST, parameter -> getter.getScheduleList(parameter.get(Command.Key.NAME)));
-		executorList.put(Menu.Execute.GET_DYNAMIC_SETTING_LIST, parameter -> getter.getDynamicSettingList());
-		executorList.put(Menu.Execute.GET_DYNAMIC_SETTING_SINGLE, parameter -> getter.getDynamicSettingSingle(parameter.get(Command.Key.NAME)));
+		executorList.put(Menu.Execute.GET_DYNAMIC_SETTING_LIST, parameter -> getter.getDynamicSettingList(parameter.get(Command.Key.NAME)));
 		executorList.put(Menu.Execute.SET_SERVICE_VARIABLE, parameter -> {
 			String servicePath = parameter.get(Command.Key.SERVICE_PATH);
 			String variableName = parameter.get(Command.Key.VARIABLE_NAME);
@@ -33,6 +32,25 @@ public class Executor {
 			String onOff = parameter.get(Command.Key.VALUE);
 
 			setter.setSchedulerOnOff(id, onOff);
+		});
+		executorList.put(Menu.Execute.ADD_DYNAMIC_SETTING, parameter -> {
+			String name = parameter.get(Command.Key.NAME);
+			String value = parameter.get(Command.Key.VALUE);
+			String des = parameter.get(Command.Key.DESCRIPTION);
+
+			setter.addDynamicSetting(name, value, des);
+		});
+		executorList.put(Menu.Execute.UPDATE_DYNAMIC_SETTING, parameter -> {
+			String name = parameter.get(Command.Key.NAME);
+			String value = parameter.get(Command.Key.VALUE);
+			String des = parameter.get(Command.Key.DESCRIPTION);
+
+			setter.updateDynamicSetting(name, value, des);
+		});
+		executorList.put(Menu.Execute.REMOVE_DYNAMIC_SETTING, parameter -> {
+			String name = parameter.get(Command.Key.NAME);
+
+			setter.removeDynamicSetting(name);
 		});
 	}
 
