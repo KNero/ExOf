@@ -21,10 +21,7 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
-import team.balam.exof.module.service.Service;
-import team.balam.exof.module.service.ServiceDirectoryInfo;
-import team.balam.exof.module.service.ServiceProvider;
-import team.balam.exof.module.service.ServiceVariable;
+import team.balam.exof.module.service.*;
 
 class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -76,7 +73,7 @@ class ConsoleService {
 		List<String> resultList = new ArrayList<>();
 		List<String> list = SchedulerManager.getInstance().getScheduleList();
 
-		String id = (String) _param.get(Command.Key.NAME);
+		String id = (String) _param.get(Command.Key.ID);
 		if (!StringUtil.isNullOrEmpty(id)) {
 			for (String info : list) {
 				if (info.contains(id)) {
@@ -107,14 +104,19 @@ class ConsoleService {
 		return DynamicSetting.getInstance().getList(settingName);
 	}
 
-	public String updateDynamicSetting(Map<String, Object> _param) {
+	public Object updateDynamicSetting(Map<String, Object> _param) {
 		String name = (String) _param.get(Command.Key.NAME);
 		String value = (String) _param.get(Command.Key.VALUE);
 		String des = (String) _param.get(Command.Key.DESCRIPTION);
 
 		try {
-			DynamicSetting.getInstance().change(new DynamicSettingVo(name, value, des));
-			return Command.SUCCESS_RESPONSE;
+			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
+			if (vo.isValid()) {
+				DynamicSetting.getInstance().change(new DynamicSettingVo(name, value, des));
+				return Command.SUCCESS_RESPONSE;
+			} else {
+				return Command.makeSimpleResult("Dynamic setting is not exist. name=" + name);
+			}
 		} catch (Exception e) {
 			this.logger.error("DynamicSetting UPDATE error.", e);
 			return Command.makeSimpleResult(e.getMessage());
@@ -125,8 +127,13 @@ class ConsoleService {
 		String name = (String) _param.get(Command.Key.NAME);
 		
 		try {
-			DynamicSetting.getInstance().remove(name);
-			return Command.SUCCESS_RESPONSE;
+			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
+			if (vo.isValid()) {
+				DynamicSetting.getInstance().remove(name);
+				return Command.SUCCESS_RESPONSE;
+			} else {
+				return Command.makeSimpleResult("Dynamic setting is not exist. name=" + name);
+			}
 		} catch (Exception e) {
 			this.logger.error("DynamicSetting DELETE error.", e);
 			return Command.makeSimpleResult(e.getMessage());
@@ -139,8 +146,13 @@ class ConsoleService {
 		String des = (String) _param.get(Command.Key.DESCRIPTION);
 		
 		try {
-			DynamicSetting.getInstance().put(new DynamicSettingVo(name, value, des));
-			return Command.SUCCESS_RESPONSE;
+			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
+			if (!vo.isValid()) {
+				DynamicSetting.getInstance().put(new DynamicSettingVo(name, value, des));
+				return Command.SUCCESS_RESPONSE;
+			} else {
+				return Command.makeSimpleResult("Dynamic setting is exist already. name=" + name);
+			}
 		} catch (Exception e) {
 			this.logger.error("DynamicSetting INSERT error.", e);
 			return Command.makeSimpleResult(e.getMessage());
@@ -151,6 +163,12 @@ class ConsoleService {
 		String servicePath = (String) _parameter.get(Command.Key.SERVICE_PATH);
 		String variableName = (String) _parameter.get(Command.Key.VARIABLE_NAME);
 		String variableValue = (String) _parameter.get(Command.Key.VARIABLE_VALUE);
+
+		try {
+			ServiceProvider.lookup(servicePath);
+		} catch (Exception e) {
+			return Command.makeSimpleResult("error : " + e.getMessage());
+		}
 
 		try {
 			String[] pathArray = servicePath.split("/");

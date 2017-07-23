@@ -81,26 +81,25 @@ class InfoGetter
 	}
 
 	@SuppressWarnings("unchecked")
-	void getDynamicSettingList() {
-		try
-		{
-			Client.send(new Command(ServiceList.GET_DYNAMIC_SETTING_LIST), _result -> {
-				List<Object> resultList = (List<Object>) _result;
-				resultList.forEach(object -> System.out.println(object.toString()));
-			}, null);
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	void getDynamicSettingSingle(String _name) {
+	void getDynamicSettingList(String _name) {
 		Command command = new Command(ServiceList.GET_DYNAMIC_SETTING_LIST);
 		command.addParameter(Command.Key.NAME, _name);
 
 		try {
-			Client.send(command, _result -> System.out.println(_result.toString()), null);
+			Client.send(command, _result -> {
+				List<Map<String, Object>> resultList = (List<Map<String, Object>>) _result;
+				if (resultList.size() > 0) {
+					for(Map<String, Object> m : resultList) {
+						StringBuilder info = new StringBuilder();
+						info.append("name [").append(m.get("name"));
+						info.append("] / value [").append(m.get("value"));
+						info.append("] / description [").append(m.get("description")).append("]");
+						System.out.println(info);
+					}
+				} else {
+					System.out.println("No data.");
+				}
+			}, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

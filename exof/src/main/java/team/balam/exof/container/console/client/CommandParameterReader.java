@@ -35,12 +35,21 @@ class CommandParameterReader {
 					this._readSchedulerOnOff();
 					break;
 
-				case Menu.Execute.GET_DYNAMIC_SETTING_SINGLE:
-					this._readDynamicSettingSingleParameter();
+				case Menu.Execute.GET_DYNAMIC_SETTING_LIST:
+					this._readDynamicSettingListParameter();
 					break;
 
 				case Menu.Execute.SET_SERVICE_VARIABLE:
 					this._readServiceVariableParameter();
+					break;
+
+				case Menu.Execute.ADD_DYNAMIC_SETTING:
+				case Menu.Execute.UPDATE_DYNAMIC_SETTING:
+					this._readAddDynamicSetting();
+					break;
+
+				case Menu.Execute.REMOVE_DYNAMIC_SETTING:
+					this._readRemoveDynamicSetting();
 					break;
 			}
 		} catch (TerminateException e) {
@@ -59,11 +68,11 @@ class CommandParameterReader {
 	}
 
 	private void _readSchedulerId() throws IOException {
-		System.out.print("Enter scheduler info : ");
+		System.out.print("Enter scheduler id : ");
 		String id = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(id)) {
-			this.viewerCommand.putParameter(Command.Key.NAME, id);
+			this.viewerCommand.putParameter(Command.Key.ID, id);
 		}
 	}
 
@@ -97,15 +106,10 @@ class CommandParameterReader {
 		}
 	}
 
-	private void _readDynamicSettingSingleParameter() throws IOException {
-		System.out.print("Enter dynamic setting name : ");
+	private void _readDynamicSettingListParameter() throws IOException {
+		System.out.print("Enter name : ");
 		String name = this.standardReader.readLine().trim();
-
-		if (!StringUtil.isNullOrEmpty(name)) {
-			this.viewerCommand.putParameter(Command.Key.NAME, name);
-		} else {
-			throw new TerminateException("dynamic setting name is empty.");
-		}
+		this.viewerCommand.putParameter(Command.Key.NAME, name);
 	}
 
 	private void _readServiceVariableParameter() throws IOException {
@@ -115,7 +119,7 @@ class CommandParameterReader {
 		if (!StringUtil.isNullOrEmpty(serviceName)) {
 			 this.viewerCommand.putParameter(Command.Key.SERVICE_PATH, serviceName);
 		} else {
-			throw new TerminateException("service name is empty.");
+			throw new TerminateException("service path is empty.");
 		}
 
 		System.out.print("Enter variable name : ");
@@ -134,6 +138,41 @@ class CommandParameterReader {
 			this.viewerCommand.putParameter(Command.Key.VARIABLE_VALUE, variableValue);
 		} else {
 			throw new TerminateException("service variable value is empty.");
+		}
+	}
+
+	private void _readAddDynamicSetting() throws IOException {
+		System.out.print("Enter name : ");
+		String name = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(name)) {
+			this.viewerCommand.putParameter(Command.Key.NAME, name);
+		} else {
+			throw new TerminateException("Name is empty.");
+		}
+
+		System.out.print("Enter value : ");
+		String value = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(value)) {
+			this.viewerCommand.putParameter(Command.Key.VALUE, value);
+		} else {
+			throw new TerminateException("value is empty.");
+		}
+
+		System.out.print("Enter description : ");
+		String des = this.standardReader.readLine().trim();
+		this.viewerCommand.putParameter(Command.Key.DESCRIPTION, des);
+	}
+
+	private void _readRemoveDynamicSetting() throws IOException {
+		System.out.print("Enter name : ");
+		String name = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(name)) {
+			this.viewerCommand.putParameter(Command.Key.NAME, name);
+		} else {
+			throw new TerminateException("Name is empty.");
 		}
 	}
 }

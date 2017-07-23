@@ -17,8 +17,7 @@ class InfoSetter {
 		command.addParameter(Command.Key.VARIABLE_VALUE, _variableValue);
 
 		try {
-			Client.send(command, _result -> System.out.println("Result value : " + _result.toString()),
-					null);
+			Client.send(command, System.out::println, null);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -30,8 +29,44 @@ class InfoSetter {
 		command.addParameter(Command.Key.VALUE, _onOff);
 
 		try {
-			Client.send(command, _result -> System.out.println(_result.toString()),
-					null);
+			Client.send(command, System.out::println, null);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	void addDynamicSetting(String _name, String _value, String _des) {
+		Command command = new Command(ServiceList.ADD_DYNAMIC_SETTING);
+		command.addParameter(Command.Key.NAME, _name);
+		command.addParameter(Command.Key.VALUE, _value);
+		command.addParameter(Command.Key.DESCRIPTION, _des);
+
+		try {
+			Client.send(command, System.out::println, null);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	void updateDynamicSetting(String _name, String _value, String _des) {
+		Command command = new Command(ServiceList.UPDATE_DYNAMIC_SETTING);
+		command.addParameter(Command.Key.NAME, _name);
+		command.addParameter(Command.Key.VALUE, _value);
+		command.addParameter(Command.Key.DESCRIPTION, _des);
+
+		try {
+			Client.send(command, System.out::println, null);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	void removeDynamicSetting(String _name) {
+		Command command = new Command(ServiceList.REMOVE_DYNAMIC_SETTING);
+		command.addParameter(Command.Key.NAME, _name);
+
+		try {
+			Client.send(command, System.out::println, null);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
