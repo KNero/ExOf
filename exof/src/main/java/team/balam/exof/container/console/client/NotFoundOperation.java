@@ -5,4 +5,5 @@ package team.balam.exof.container.console.client;
  * team.balam.exof.container.console.client.Executor에서 서비스를 찾을 수 없으면 Viewer로 전달
  */
 public class NotFoundOperation extends Exception {
+	public static final long serialVersionUID = 1L;
 }
