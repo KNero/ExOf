@@ -38,7 +38,7 @@ public class Viewer
 
 	private void _showLevelOneMenu() throws IOException {
         while (true) {
-	        System.out.println("\n(1)get info   (2)set info   (3)quit");
+	        System.out.println("\n(1)get info   (2)set info   (9)quit");
 
         	this.command = new ViewerCommand();
 	        if (this.command.setLevelOne(this.standardReader.readLine().trim())) {
@@ -48,7 +48,7 @@ public class Viewer
 		        	//종료 예외가 발생할 경우 입력을 다시 받는다.
 		        }
 	        } else {
-		        System.out.println("Enter number 1 or 2 or 3");
+		        System.out.println("Enter number 1 or 2 or 9");
 	        }
         }
 	}
@@ -78,7 +78,7 @@ public class Viewer
 			try {
 				Executor.execute(this.command);
 			} catch (NotFoundOperation e) {
-				System.out.println("\nThere is no menu. (Enter number 1 ~ 4)");
+				System.out.println("\nThere is no menu.");
 			}
 		}
 	}

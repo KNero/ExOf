@@ -59,7 +59,7 @@ class CommandParameterReader {
 	}
 
 	private void _readServicePath() throws IOException {
-		System.out.print("Enter service path : ");
+		System.out.print("Enter service path(If enter blank get all list) : ");
 		String serviceName = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(serviceName)) {
@@ -68,7 +68,7 @@ class CommandParameterReader {
 	}
 
 	private void _readSchedulerId() throws IOException {
-		System.out.print("Enter scheduler id : ");
+		System.out.print("Enter scheduler id(If enter blank get all list) : ");
 		String id = this.standardReader.readLine().trim();
 
 		if (!StringUtil.isNullOrEmpty(id)) {
@@ -107,7 +107,7 @@ class CommandParameterReader {
 	}
 
 	private void _readDynamicSettingListParameter() throws IOException {
-		System.out.print("Enter name : ");
+		System.out.print("Enter name(If enter blank get all list) : ");
 		String name = this.standardReader.readLine().trim();
 		this.viewerCommand.putParameter(Command.Key.NAME, name);
 	}
