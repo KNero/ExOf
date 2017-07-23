@@ -78,7 +78,9 @@ public class ServiceImpl implements Service
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void call(ServiceObject _so) throws Exception {
-		_so.setServiceVariables(this.variable.clone());
+		if (this.variable != null) {
+			_so.setServiceVariables(this.variable.clone());
+		}
 
 		if (this.mapToVoConverter != null) {
 			Object vo = this.mapToVoConverter.convert(_so.getRequest());
