@@ -25,7 +25,6 @@ public class Command
 	
 	public static final String NO_DATA_RESPONSE = makeSimpleResult("No data.");
 	public static final String SUCCESS_RESPONSE = makeSimpleResult("Success");
-	public static final String FAIL_RESPONSE = makeSimpleResult("Fail");
 	
 	public static String makeSimpleResult(String _value) {
 		return "{\"" + Key.RESULT + "\":\"" + _value + "\"}";
