@@ -151,7 +151,7 @@ public class ServiceProvider implements Module, Observer
 		}
 	}
 	
-	public static Service lookup(String _path) throws Exception
+	public static Service lookup(String _path) throws ServiceNotFoundException
 	{
 		if(_path == null || _path.length() == 0) throw new IllegalArgumentException("Path is null : " + _path);
 			
