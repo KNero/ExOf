@@ -18,6 +18,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
+import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 import team.balam.exof.module.listener.handler.RequestServiceHandler;
 import team.balam.exof.module.listener.handler.SessionEventHandler;
 import team.balam.exof.module.listener.handler.codec.LengthFieldByteCodec;
@@ -33,7 +34,7 @@ public class ServerPort
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
 	
-	private ChannelHandlerArray channelHandlerArray;
+	private ChannelHandlerMaker channelHandlerArray;
 	
 	public ServerPort(PortInfo _info)
 	{
@@ -47,39 +48,8 @@ public class ServerPort
 	
 	public void open() throws Exception
 	{
-		RequestServiceHandler requestHandler = new RequestServiceHandler();
-		
-		if(this.portInfo.getChannelHandler() != null)
-		{
-			this.channelHandlerArray = 
-					(ChannelHandlerArray)Class.forName(this.portInfo.getChannelHandler()).newInstance(); 
-		}
-		else
-		{
-			this.channelHandlerArray = new LengthFieldByteCodec();
-		}
-		
-		this.channelHandlerArray.init(this.portInfo);
-		
-		if(this.portInfo.getMessageTransform() != null)
-		{
-			@SuppressWarnings("rawtypes")
-			ServiceObjectTransform messageTransform = 
-					(ServiceObjectTransform)Class.forName(this.portInfo.getMessageTransform()).newInstance();
-			requestHandler.setServiceObjectTransform(messageTransform);
-			
-			messageTransform.init(this.portInfo);
-		}
-		
-		if(this.portInfo.getSessionHandler() != null)
-		{
-			SessionEventHandler sessionHandler = 
-					(SessionEventHandler)Class.forName(this.portInfo.getSessionHandler()).newInstance();
-			requestHandler.setSessionEventHandler(sessionHandler);
-			
-			sessionHandler.init(this.portInfo);
-		}
-		
+		RequestServiceHandler requestHandler = this._createRequestServiceHandler();
+
 		this.bossGroup = new NioEventLoopGroup();
 		
 		int defaultWorkerSize = Runtime.getRuntime().availableProcessors() + 1;
@@ -107,10 +77,47 @@ public class ServerPort
 		ChannelFuture future = b.bind(port).sync(); 
 		this.channel = future.channel();
 	}
+
+	private RequestServiceHandler _createRequestServiceHandler() throws Exception {
+		RequestServiceHandler requestHandler = new RequestServiceHandler();
+
+		if (this.portInfo.getChannelHandler() != null) {
+			this.channelHandlerArray = (ChannelHandlerArray) Class.forName(this.portInfo.getChannelHandler()).newInstance();
+
+			if (this.channelHandlerArray instanceof ChannelHandlerArray) {
+				((ChannelHandlerArray) this.channelHandlerArray).init(this.portInfo);
+			}
+		} else {
+			throw new ServerPortInitializeException("channelHandler is null. Check listener.xml");
+		}
+
+		if (this.portInfo.getMessageTransform() != null) {
+			@SuppressWarnings("rawtypes")
+			ServiceObjectTransform messageTransform =
+					(ServiceObjectTransform) Class.forName(this.portInfo.getMessageTransform()).newInstance();
+			requestHandler.setServiceObjectTransform(messageTransform);
+
+			messageTransform.init(this.portInfo);
+		} else {
+			throw new ServerPortInitializeException("messageTransform is null. Check listener.xml");
+		}
+
+		if (this.portInfo.getSessionHandler() != null) {
+			SessionEventHandler sessionHandler =
+					(SessionEventHandler) Class.forName(this.portInfo.getSessionHandler()).newInstance();
+			requestHandler.setSessionEventHandler(sessionHandler);
+
+			sessionHandler.init(this.portInfo);
+		}
+
+		return requestHandler;
+	}
 	
 	public void close() throws Exception
 	{
-		this.channelHandlerArray.destroy();
+		if (this.channelHandlerArray instanceof ChannelHandlerArray) {
+			((ChannelHandlerArray) this.channelHandlerArray).destroy();
+		}
 		
 		if(this.channel != null)
 		{

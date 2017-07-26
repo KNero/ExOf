@@ -5,14 +5,14 @@ import team.balam.exof.module.listener.PortInfo;
 
 public interface SessionEventHandler
 {
-	default void init(PortInfo _portInfo) throws Exception
+	default void init(PortInfo _portInfo)
 	{
 		
 	}
 	
-	void openedSession(ChannelHandlerContext _ctx) throws Exception;
+	void openedSession(ChannelHandlerContext _ctx);
 	
-	void closedSession(ChannelHandlerContext _ctx) throws Exception;
+	void closedSession(ChannelHandlerContext _ctx);
 	
 	void exceptionCaught(ChannelHandlerContext ctx, Throwable cause);
 }

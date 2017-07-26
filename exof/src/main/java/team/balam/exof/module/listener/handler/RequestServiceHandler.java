@@ -44,7 +44,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     	{
     		if(this.transform == null)
     		{
-    			throw new Exception("messageTransform setting is empty.");
+    			throw new NullPointerException("messageTransform setting is empty.");
     		}
     		
     		RequestContext.set(RequestContext.CHANNEL_CONTEXT, ctx);
@@ -54,7 +54,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     		
     		if(serviceObject == null)
     		{
-    			throw new Exception("serviceObject is null.");
+    			throw new NullPointerException("serviceObject is null.");
     		}
     		
     		RequestContext.set(RequestContext.SERVICE_OBJECT, serviceObject);
