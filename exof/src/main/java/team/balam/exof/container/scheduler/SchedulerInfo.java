@@ -1,5 +1,8 @@
 package team.balam.exof.container.scheduler;
 
+import team.balam.exof.Constant;
+
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -18,15 +21,27 @@ public class SchedulerInfo
 	private boolean isUse;
 	private boolean isInitExecution;
 	private AtomicBoolean isRunning = new AtomicBoolean(false);
+
+	private boolean isNull;
+
+	public static final SchedulerInfo NULL_OBJECT = new SchedulerInfo();
+
+	private SchedulerInfo() {
+		this.isNull = true;
+	}
+
+	public SchedulerInfo(Map<String, Object> _dbInfo) {
+		this.id = (String) _dbInfo.get("id");
+		this.servicePath = (String) _dbInfo.get("service_path");
+		this.cronExpression = (String) _dbInfo.get("cron");
+		this.isDuplicateExecution = Constant.YES.equals(_dbInfo.get("duplicate_execution"));
+		this.isUse = Constant.YES.equals(_dbInfo.get("use"));
+		this.isInitExecution = Constant.YES.equals(_dbInfo.get("init_execution"));
+	}
 	
 	public String getId()
 	{
 		return id;
-	}
-
-	public void setId(String id)
-	{
-		this.id = id;
 	}
 
 	public String getServicePath()
@@ -34,29 +49,14 @@ public class SchedulerInfo
 		return servicePath;
 	}
 	
-	public void setServicePath(String servicePath)
-	{
-		this.servicePath = servicePath;
-	}
-	
 	public String getCronExpression()
 	{
 		return cronExpression;
-	}
-	
-	public void setCronExpression(String cronExpression)
-	{
-		this.cronExpression = cronExpression;
 	}
 
 	public boolean isDuplicateExecution()
 	{
 		return isDuplicateExecution;
-	}
-
-	public void setDuplicateExecution(boolean isDuplicateExecution)
-	{
-		this.isDuplicateExecution = isDuplicateExecution;
 	}
 
 	public AtomicBoolean getIsRunning()
@@ -68,20 +68,14 @@ public class SchedulerInfo
 	{
 		return isUse;
 	}
-
-	public void setUse(boolean isUse)
-	{
-		this.isUse = isUse;
-	}
-	
-	public void setInitExecution(boolean isInitExecution) 
-	{
-		this.isInitExecution = isInitExecution;
-	}
 	
 	public boolean isInitExecution() 
 	{
 		return isInitExecution;
+	}
+
+	public boolean isNull() {
+		return this.isNull;
 	}
 	
 	@Override
