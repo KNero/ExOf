@@ -5,10 +5,12 @@ package team.balam.exof;
  * @author kwonsm
  *
  */
-public interface Constant {
-	String NETWORK_CHARSET = "UTF-8";
-	String YES = "yes";
-	String NO = "no";
-	String FAIL = "fail";
-	String SUCCESS = "success";
+public class Constant {
+	public static final String NETWORK_CHARSET = "UTF-8";
+	public static final String YES = "yes";
+	public static final String NO = "no";
+	public static final String FAIL = "fail";
+	public static final String SUCCESS = "success";
+
+	public static final String ENV_DB = "./env/.env.db";
 }
