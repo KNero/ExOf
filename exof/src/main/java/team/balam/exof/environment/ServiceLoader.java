@@ -104,19 +104,18 @@ public class ServiceLoader implements Loader
 	 * xml의 정보를 통해 스케쥴러를 생성한다.
 	 * @param _fileName 스케쥴러 자동 아이디 생성을 위해서 prefix로 사용된다.
 	 * @param _node 스케쥴러 정보를 갖고있는 xml node
-	 * @return 생성된 스케쥴러 정보 객체
 	 */
 	private void _insertSchedulerInfo(String _fileName, Node _node) throws LoadEnvException {
 		NamedNodeMap attr = _node.getAttributes();
 
-		String servicePath = attr.getNamedItem("servicePath").getNodeValue();
-		String cron = attr.getNamedItem("cron").getNodeValue();
-		String isDuplicateExecution = attr.getNamedItem("duplicateExecution").getNodeValue();
-		String isUse = attr.getNamedItem("use").getNodeValue();
-		String isInitExecution = attr.getNamedItem("initExecution").getNodeValue();
+		String servicePath = attr.getNamedItem(EnvKey.Service.SERVICE_PATH).getNodeValue();
+		String cron = attr.getNamedItem(EnvKey.Service.CRON).getNodeValue();
+		String isDuplicateExecution = attr.getNamedItem(EnvKey.Service.DUPLICATE_EXECUTION).getNodeValue();
+		String isUse = attr.getNamedItem(EnvKey.Service.USE).getNodeValue();
+		String isInitExecution = attr.getNamedItem(EnvKey.Service.INIT_EXECUTION).getNodeValue();
 
 		String id;
-		Node idAttr = attr.getNamedItem("id");
+		Node idAttr = attr.getNamedItem(EnvKey.Service.ID);
 		if (idAttr != null && idAttr.getNodeValue().trim().length() > 0) {
 			id = idAttr.getNodeValue();
 		} else {

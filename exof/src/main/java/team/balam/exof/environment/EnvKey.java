@@ -52,6 +52,7 @@ public interface EnvKey
 		String CRON = "cron";
 		String DUPLICATE_EXECUTION = "duplicateExecution";
 		String USE = "use";
+		String INIT_EXECUTION = "initExecution";
 	}
 	
 	interface Listener

@@ -1,8 +1,7 @@
 package team.balam.exof.environment.vo;
 
-import team.balam.exof.module.service.ServiceVariable;
+import team.balam.exof.db.ServiceInfoDao;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,7 +28,7 @@ public class ServiceDirectoryInfo
 	}
 	
 	public ServiceVariable getVariable(String _serviceName) {
-		return null;
+		return ServiceInfoDao.selectServiceVariable(this.getPath(), _serviceName);
 	}
 	
 	@Override
@@ -37,14 +36,6 @@ public class ServiceDirectoryInfo
 		StringBuilder str = new StringBuilder();
 		str.append("Class : ").append(this.getClassName());
 		str.append("\nPath : ").append(this.getPath());
-		str.append("\n- Variable List");
-
-//		for(String serviceName : this.variableMap.keySet()) {
-//			str.append("\n-- Service Name : ").append(serviceName);
-//
-//			ServiceVariable variable = this.variableMap.get(serviceName);
-//			str.append("\n-- Service Variable\n").append(variable.toString());
-//		}
 
 		return str.toString();
 	}

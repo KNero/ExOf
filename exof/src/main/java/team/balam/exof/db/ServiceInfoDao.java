@@ -6,7 +6,7 @@ import team.balam.exof.Constant;
 import team.balam.exof.environment.LoadEnvException;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
-import team.balam.exof.environment.vo.ServiceVariableInfo;
+import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.util.sqlite.connection.PoolManager;
 import team.balam.util.sqlite.connection.vo.QueryTimeoutException;
 import team.balam.util.sqlite.connection.vo.QueryVo;
@@ -198,7 +198,7 @@ public class ServiceInfoDao {
 		return Collections.emptyList();
 	}
 
-	public static ServiceVariableInfo selectServiceVariable(String _serviceDirectoryPath, String _serviceName) {
+	public static ServiceVariable selectServiceVariable(String _serviceDirectoryPath, String _serviceName) {
 		String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=?";
 		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
 
@@ -206,13 +206,13 @@ public class ServiceInfoDao {
 			List<Map<String, Object>> selectList = DbHelper.select(query, param);
 
 			if (!selectList.isEmpty()) {
-				return new ServiceVariableInfo(selectList);
+				return new ServiceVariable(selectList);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
 
-		return ServiceVariableInfo.NULL_OBJECT;
+		return ServiceVariable.NULL_OBJECT;
 	}
 
 	public static SchedulerInfo selectSchedule(String _id) {

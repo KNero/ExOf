@@ -15,7 +15,7 @@ import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.Service;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.module.service.ServiceProvider;
-import team.balam.exof.module.service.ServiceVariable;
+import team.balam.exof.environment.vo.ServiceVariable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

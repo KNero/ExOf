@@ -1,5 +1,6 @@
 package team.balam.exof.module.service;
 
+import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.MapToVoConverter;
