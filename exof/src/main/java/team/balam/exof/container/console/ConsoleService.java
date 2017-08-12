@@ -5,17 +5,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
-import team.balam.exof.environment.vo.SchedulerInfo;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.Service;
-import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.module.service.ServiceProvider;
-import team.balam.exof.environment.vo.ServiceVariable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -175,18 +174,12 @@ class ConsoleService {
 			String serviceName = pathArray[pathArray.length - 1];
 			String serviceDirPath = servicePath.split("/" + serviceName)[0];
 
-			List<ServiceDirectoryInfo> serviceList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
-			for (ServiceDirectoryInfo service : serviceList) {
-				if (service.getPath().equals(serviceDirPath)) {
-					ServiceVariable variable = service.getVariable(serviceName);
-
-					synchronized (variable) {
-						this._changeVariable(variable, variableName, variableValue);
-					}
-
-					break;
-				}
+			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
+			if (!serviceVariable.isNull() && serviceVariable.size() == 1) {
+				ServiceInfoDao.updateServiceVariable(serviceDirPath, serviceName, variableName, variableValue);
 			}
+
+			ServiceProvider.getInstance().update(null, null);
 
 			Service service = ServiceProvider.lookup(servicePath);
 			return service.getServiceVariable(variableName);
@@ -196,41 +189,13 @@ class ConsoleService {
 		}
 	}
 
-	/**
-	 * ServiceVariable은 내부 적으로 모두 List 로 관리되는데
-	 * 하나였던 variable 에 새로운 variable 이 들어갈 경우 List 로 인식된다.
-	 * 그러므로 처음 하나를 삭제해서 String 으로 인식되도록 해줘야 한다
-	 * @param _serviceVariable ServiceDirectory 의 모든 variable 을 관리하는 객체
-	 * @param _variableName serviceVariable name
-	 */
-	@SuppressWarnings("unchecked")
-	private void _changeVariable(ServiceVariable _serviceVariable, String _variableName, String _variableValue) {
-		if (_serviceVariable.get(_variableName) instanceof String) {
-			_serviceVariable.put(_variableName, _variableValue);
-
-			List<String> variableList = (List<String>) _serviceVariable.get(_variableName);
-			variableList.remove(0);
-		} else {
-			_serviceVariable.put(_variableName, _variableValue);
-		}
-	}
-
 	public Object setSchedulerOnOff(Map<String, Object> _parameter) {
 		String id = (String) _parameter.get(Command.Key.ID);
 		String value = (String) _parameter.get(Command.Key.VALUE);
 
-		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
-		for (SchedulerInfo info : infoList) {
-			if (info.getId().equals(id)) {
-				info.setUse(Boolean.parseBoolean(value));
-				SchedulerManager.getInstance().update(null, null);
+		ServiceInfoDao.updateSchedulerUse(id, value);
+		SchedulerManager.getInstance().update(null, null);
 
-				Map<String, Object> param = new HashMap<>();
-				param.put(Command.Key.NAME, id);
-				return this.getScheduleList(param);
-			}
-		}
-
-		return Command.makeSimpleResult("Write the id exactly");
+		return this.getScheduleList(_parameter);
 	}
 }
