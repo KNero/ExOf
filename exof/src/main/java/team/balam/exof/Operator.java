@@ -32,26 +32,13 @@ public class Operator
 		containerList.add(SchedulerManager.getInstance());
 		
 		List<String> extraContainerList = SystemSetting.getInstance().getList(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.CONTAINER);
-		if(extraContainerList != null)
-		{
+		if(extraContainerList != null) {
 			extraContainerList.forEach(_containerClass -> {
-				try 
-				{
-					Container container = (Container)Class.forName(_containerClass).newInstance();
+				try {
+					Container container = (Container) Class.forName(_containerClass).newInstance();
 					containerList.add(container);
-				} 
-				catch (Exception e) 
-				{
-					if(e instanceof InitializeFatalException)
-					{
-						logger.error("Init fatal error occurred by init container[{}].", _containerClass, e);
-						
-						System.exit(0);
-					}
-					else
-					{
-						logger.error("Container[{}] can not create.", _containerClass, e);
-					}
+				} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+					logger.error("Container[{}] can not create.", _containerClass, e);
 				}
 			});
 		}

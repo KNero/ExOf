@@ -24,7 +24,7 @@ import java.util.Map;
 public class ServiceInfoDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInfoDao.class);
 
-	public static void createTable() throws Exception {
+	public static void initTable() throws Exception {
 		initServiceDirectoryTable();
 		initServiceVariableTable();
 		initServiceTable();
@@ -100,7 +100,7 @@ public class ServiceInfoDao {
 	}
 
 	private static void initScheduleTable() throws Exception {
-		String query = "CREATE TABLE IF NOT EXISTS SCHEDULE(" +
+		String query = "CREATE TABLE IF NOT EXISTS SCHEDULER(" +
 				"ID TEXT, " +
 				"SERVICE_PATH TEXT, " +
 				"CRON TEXT, " +
@@ -161,7 +161,7 @@ public class ServiceInfoDao {
 
 	public static void insertSchedule(String _id, String _servicePath, String _cron, String _duplicateExecution, String _use, String _initExecution)
 			throws LoadEnvException {
-		String query = "INSERT INTO SCHEDULE(ID, SERVICE_PATH, CRON, DUPLICATE_EXECUTION, USE, INIT_EXECUTION) VALUES (?, ?, ?, ?, ?, ?)";
+		String query = "INSERT INTO SCHEDULER(ID, SERVICE_PATH, CRON, DUPLICATE_EXECUTION, USE, INIT_EXECUTION) VALUES (?, ?, ?, ?, ?, ?)";
 		QueryVo vo = QueryVoFactory.create(QueryVo.Type.INSERT);
 		vo.setQuery(query);
 		vo.setParam(new Object[]{_id, _servicePath, _cron, _duplicateExecution, _use, _initExecution});
@@ -181,7 +181,7 @@ public class ServiceInfoDao {
 		String query = "SELECT * FROM SERVICE_DIRECTORY";
 
 		try {
-			List<Map<String, Object>> selectList = DbHelper.select(query, null);
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query, null);
 
 			if (!selectList.isEmpty()) {
 				List<ServiceDirectoryInfo> resultList = new ArrayList<>();
@@ -203,7 +203,7 @@ public class ServiceInfoDao {
 		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
 
 		try {
-			List<Map<String, Object>> selectList = DbHelper.select(query, param);
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
 
 			if (!selectList.isEmpty()) {
 				return new ServiceVariable(selectList);
@@ -220,7 +220,7 @@ public class ServiceInfoDao {
 		Object[] param = new Object[]{_id};
 
 		try {
-			List<Map<String, Object>> resultList = DbHelper.select(query, param);
+			List<Map<String, Object>> resultList = EnvDbHelper.select(query, param);
 
 			if (!resultList.isEmpty()) {
 				return new SchedulerInfo(resultList.get(0));
@@ -236,7 +236,7 @@ public class ServiceInfoDao {
 		String query = "SELECT * FROM SCHEDULE";
 
 		try {
-			List<Map<String, Object>> selectList = DbHelper.select(query, null);
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query, null);
 
 			if (!selectList.isEmpty()) {
 				List<SchedulerInfo> resultList = new ArrayList<>();
@@ -251,5 +251,27 @@ public class ServiceInfoDao {
 		}
 
 		return Collections.emptyList();
+	}
+
+	public static void updateServiceVariable(String _serviceDirectoryPath, String _serviceName, String _key, String _value) {
+		String query = "UPDATE SERVICE_VARIABLE SET KEY=?, VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=?";
+		Object[] param = new Object[]{_key, _value, _serviceDirectoryPath, _serviceName};
+
+		try {
+			EnvDbHelper.update(query, param);
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+	}
+
+	public static void updateSchedulerUse(String _id, String _isUse) {
+		String query = "UPDATE SCHEDULER SET USE=? WHERE ID=?";
+		Object[] param = new Object[]{_isUse, _id};
+
+		try {
+			EnvDbHelper.update(query, param);
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
 	}
 }

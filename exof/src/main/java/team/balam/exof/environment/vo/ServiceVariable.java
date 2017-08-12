@@ -41,7 +41,11 @@ public class ServiceVariable {
         return values;
     }
 
-    public int size() {
+	public boolean isNull() {
+		return isNull;
+	}
+
+	public int size() {
         return this.variable.size();
     }
 

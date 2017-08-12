@@ -26,16 +26,15 @@ public class App
 			@Override
 			public void run()
 			{
-				if(App.isShutdown.compareAndSet(false, true))
-				{
-					Operator.stop();
-				}
-				
+			if(App.isShutdown.compareAndSet(false, true))
+			{
+				Operator.stop();
+			}
 			}
 		});
 		
-		String envPath = System.getProperty(EnvKey.HOME, "./env");
-		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.HOME, envPath);
+		String envPath = System.getProperty(EnvKey.ENV_PATH, "./env");
+		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.ENV_PATH, envPath);
 		
 		Logger logger = LoggerFactory.getLogger(App.class);
 		

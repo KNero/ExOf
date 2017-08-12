@@ -27,7 +27,7 @@ public class LoaderTest
 	public void init() throws Exception {
 		new File("./env/" + Constant.ENV_DB).delete();
 		DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
-		ServiceInfoDao.createTable();
+		ServiceInfoDao.initTable();
 	}
 
 	@Test

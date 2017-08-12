@@ -17,7 +17,7 @@ public class ServiceImpl implements Service
 	private Method method;
 	private Object host;
 	private int methodParamCount;
-	volatile private ServiceVariable variable;
+	private volatile ServiceVariable variable;
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);

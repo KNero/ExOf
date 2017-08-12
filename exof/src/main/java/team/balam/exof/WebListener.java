@@ -3,7 +3,6 @@ package team.balam.exof;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import team.balam.exof.App;
 import team.balam.exof.environment.EnvKey;
 
 public class WebListener implements ServletContextListener
@@ -14,7 +13,7 @@ public class WebListener implements ServletContextListener
 		String configPath = arg0.getServletContext().getInitParameter("exof.configPath");
 		if(configPath != null && configPath.trim().length() > 0)
 		{
-			System.setProperty(EnvKey.HOME, configPath.trim());
+			System.setProperty(EnvKey.ENV_PATH, configPath.trim());
 		}
 		
 		App.start();

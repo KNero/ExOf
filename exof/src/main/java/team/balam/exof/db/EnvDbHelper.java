@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-public class DbHelper {
-	private DbHelper() {
+public class EnvDbHelper {
+	private EnvDbHelper() {
 
 	}
 
@@ -26,7 +26,7 @@ public class DbHelper {
 		}
 	}
 
-	public static List<Map<String, Object>> select(String query, Object[] param) throws QueryTimeoutException, SQLException {
+	public static List<Map<String, Object>> select(String query, Object[] param) throws Exception {
 		QueryVo vo = QueryVoFactory.create(QueryVo.Type.SELECT);
 		vo.setQuery(query);
 		vo.setParam(param);
@@ -36,10 +36,30 @@ public class DbHelper {
 		Result result = null;
 
 		try {
-			result = vo.getResult();
-			return result.getSelectResult();
+			if (result.isSuccess()) {
+				result = vo.getResult();
+				return result.getSelectResult();
+			} else {
+				throw result.getException();
+			}
 		} finally {
-			DbHelper.close(result);
+			EnvDbHelper.close(result);
+		}
+	}
+
+	public static int update(String query, Object[] param) throws Exception {
+		QueryVo vo = QueryVoFactory.create(QueryVo.Type.UPDATE);
+		vo.setQuery(query);
+		vo.setParam(param);
+
+		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+
+		Result result = vo.getResult();
+
+		if (result.isSuccess()) {
+			return result.getResultCount();
+		} else {
+			throw result.getException();
 		}
 	}
 }
