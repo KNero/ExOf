@@ -11,6 +11,7 @@ public class Constant {
 	public static final String NO = "no";
 	public static final String FAIL = "fail";
 	public static final String SUCCESS = "success";
+	public static final String EMPTY_STRING = "";
 
-	public static final String ENV_DB = "./env/.env.db";
+	public static final String ENV_DB = ".env.db";
 }
