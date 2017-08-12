@@ -215,7 +215,7 @@ public class ServiceInfoDao {
 		return ServiceVariable.NULL_OBJECT;
 	}
 
-	public static SchedulerInfo selectSchedule(String _id) {
+	public static SchedulerInfo selectScheduler(String _id) {
 		String query = "SELECT * FROM SCHEDULE WHERE ID=?";
 		Object[] param = new Object[]{_id};
 
@@ -232,7 +232,7 @@ public class ServiceInfoDao {
 		return SchedulerInfo.NULL_OBJECT;
 	}
 
-	public static List<SchedulerInfo> selectSchedule() {
+	public static List<SchedulerInfo> selectScheduler() {
 		String query = "SELECT * FROM SCHEDULE";
 
 		try {

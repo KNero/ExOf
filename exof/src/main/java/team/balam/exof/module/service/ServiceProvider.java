@@ -39,7 +39,7 @@ public class ServiceProvider implements Module, Observer
 		return self;
 	}
 
-	synchronized public static void register(ServiceDirectoryInfo _info) throws Exception {
+	private void _register(ServiceDirectoryInfo _info) throws Exception {
 		Class<?> clazz = Class.forName(_info.getClassName());
 		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn =
 				clazz.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
@@ -127,29 +127,23 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		Inbound inboundAnn =
-				_method.getAnnotation(Inbound.class);
-
+		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
 		if (inboundAnn != null) {
 			_service.addInbound(inboundAnn.classObject().newInstance());
 		}
 	}
 
 	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		Outbound outboundAnn =
-				_method.getAnnotation(Outbound.class);
-
+		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
 		if (outboundAnn != null) {
 			_service.addOutbound(outboundAnn.classObject().newInstance());
 		}
 	}
 
 	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		MapToVo mapTovoAnn =
-				_method.getAnnotation(MapToVo.class);
-
-		if (mapTovoAnn != null) {
-			_service.setMapToVoConverter(mapTovoAnn.classObject());
+		MapToVo mapToVoAnn =_method.getAnnotation(MapToVo.class);
+		if (mapToVoAnn != null) {
+			_service.setMapToVoConverter(mapToVoAnn.classObject());
 		}
 	}
 
@@ -185,7 +179,7 @@ public class ServiceProvider implements Module, Observer
 		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
 		directoryInfoList.forEach(_info -> {
 			try {
-				ServiceProvider.register(_info);
+				this._register(_info);
 				
  				logger.warn("Service Directory is loaded.\n{}", _info.toString());
 			} catch(Exception e) {

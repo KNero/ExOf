@@ -17,6 +17,7 @@ public class SchedulerInfo
 	private Map<String, Object> dbColumn;
 	private AtomicBoolean isRunning = new AtomicBoolean(false);
 
+	private boolean isUse;
 	private boolean isNull;
 
 	public static final SchedulerInfo NULL_OBJECT = new SchedulerInfo();
@@ -27,6 +28,7 @@ public class SchedulerInfo
 
 	public SchedulerInfo(Map<String, Object> _dbInfo) {
 		this.dbColumn = _dbInfo;
+		this.isUse = Constant.YES.equals(this.dbColumn.get("use"));
 	}
 	
 	public String getId()
@@ -54,12 +56,15 @@ public class SchedulerInfo
 		return isRunning;
 	}
 	
-	public boolean isUse()
-	{
-		return Constant.YES.equals(this.dbColumn.get("use"));
+	public boolean isUse() {
+		return this.isUse;
 	}
-	
-	public boolean isInitExecution() 
+
+	public void setUse(boolean use) {
+		isUse = use;
+	}
+
+	public boolean isInitExecution()
 	{
 		return Constant.YES.equals(this.dbColumn.get("init_execution"));
 	}

@@ -24,6 +24,7 @@ import team.balam.exof.Container;
 import team.balam.exof.container.scheduler.ExecutionContext;
 import team.balam.exof.container.scheduler.PauseAwareCronTrigger;
 import team.balam.exof.container.scheduler.SchedulerAlreadyExists;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.container.scheduler.SchedulerJob;
 import team.balam.exof.environment.EnvKey;
@@ -54,9 +55,12 @@ public class SchedulerManager implements Container, Observer
 	
 	@Override
 	public void start() throws Exception {
-		this.isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
-		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
+		Boolean isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
+		if (isAutoReload != null) {
+			this.isAutoReload = isAutoReload;
+		}
 
+		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
 		if (infoList.size() > 0) {
 			Properties pro = SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
 			SchedulerFactory factory = new StdSchedulerFactory(pro);
@@ -140,18 +144,16 @@ public class SchedulerManager implements Container, Observer
 					JobDataMap dataMap = this.scheduler.getJobDetail(jobkey).getJobDataMap();
 					SchedulerInfo realInfo = (SchedulerInfo) dataMap.get("info");
 
-//					if (_info.isUse() != realInfo.isUse()) {
-//						realInfo.setUse(_info.isUse()); <----- 여기 나중에 db 사용으로 교체 시 수정
+					realInfo.setUse(_info.isUse());
 
-						if (!_info.isUse()) {
-							this.scheduler.pauseJob(jobkey);
-						} else {
-							this.scheduler.resumeJob(jobkey);
-						}
+					if (!_info.isUse()) {
+						this.scheduler.pauseJob(jobkey);
+					} else {
+						this.scheduler.resumeJob(jobkey);
+					}
 
 
-						this.logger.warn("Complete reloading schedulerInfo. [{}]", _info.getServicePath());
-//					}
+					this.logger.warn("Complete reloading schedulerInfo. [{}]", _info.getServicePath());
 				} catch (Exception e) {
 					this.logger.error("Can not update scheduler. [{}]", _info.toString(), e);
 				}
