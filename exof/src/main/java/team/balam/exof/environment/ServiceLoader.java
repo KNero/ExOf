@@ -3,16 +3,12 @@ package team.balam.exof.environment;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import team.balam.exof.container.scheduler.SchedulerInfo;
 import team.balam.exof.db.ServiceInfoDao;
-import team.balam.exof.module.service.ServiceDirectoryInfo;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ServiceLoader implements Loader
 {
@@ -119,7 +115,7 @@ public class ServiceLoader implements Loader
 		String isUse = attr.getNamedItem("use").getNodeValue();
 		String isInitExecution = attr.getNamedItem("initExecution").getNodeValue();
 
-		String id = null;
+		String id;
 		Node idAttr = attr.getNamedItem("id");
 		if (idAttr != null && idAttr.getNodeValue().trim().length() > 0) {
 			id = idAttr.getNodeValue();

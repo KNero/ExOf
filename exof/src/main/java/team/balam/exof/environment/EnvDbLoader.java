@@ -9,7 +9,7 @@ class EnvDbLoader implements Loader {
 	@Override
 	public void load(String _envPath) throws LoadEnvException {
 		try {
-			DatabaseLoader.load(Constant.ENV_DB, Constant.ENV_DB);
+			DatabaseLoader.load(Constant.ENV_DB, _envPath + "/" + Constant.ENV_DB);
 
 			DynamicSettingDao.createTable();
 			ServiceInfoDao.createTable();

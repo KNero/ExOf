@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.Module;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.module.service.annotation.*;
 
 public class ServiceProvider implements Module, Observer
