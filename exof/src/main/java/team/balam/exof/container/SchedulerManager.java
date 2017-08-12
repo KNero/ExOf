@@ -24,7 +24,7 @@ import team.balam.exof.Container;
 import team.balam.exof.container.scheduler.ExecutionContext;
 import team.balam.exof.container.scheduler.PauseAwareCronTrigger;
 import team.balam.exof.container.scheduler.SchedulerAlreadyExists;
-import team.balam.exof.container.scheduler.SchedulerInfo;
+import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.container.scheduler.SchedulerJob;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
@@ -141,7 +141,7 @@ public class SchedulerManager implements Container, Observer
 					SchedulerInfo realInfo = (SchedulerInfo) dataMap.get("info");
 
 //					if (_info.isUse() != realInfo.isUse()) {
-						realInfo.setUse(_info.isUse());
+//						realInfo.setUse(_info.isUse()); <----- 여기 나중에 db 사용으로 교체 시 수정
 
 						if (!_info.isUse()) {
 							this.scheduler.pauseJob(jobkey);

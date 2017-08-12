@@ -1,17 +1,11 @@
 package balam.exof.test.module.service;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.service.*;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
 import team.balam.exof.module.service.annotation.Variable;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -46,50 +40,5 @@ public class ServiceProviderTest {
 			Assert.assertEquals("A", this.variable2.get(0));
 			Assert.assertEquals("B", this.variable2.get(1));
 		}
-	}
-
-	@BeforeClass
-	public static void loadService() throws Exception {
-		ServiceDirectoryInfo info = new ServiceDirectoryInfo();
-		info.setClassName("balam.exof.test.module.service.ServiceProviderTest");
-		info.setPath("/test/serviceProviderTest");
-
-		ServiceVariable serviceVariable = new ServiceVariable();
-		serviceVariable.put("variable1", "test111");
-		serviceVariable.put("variable2", "A");
-		serviceVariable.put("variable2", "B");
-		info.setVariable("testService", serviceVariable);
-
-		List<ServiceDirectoryInfo> infoList = new LinkedList<>();
-		infoList.add(info);
-		SystemSetting.getInstance().set(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES, infoList);
-
-		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
-		ServiceProvider.getInstance().start();
-	}
-
-	@Test
-	public void test_serviceVariableReload() throws Exception {
-		ServiceDirectoryInfo info = new ServiceDirectoryInfo();
-		info.setClassName("balam.exof.test.module.service.ServiceProviderTest");
-		info.setPath("/test/serviceProviderTest");
-
-		ServiceVariable serviceVariable = new ServiceVariable();
-		serviceVariable.put("variable1", "test222");
-		serviceVariable.put("variable2", "A1");
-		serviceVariable.put("variable2", "B1");
-		info.setVariable("testService", serviceVariable);
-
-		List<ServiceDirectoryInfo> infoList = new LinkedList<>();
-		infoList.add(info);
-		SystemSetting.getInstance().set(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES, infoList);
-
-		ServiceProvider.getInstance().update(null, null);
-
-		isReloadTest = true;
-
-		ServiceObject serviceObject = new ServiceObject("/test/serviceProviderTest/testService");
-		Service service = ServiceProvider.lookup(serviceObject.getServicePath());
-		service.call(serviceObject);
 	}
 }
