@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import team.balam.exof.Constant;
+import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.FrameworkLoader;
@@ -44,7 +45,7 @@ public class LoaderTest
 		ServiceLoader loader = new ServiceLoader();
 		loader.load("./env");
 
-		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectSchedule();
+		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectScheduler();
 		Assert.assertEquals(2, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
@@ -120,5 +121,15 @@ public class LoaderTest
 		Assert.assertEquals("a1", service.getServiceVariable("a"));
 		Assert.assertEquals("b2", service.getServiceVariable("b"));
 		Assert.assertEquals("c3", service.getServiceVariable("c"));
+	}
+
+	@Test
+	public void test_loadScheduler() throws Exception {
+		new ServiceLoader().load("./env");;
+		new FrameworkLoader().load("./env");
+
+		SchedulerManager.getInstance().start();
+
+		Assert.assertEquals(2, SchedulerManager.getInstance().getScheduleList().size());
 	}
 }

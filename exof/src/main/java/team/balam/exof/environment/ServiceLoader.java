@@ -123,7 +123,7 @@ public class ServiceLoader implements Loader
 		}
 
 		try {
-			if (ServiceInfoDao.selectSchedule(id).isNull()) {
+			if (ServiceInfoDao.selectScheduler(id).isNull()) {
 				ServiceInfoDao.insertSchedule(id, servicePath, cron, isDuplicateExecution, isUse, isInitExecution);
 			}
 		} catch (Exception e) {

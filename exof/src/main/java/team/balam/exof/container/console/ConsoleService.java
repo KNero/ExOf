@@ -222,7 +222,7 @@ class ConsoleService {
 		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
 		for (SchedulerInfo info : infoList) {
 			if (info.getId().equals(id)) {
-//				info.setUse(Boolean.parseBoolean(value)); <------ db 사용으로 교체 시 여기 수정
+				info.setUse(Boolean.parseBoolean(value));
 				SchedulerManager.getInstance().update(null, null);
 
 				Map<String, Object> param = new HashMap<>();
