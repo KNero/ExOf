@@ -17,6 +17,13 @@ public class ServiceLoader implements Loader
 	@Override
 	public void load(String _envPath) throws LoadEnvException 
 	{
+		try {
+			ServiceInfoDao.initTable();
+		} catch (Exception e) {
+			throw new LoadEnvException("Can not create env db table", e);
+		}
+
+
 		String filePath = _envPath + "/service.xml";
 		if (new File(filePath).exists()) {
 			this._loadServiceAndScheduler(filePath);
@@ -25,8 +32,7 @@ public class ServiceLoader implements Loader
 		}
 	}
 
-	private void _loadServiceAndScheduler(String _filePath)
-			throws LoadEnvException {
+	private void _loadServiceAndScheduler(String _filePath) throws LoadEnvException {
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = builder.parse(new File(_filePath));

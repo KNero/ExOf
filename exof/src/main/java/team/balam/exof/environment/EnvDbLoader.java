@@ -12,9 +12,8 @@ class EnvDbLoader implements Loader {
 			DatabaseLoader.load(Constant.ENV_DB, _envPath + "/" + Constant.ENV_DB);
 
 			DynamicSettingDao.createTable();
-			ServiceInfoDao.createTable();
 		} catch (Exception e) {
-			throw new LoadEnvException("Can not create env db file", e);
+			throw new LoadEnvException("Can not create env db table", e);
 		}
 	}
 }

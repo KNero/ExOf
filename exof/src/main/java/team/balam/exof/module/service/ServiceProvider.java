@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.Module;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.LoadEnvException;
+import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
@@ -202,8 +204,8 @@ public class ServiceProvider implements Module, Observer
 			return;
 		}
 
-		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
-		directoryInfoList.forEach(_info -> self._updateServiceDirectory(_info));
+		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
+		directoryInfoList.forEach(this::_updateServiceDirectory);
 	}
 
 	private void _updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo) {

@@ -7,7 +7,7 @@ package team.balam.exof.environment;
  */
 public interface EnvKey 
 {
-	String HOME = "exof.envPath";
+	String ENV_PATH = "exof.envPath";
 	
 	interface FileName
 	{

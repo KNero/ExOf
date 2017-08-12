@@ -136,25 +136,19 @@ public class SchedulerManager implements Container, Observer
 	public void update(Observable o, Object arg) {
 		if (!this.isAutoReload) return;
 
-		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
+		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
 		infoList.forEach(_info -> {
 			JobKey jobkey = this.jobKeyMap.get(_info.getId());
 			if (jobkey != null) {
 				try {
-					JobDataMap dataMap = this.scheduler.getJobDetail(jobkey).getJobDataMap();
-					SchedulerInfo realInfo = (SchedulerInfo) dataMap.get("info");
-
-					realInfo.setUse(_info.isUse());
-
 					if (!_info.isUse()) {
 						this.scheduler.pauseJob(jobkey);
 					} else {
 						this.scheduler.resumeJob(jobkey);
 					}
 
-
 					this.logger.warn("Complete reloading schedulerInfo. [{}]", _info.getServicePath());
-				} catch (Exception e) {
+				} catch (SchedulerException e) {
 					this.logger.error("Can not update scheduler. [{}]", _info.toString(), e);
 				}
 			}

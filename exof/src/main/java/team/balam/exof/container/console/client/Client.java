@@ -34,7 +34,7 @@ public class Client
 	
 	public static void init() throws Exception
 	{
-		String envPath = System.getProperty(EnvKey.HOME, "./env");
+		String envPath = System.getProperty(EnvKey.ENV_PATH, "./env");
 		ListenerLoader loader = new ListenerLoader();
 		loader.load(envPath);
 		
