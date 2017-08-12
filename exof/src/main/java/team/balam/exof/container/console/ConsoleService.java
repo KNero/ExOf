@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
-import team.balam.exof.container.scheduler.SchedulerInfo;
+import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
@@ -13,7 +13,7 @@ import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.Service;
-import team.balam.exof.module.service.ServiceDirectoryInfo;
+import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.ServiceVariable;
 
@@ -222,7 +222,7 @@ class ConsoleService {
 		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
 		for (SchedulerInfo info : infoList) {
 			if (info.getId().equals(id)) {
-				info.setUse(Boolean.parseBoolean(value));
+//				info.setUse(Boolean.parseBoolean(value)); <------ db 사용으로 교체 시 여기 수정
 				SchedulerManager.getInstance().update(null, null);
 
 				Map<String, Object> param = new HashMap<>();

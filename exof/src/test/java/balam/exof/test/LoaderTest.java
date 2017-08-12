@@ -1,15 +1,32 @@
 package balam.exof.test;
 
+import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import team.balam.exof.Constant;
+import team.balam.exof.environment.vo.SchedulerInfo;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.FrameworkLoader;
+import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.ServiceDirectoryInfo;
+import team.balam.exof.environment.vo.ServiceVariableInfo;
+import team.balam.util.sqlite.connection.DatabaseLoader;
 
 public class LoaderTest
 {
+	@Before
+	public void init() throws Exception {
+		new File("./env/" + Constant.ENV_DB).delete();
+		DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
+		ServiceInfoDao.createTable();
+	}
+
 	@Test
 	public void testGetFrameworkExternal() throws Exception
 	{
@@ -18,5 +35,63 @@ public class LoaderTest
 		
 		Map<String, Object> extMap = SystemSetting.getInstance().getExternal();
 		Assert.assertEquals("abcde", extMap.get("test"));
+	}
+
+	@Test
+	public void test_scheduleAndServiceDirectory() throws Exception {
+		ServiceLoader loader = new ServiceLoader();
+		loader.load("./env");
+
+		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectSchedule();
+		Assert.assertEquals(2, schedulerInfos.size());
+
+		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
+		Assert.assertEquals(2, directoryInfos.size());
+	}
+
+	/**
+	 * <serviceDirectory class="team.balam.exof.test.TestService" path="/test">
+		 <serviceVariable serviceName="schedule">
+			 <variable name="a" value="a1"/>
+			 <variable name="b" value="b2"/>
+			 <variable name="c" value="c3"/>
+		 </serviceVariable>
+		 <serviceVariable serviceName="arrayParam">
+			 <variable name="a" value="a1"/>
+			 <variable name="b" value="b2"/>
+			 <variable name="c" value="c1"/>
+			 <variable name="c" value="c2"/>
+			 <variable name="c" value="c3"/>
+			 <variable name="c" value="c4"/>
+		 </serviceVariable>
+	 </serviceDirectory>
+	 <serviceDirectory class="team.balam.exof.test.TestService" path="/test2">
+		 <serviceVariable serviceName="schedule">
+			 <variable name="a" value="a1"/>
+			 <variable name="b" value="b2"/>
+			 <variable name="c" value="c3"/>
+		 </serviceVariable>
+	 </serviceDirectory>
+	 * @throws Exception
+	 */
+	@Test
+	public void test_serviceVariable() throws Exception {
+		ServiceLoader loader = new ServiceLoader();
+		loader.load("./env");
+
+		ServiceVariableInfo result = ServiceInfoDao.selectServiceVariable("/test", "schedule");
+		Assert.assertEquals("a1", result.getStringValue("a"));
+		Assert.assertEquals("b2", result.getStringValue("b"));
+		Assert.assertEquals("c3", result.getStringValue("c"));
+
+		result = ServiceInfoDao.selectServiceVariable("/test", "arrayParam");
+		Assert.assertEquals("a1", result.getStringValue("a"));
+		Assert.assertEquals("b2", result.getStringValue("b"));
+		Assert.assertEquals(4, result.getListValue("c").size());
+
+		result = ServiceInfoDao.selectServiceVariable("/test2", "schedule");
+		Assert.assertEquals("a1", result.getStringValue("a"));
+		Assert.assertEquals("b2", result.getStringValue("b"));
+		Assert.assertEquals("c3", result.getStringValue("c"));
 	}
 }
