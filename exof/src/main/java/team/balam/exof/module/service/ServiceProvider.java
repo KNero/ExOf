@@ -13,9 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import team.balam.exof.Module;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
+import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.service.annotation.*;
 
 public class ServiceProvider implements Module, Observer
@@ -174,23 +176,19 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	@Override
-	public void start() throws Exception
-	{
+	public void start() throws Exception {
 		Boolean isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
 		if (isAutoReload != null) {
 			this.isAutoReload = isAutoReload;
 		}
 
-		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
+		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
 		directoryInfoList.forEach(_info -> {
-			try
-			{
+			try {
 				ServiceProvider.register(_info);
 				
  				logger.warn("Service Directory is loaded.\n{}", _info.toString());
-			}
-			catch(Exception e)
-			{
+			} catch(Exception e) {
 				logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
 			}
 		});

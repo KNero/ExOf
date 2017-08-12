@@ -15,7 +15,9 @@ import team.balam.exof.environment.FrameworkLoader;
 import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
-import team.balam.exof.environment.vo.ServiceVariableInfo;
+import team.balam.exof.environment.vo.ServiceVariable;
+import team.balam.exof.module.service.Service;
+import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 
 public class LoaderTest
@@ -75,23 +77,48 @@ public class LoaderTest
 	 * @throws Exception
 	 */
 	@Test
+	@SuppressWarnings("unchecked")
 	public void test_serviceVariable() throws Exception {
 		ServiceLoader loader = new ServiceLoader();
 		loader.load("./env");
 
-		ServiceVariableInfo result = ServiceInfoDao.selectServiceVariable("/test", "schedule");
-		Assert.assertEquals("a1", result.getStringValue("a"));
-		Assert.assertEquals("b2", result.getStringValue("b"));
-		Assert.assertEquals("c3", result.getStringValue("c"));
+		ServiceVariable result = ServiceInfoDao.selectServiceVariable("/test", "schedule");
+		Assert.assertEquals("a1", result.getString("a"));
+		Assert.assertEquals("b2", result.getString("b"));
+		Assert.assertEquals("c3", result.getString("c"));
 
 		result = ServiceInfoDao.selectServiceVariable("/test", "arrayParam");
-		Assert.assertEquals("a1", result.getStringValue("a"));
-		Assert.assertEquals("b2", result.getStringValue("b"));
-		Assert.assertEquals(4, result.getListValue("c").size());
+		Assert.assertEquals("a1", result.getString("a"));
+		Assert.assertEquals("b2", result.getString("b"));
+		Assert.assertEquals(4, ((List<String>) result.get("c")).size());
 
 		result = ServiceInfoDao.selectServiceVariable("/test2", "schedule");
-		Assert.assertEquals("a1", result.getStringValue("a"));
-		Assert.assertEquals("b2", result.getStringValue("b"));
-		Assert.assertEquals("c3", result.getStringValue("c"));
+		Assert.assertEquals("a1", result.getString("a"));
+		Assert.assertEquals("b2", result.getString("b"));
+		Assert.assertEquals("c3", result.getString("c"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void test_loadService() throws Exception {
+		ServiceLoader loader = new ServiceLoader();
+		loader.load("./env");
+
+		ServiceProvider.getInstance().start();
+
+		Service service = ServiceProvider.lookup("/test/schedule");
+		Assert.assertEquals("a1", service.getServiceVariable("a"));
+		Assert.assertEquals("b2", service.getServiceVariable("b"));
+		Assert.assertEquals("c3", service.getServiceVariable("c"));
+
+		service = ServiceProvider.lookup("/test/arrayParam");
+		Assert.assertEquals("a1", service.getServiceVariable("a"));
+		Assert.assertEquals("b2", service.getServiceVariable("b"));
+		Assert.assertEquals(4, ((List<String>) service.getServiceVariable("c")).size());
+
+		service = ServiceProvider.lookup("/test2/schedule");
+		Assert.assertEquals("a1", service.getServiceVariable("a"));
+		Assert.assertEquals("b2", service.getServiceVariable("b"));
+		Assert.assertEquals("c3", service.getServiceVariable("c"));
 	}
 }
