@@ -2,7 +2,6 @@ package team.balam.exof.db;
 
 import team.balam.exof.Constant;
 import team.balam.util.sqlite.connection.PoolManager;
-import team.balam.util.sqlite.connection.vo.QueryTimeoutException;
 import team.balam.util.sqlite.connection.vo.QueryVo;
 import team.balam.util.sqlite.connection.vo.QueryVoFactory;
 import team.balam.util.sqlite.connection.vo.Result;
@@ -47,10 +46,10 @@ public class EnvDbHelper {
 		}
 	}
 
-	public static int update(String query, Object[] param) throws Exception {
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.UPDATE);
-		vo.setQuery(query);
-		vo.setParam(param);
+	public static int updateOrDelete(QueryVo.Type _type, String _query, Object[] _param) throws Exception {
+		QueryVo vo = QueryVoFactory.create(_type);
+		vo.setQuery(_query);
+		vo.setParam(_param);
 
 		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
 
