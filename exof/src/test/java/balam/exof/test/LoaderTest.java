@@ -4,12 +4,20 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import io.netty.channel.ChannelHandlerContext;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 
+import org.junit.runners.MethodSorters;
+import org.mockito.Mockito;
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
+import team.balam.exof.container.console.Command;
+import team.balam.exof.container.console.ConsoleCommandHandler;
+import team.balam.exof.container.console.ServiceList;
+import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.FrameworkLoader;
@@ -21,6 +29,7 @@ import team.balam.exof.module.service.Service;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoaderTest
 {
 	@Before
@@ -31,7 +40,7 @@ public class LoaderTest
 	}
 
 	@Test
-	public void testGetFrameworkExternal() throws Exception
+	public void test01_getFrameworkExternal() throws Exception
 	{
 		FrameworkLoader loader = new FrameworkLoader();
 		loader.load("./env");
@@ -41,7 +50,7 @@ public class LoaderTest
 	}
 
 	@Test
-	public void test_scheduleAndServiceDirectory() throws Exception {
+	public void test02_scheduleAndServiceDirectory() throws Exception {
 		ServiceLoader loader = new ServiceLoader();
 		loader.load("./env");
 
@@ -79,7 +88,7 @@ public class LoaderTest
 	 */
 	@Test
 	@SuppressWarnings("unchecked")
-	public void test_serviceVariable() throws Exception {
+	public void test03_serviceVariable() throws Exception {
 		ServiceLoader loader = new ServiceLoader();
 		loader.load("./env");
 
@@ -101,7 +110,7 @@ public class LoaderTest
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void test_loadService() throws Exception {
+	public void test04_loadService() throws Exception {
 		ServiceLoader loader = new ServiceLoader();
 		loader.load("./env");
 
@@ -124,12 +133,55 @@ public class LoaderTest
 	}
 
 	@Test
-	public void test_loadScheduler() throws Exception {
+	public void test05_loadScheduler() throws Exception {
 		new ServiceLoader().load("./env");;
 		new FrameworkLoader().load("./env");
 
 		SchedulerManager.getInstance().start();
 
 		Assert.assertEquals(2, SchedulerManager.getInstance().getScheduleList().size());
+	}
+
+	@Test
+	public void test06_reloadServiceVariable() throws Exception {
+		ServiceLoader loader = new ServiceLoader();
+		loader.load("./env");
+
+		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
+		ServiceProvider.getInstance().start();
+
+		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
+		command.addParameter(Command.Key.SERVICE_PATH, "/test/schedule");
+		command.addParameter(Command.Key.VARIABLE_NAME, "a");
+		command.addParameter(Command.Key.VARIABLE_VALUE, "a2a2");
+
+		ConsoleCommandHandler handler = new ConsoleCommandHandler();
+		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
+
+		Service service = ServiceProvider.lookup("/test/schedule");
+		Assert.assertEquals("a2a2", service.getServiceVariable("a"));
+	}
+
+	@Test
+	public void test07_reloadSchedulerOnOff() throws Exception {
+		new ServiceLoader().load("./env");;
+		new FrameworkLoader().load("./env");
+
+		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER, true);
+		SchedulerManager.getInstance().start();
+
+		Command command = new Command(ServiceList.SET_SCHEDULER_ON_OFF);
+		command.addParameter(Command.Key.ID, "test-schedule-01");
+		command.addParameter(Command.Key.VALUE, "no");
+
+		ConsoleCommandHandler handler = new ConsoleCommandHandler();
+		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
+
+		List<String> list = SchedulerManager.getInstance().getScheduleList();
+		for (String info  : list) {
+			if (info.startsWith("ID:test-schedule-01") && info.contains("use:yes")) {
+				Assert.fail("use is not value(no)");
+			}
+		}
 	}
 }

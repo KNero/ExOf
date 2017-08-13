@@ -9,7 +9,11 @@ package team.balam.exof;
 public interface Container 
 {
 	String getName();
-	
+
+	default void init() {
+
+	}
+
 	void start() throws Exception;
 	
 	void stop() throws Exception;

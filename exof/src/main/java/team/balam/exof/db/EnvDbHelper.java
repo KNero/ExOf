@@ -36,8 +36,8 @@ public class EnvDbHelper {
 		Result result = null;
 
 		try {
+			result = vo.getResult();
 			if (result.isSuccess()) {
-				result = vo.getResult();
 				return result.getSelectResult();
 			} else {
 				throw result.getException();

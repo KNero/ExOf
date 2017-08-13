@@ -172,20 +172,37 @@ class ConsoleService {
 		try {
 			String[] pathArray = servicePath.split("/");
 			String serviceName = pathArray[pathArray.length - 1];
-			String serviceDirPath = servicePath.split("/" + serviceName)[0];
+			String serviceDirPath = this._getServiceDirectoryPath(servicePath);
 
 			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
-			if (!serviceVariable.isNull() && serviceVariable.size() == 1) {
+			if (!serviceVariable.isNull() && serviceVariable.get(variableName) instanceof String) {
 				ServiceInfoDao.updateServiceVariable(serviceDirPath, serviceName, variableName, variableValue);
-			}
 
-			ServiceProvider.getInstance().update(null, null);
+				ServiceProvider.getInstance().update(null, null);
+			} else {
+				return Command.makeSimpleResult("error : reloading is must single value.");
+			}
 
 			Service service = ServiceProvider.lookup(servicePath);
 			return service.getServiceVariable(variableName);
 		} catch (Exception e) {
 			this.logger.error("Service variable SET error.", e);
 			return Command.makeSimpleResult(e.getMessage());
+		}
+	}
+
+	private String _getServiceDirectoryPath(String _servicePath) {
+		int lastSlash;
+		for (lastSlash = _servicePath.length() - 1; lastSlash >= 0; --lastSlash) {
+			if (_servicePath.charAt(lastSlash) == '/') {
+				break;
+			}
+		}
+
+		if (lastSlash > 0) {
+			return _servicePath.substring(0, lastSlash);
+		} else {
+			return Constant.EMPTY_STRING;
 		}
 	}
 
