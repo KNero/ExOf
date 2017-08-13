@@ -254,13 +254,19 @@ class ConsoleService {
 			String serviceDirPath = this._getServiceDirectoryPath(servicePath);
 
 			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
-			if (!serviceVariable.isNull() && serviceVariable.get(variableName) instanceof String) {
-				ServiceInfoDao.updateServiceVariable(serviceDirPath, serviceName, variableName, variableValue);
 
-				ServiceProvider.getInstance().update(null, null);
-			} else {
-				return Command.makeSimpleResult("error : reloading is must single value.");
+			ServiceInfoDao.deleteServiceVariable(serviceDirPath, serviceName, variableName);
+
+			String[] values = variableValue.split(",");
+			for(String value : values) {
+				ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
+
+				if (serviceVariable.get(variableName) instanceof String) {
+					break;
+				}
 			}
+
+			ServiceProvider.getInstance().update(null, null);
 
 			Service service = ServiceProvider.lookup(servicePath);
 			return service.getServiceVariable(variableName);

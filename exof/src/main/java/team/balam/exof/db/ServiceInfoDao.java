@@ -117,7 +117,7 @@ public class ServiceInfoDao {
 		}
 
 		vo = QueryVoFactory.create(QueryVo.Type.DELETE);
-		vo.setQuery("DELETE FROM SERVICE");
+		vo.setQuery("DELETE FROM SCHEDULER");
 
 		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
 		if (!vo.getResult().isSuccess()) {
@@ -305,6 +305,17 @@ public class ServiceInfoDao {
 
 		try {
 			EnvDbHelper.updateOrDelete(QueryVo.Type.UPDATE, query, param);
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+	}
+
+	public static void deleteServiceVariable(String _serviceDirectoryPath, String _serviceName, String _key) {
+		String query = "DELETE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
+		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName, _key};
+
+		try {
+			EnvDbHelper.updateOrDelete(QueryVo.Type.DELETE, query, param);
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
