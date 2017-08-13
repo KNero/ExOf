@@ -98,7 +98,7 @@ class CommandParameterReader {
 		}
 
 		if (number == 1 || number == 2) {
-			this.viewerCommand.putParameter(Command.Key.VALUE, number == 1 ? "true" : "false");
+			this.viewerCommand.putParameter(Command.Key.VALUE, number == 1 ? "yes" : "no");
 		} else if (number == 9) {
 			throw new TerminateException();
 		} else {

@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -59,12 +60,11 @@ public class ClientTest {
 		Assert.assertEquals(res, "response");
 	}
 
-	@Before
-	public void init() throws Exception {
+	@BeforeClass
+	public static void init() throws Exception {
 		String envPath = "./env/";
 		new File(envPath + Constant.ENV_DB).delete();
 		DatabaseLoader.load(Constant.ENV_DB, envPath + Constant.ENV_DB);
-		ServiceInfoDao.initTable();
 
 		new FrameworkLoader().load(envPath);
 		new ServiceLoader().load(envPath);

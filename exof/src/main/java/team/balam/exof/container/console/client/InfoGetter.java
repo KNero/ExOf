@@ -68,9 +68,7 @@ class InfoGetter
 			command.addParameter(Command.Key.NAME, _schedulerId);
 
 			Client.send(command, _result -> {
-				Map<String, Object> resultMap = (Map<String, Object>) _result;
-				List<String> list = (List<String>) resultMap.get("list");
-
+				List<String> list = (List<String>) _result;
 				list.forEach(scheduleName -> System.out.println("- " + scheduleName));
 			}, null);
 		}

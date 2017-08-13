@@ -7,10 +7,7 @@ import java.util.Map;
 import io.netty.channel.ChannelHandlerContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
 
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
@@ -34,11 +31,10 @@ import team.balam.util.sqlite.connection.DatabaseLoader;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoaderTest
 {
-	@Before
-	public void init() throws Exception {
+	@BeforeClass
+	public static void init() throws Exception {
 		new File("./env/" + Constant.ENV_DB).delete();
 		DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
-		ServiceInfoDao.initTable();
 	}
 
 	@Test
