@@ -10,13 +10,17 @@ import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.listener.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.Service;
+import team.balam.exof.module.service.ServiceImpl;
+import team.balam.exof.module.service.ServiceNotFoundException;
 import team.balam.exof.module.service.ServiceProvider;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +52,7 @@ class ConsoleService {
 	public Object getServiceList(Map<String, Object> _param) {
 		String findServicePath = (String) _param.get(Command.Key.SERVICE_PATH);
 
-		Map<String, HashMap<String, Object>> result = ServiceProvider.getInstance().getAllServiceInfo();
+		Map<String, HashMap<String, Object>> result = this.getAllServiceInfo();
 
 		if (!StringUtil.isNullOrEmpty(findServicePath)) {
 			result.forEach((_key, _value) -> _value.keySet().forEach(_valueKey -> {
@@ -66,6 +70,60 @@ class ConsoleService {
 		} else {
 			return result;
 		}
+	}
+
+	private Map<String, HashMap<String, Object>> getAllServiceInfo() {
+		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();
+
+		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
+		directoryInfoList.forEach(directoryInfo -> {
+			HashMap<String, Object> serviceMap = new HashMap<>();
+			serviceList.put(directoryInfo.getPath(), serviceMap);
+
+			try {
+				Class directoryClass = Class.forName(directoryInfo.getClassName());
+				Method[] methods = directoryClass.getMethods();
+
+				for (Method method : methods) {
+					team.balam.exof.module.service.annotation.Service serviceAnn =
+							method.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
+
+					if (serviceAnn != null) {
+						String serviceName = method.getName();
+						if (!serviceAnn.name().isEmpty()) {
+							serviceName = serviceAnn.name();
+						}
+
+						ServiceImpl service = (ServiceImpl) ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
+
+						if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
+							serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
+						}
+
+						Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(service);
+
+						serviceMap.put(serviceName, service.getMethod().getName());
+						serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				this.logger.error("class not found : " + directoryInfo.getClassName(), e);
+			} catch (ServiceNotFoundException e) {
+				this.logger.error("service not found", e);
+			}
+		});
+
+		return serviceList;
+	}
+
+	private Map<String, Object> makeServiceVariableMap(Service _service) {
+		Map<String, Object> variables = new HashMap<>();
+
+		for (String key : _service.getServiceVariableKeys()) {
+			variables.put(key, _service.getServiceVariable(key));
+		}
+
+		return variables;
 	}
 
 	public Object getScheduleList(Map<String, Object> _param) {

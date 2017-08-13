@@ -198,6 +198,17 @@ public class ServiceInfoDao {
 		return Collections.emptyList();
 	}
 
+	public static void deleteServiceDirectory(String _path) {
+		String query = "DELETE * FROM SERVICE_DIRECTORY WHERE PATH=?";
+		Object[] param = new Object[]{_path};
+
+		try {
+			EnvDbHelper.updateOrDelete(QueryVo.Type.DELETE, query, param);
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+	}
+
 	public static ServiceVariable selectServiceVariable(String _serviceDirectoryPath, String _serviceName) {
 		String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=?";
 		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
@@ -282,7 +293,7 @@ public class ServiceInfoDao {
 		Object[] param = new Object[]{_value, _serviceDirectoryPath, _serviceName, _key};
 
 		try {
-			EnvDbHelper.update(query, param);
+			EnvDbHelper.updateOrDelete(QueryVo.Type.UPDATE, query, param);
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
@@ -293,7 +304,7 @@ public class ServiceInfoDao {
 		Object[] param = new Object[]{_isUse, _id};
 
 		try {
-			EnvDbHelper.update(query, param);
+			EnvDbHelper.updateOrDelete(QueryVo.Type.UPDATE, query, param);
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
