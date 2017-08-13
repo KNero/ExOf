@@ -102,27 +102,36 @@ public class SchedulerManager implements Container, Observer
 	}
 	
 	public void executeInitTimeAndStart() {
-		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
-		infoList.forEach(info -> {
-			if (this.jobKeyMap.containsKey(info.getId())) {
-				if (info.isUse() && info.isInitExecution()) {
-					ExecutionContext exeCtx = new ExecutionContext(info);
-					SchedulerJob job = new SchedulerJob();
-					
-					try {
-						job.execute(exeCtx);
-					} catch (Exception e) {
-						this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
-					}
-				}
-				
-			}
-		});
-		
+		boolean isNotStarted = false;
+
 		try {
-			this.scheduler.start();
+			isNotStarted = !this.scheduler.isStarted();
 		} catch (SchedulerException e) {
-			this.logger.error("Scheduler start error.", e);
+		}
+
+		if (isNotStarted) {
+			List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
+			infoList.forEach(info -> {
+				if (this.jobKeyMap.containsKey(info.getId())) {
+					if (info.isUse() && info.isInitExecution()) {
+						ExecutionContext exeCtx = new ExecutionContext(info);
+						SchedulerJob job = new SchedulerJob();
+
+						try {
+							job.execute(exeCtx);
+						} catch (Exception e) {
+							this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
+						}
+					}
+
+				}
+			});
+
+			try {
+				this.scheduler.start();
+			} catch (SchedulerException e) {
+				this.logger.error("Scheduler start error.", e);
+			}
 		}
 	}
 	
@@ -141,6 +150,10 @@ public class SchedulerManager implements Container, Observer
 			JobKey jobkey = this.jobKeyMap.get(_info.getId());
 			if (jobkey != null) {
 				try {
+					JobDataMap jobDataMap = this.scheduler.getJobDetail(jobkey).getJobDataMap();
+					SchedulerInfo info = (SchedulerInfo)jobDataMap.get("info");
+					info.setUse(_info.isUse());
+
 					if (!_info.isUse()) {
 						this.scheduler.pauseJob(jobkey);
 					} else {

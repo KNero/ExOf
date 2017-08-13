@@ -170,7 +170,7 @@ public class ServiceInfoDao {
 
 		try {
 			if (!vo.getResult().isSuccess()) {
-				throw new LoadEnvException("fail insert to SCHEDULE table.", vo.getResult().getException());
+				throw new LoadEnvException("fail insert to SCHEDULER table.", vo.getResult().getException());
 			}
 		} catch (QueryTimeoutException e) {
 			throw new LoadEnvException("query time out.", e);
@@ -216,7 +216,7 @@ public class ServiceInfoDao {
 	}
 
 	public static SchedulerInfo selectScheduler(String _id) {
-		String query = "SELECT * FROM SCHEDULE WHERE ID=?";
+		String query = "SELECT * FROM SCHEDULER WHERE ID=?";
 		Object[] param = new Object[]{_id};
 
 		try {
@@ -233,7 +233,7 @@ public class ServiceInfoDao {
 	}
 
 	public static List<SchedulerInfo> selectScheduler() {
-		String query = "SELECT * FROM SCHEDULE";
+		String query = "SELECT * FROM SCHEDULER";
 
 		try {
 			List<Map<String, Object>> selectList = EnvDbHelper.select(query, null);
@@ -254,8 +254,8 @@ public class ServiceInfoDao {
 	}
 
 	public static void updateServiceVariable(String _serviceDirectoryPath, String _serviceName, String _key, String _value) {
-		String query = "UPDATE SERVICE_VARIABLE SET KEY=?, VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=?";
-		Object[] param = new Object[]{_key, _value, _serviceDirectoryPath, _serviceName};
+		String query = "UPDATE SERVICE_VARIABLE SET VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
+		Object[] param = new Object[]{_value, _serviceDirectoryPath, _serviceName, _key};
 
 		try {
 			EnvDbHelper.update(query, param);
