@@ -210,26 +210,11 @@ public class ServiceProvider implements Module, Observer
 
 	private void _updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo) {
 		try {
-			Class<?> clazz = Class.forName(_serviceDirInfo.getClassName());
-			Method[] methods = clazz.getMethods();
+			List<ServiceVariable> variableList = ServiceInfoDao.selectServiceVariable(_serviceDirInfo.getPath());
+			for (ServiceVariable variable : variableList) {
+				this._reloadServiceVariable(_serviceDirInfo.getPath(), variable.getServiceName(), _serviceDirInfo);
 
-			for (Method m : methods) {
-				team.balam.exof.module.service.annotation.Service serviceAnn =
-						m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
-
-				if (serviceAnn != null) {
-					String serviceName = serviceAnn.name();
-					if (serviceName.length() == 0) {
-						serviceName = m.getName();
-					}
-
-					ServiceDirectory serviceDir = this.serviceDirectory.get(_serviceDirInfo.getPath());
-					if (serviceDir != null) {
-						this._reloadServiceVariable(_serviceDirInfo.getPath(), serviceName, _serviceDirInfo);
-
-						logger.warn("Complete reloading ServiceVariable. [{}]", _serviceDirInfo.getPath() + "/" + serviceName);
-					}
-				}
+				logger.warn("Complete reloading ServiceVariable. [{}]", _serviceDirInfo.getPath() + "/" + variable.getServiceName());
 			}
 		} catch (Exception e) {
 			logger.error("Can not reload the ServiceVariable. Class : {}", _serviceDirInfo.getClassName());

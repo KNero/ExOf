@@ -206,13 +206,37 @@ public class ServiceInfoDao {
 			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
 
 			if (!selectList.isEmpty()) {
-				return new ServiceVariable(selectList);
+				return new ServiceVariable(_serviceName, selectList);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
 
 		return ServiceVariable.NULL_OBJECT;
+	}
+
+	public static List<ServiceVariable> selectServiceVariable(String _serviceDirectoryPath) {
+		String query = "SELECT SERVICE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? GROUP BY SERVICE";
+		Object[] param = new Object[]{_serviceDirectoryPath};
+
+		try {
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
+
+			if (!selectList.isEmpty()) {
+				List<ServiceVariable> variableList = new ArrayList<>();
+
+				for (Map<String, Object> info : selectList) {
+					ServiceVariable serviceVariable = selectServiceVariable(_serviceDirectoryPath, (String) info.get("service"));
+					variableList.add(serviceVariable);
+				}
+
+				return variableList;
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+
+		return Collections.emptyList();
 	}
 
 	public static SchedulerInfo selectScheduler(String _id) {

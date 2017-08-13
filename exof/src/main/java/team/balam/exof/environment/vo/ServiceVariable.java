@@ -9,6 +9,7 @@ import java.util.*;
  * Service.xml 에서 serviceVariable 의 variable 을 리스트 형태로 저장한다
  */
 public class ServiceVariable {
+	private String serviceName;
     private Map<String, List<String>> variable = new LinkedHashMap<>();
 	private boolean isNull;
 
@@ -18,14 +19,20 @@ public class ServiceVariable {
 		this.isNull = true;
 	}
 
-	public ServiceVariable(List<Map<String, Object>> dbList) {
-		for (Map<String, Object> variable : dbList) {
+	public ServiceVariable(String _serviceName, List<Map<String, Object>> _dbList) {
+		this.serviceName = _serviceName;
+
+		for (Map<String, Object> variable : _dbList) {
 			String key = (String) variable.get("key");
 			String value = (String) variable.get("value");
 
 			List<String> variableList = this.variable.computeIfAbsent(key, _key -> new ArrayList<>());
 			variableList.add(value);
 		}
+	}
+
+	public String getServiceName() {
+		return serviceName;
 	}
 
 	public Set<String> getKeys() {
