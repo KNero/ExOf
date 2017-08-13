@@ -167,32 +167,4 @@ public class SchedulerManager implements Container, Observer
 			}
 		});
 	}
-	
-	public List<String> getScheduleList()
-	{
-		ArrayList<String> list = new ArrayList<>();
-		
-		this.jobKeyMap.forEach((_id, _jobKey) -> {
-			try
-			{
-				JobDataMap jobDataMap = this.scheduler.getJobDetail(_jobKey).getJobDataMap();
-				SchedulerInfo info = (SchedulerInfo)jobDataMap.get("info");
-				
-				
-				list.add("ID:" + info.getId() + ", service path:" + info.getServicePath() 
-						+ ", cron:" + info.getCronExpression() + ", use:" + (info.isUse() ? "yes" : "no")
-						+ ", duplicateExecution:" + (info.isDuplicateExecution() ? "yes" : "no"));
-			}
-			catch(Exception e)
-			{
-				String error = "Can not get schedule info. ID[" + _id + "]";
-				
-				this.logger.error(error, e);
-				
-				list.add(error);
-			}
-		});
-		
-		return list;
-	}
 }

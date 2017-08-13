@@ -74,8 +74,8 @@ public class Client
 				TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>() {};
 				result = objectMapper.readValue(jsonStr, mapType);
 			} else if (jsonStr.startsWith("[")) {
-				TypeReference<List<Object>> mapType = new TypeReference<List<Object>>() {};
-				result = objectMapper.readValue(jsonStr, mapType);
+				TypeReference<List<Object>> listType = new TypeReference<List<Object>>() {};
+				result = objectMapper.readValue(jsonStr, listType);
 			} else {
 				result = jsonStr;
 			}

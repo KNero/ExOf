@@ -10,6 +10,7 @@ import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.listener.PortInfo;
@@ -128,7 +129,7 @@ class ConsoleService {
 
 	public Object getScheduleList(Map<String, Object> _param) {
 		List<String> resultList = new ArrayList<>();
-		List<String> list = SchedulerManager.getInstance().getScheduleList();
+		List<String> list = this._getScheduleList();
 
 		String id = (String) _param.get(Command.Key.ID);
 		if (!StringUtil.isNullOrEmpty(id)) {
@@ -144,11 +145,31 @@ class ConsoleService {
 		if (resultList.size() == 0) {
 			return Command.NO_DATA_RESPONSE;
 		} else {
-			Map<String, Object> result = new HashMap<>();
-			result.put("list", resultList);
-
-			return result;
+			return resultList;
 		}
+	}
+
+	private List<String> _getScheduleList()
+	{
+		ArrayList<String> list = new ArrayList<>();
+
+		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
+		infoList.forEach(info -> {
+			try {
+				StringBuilder infoStr = new StringBuilder();
+				infoStr.append("ID:").append(info.getId()).append(", service path:").append(info.getServicePath());
+				infoStr.append(", cron:").append(info.getCronExpression()).append(", use:").append(info.isUse() ? "yes" : "no");
+				infoStr.append(", duplicateExecution:").append(info.isDuplicateExecution() ? "yes" : "no");
+
+				list.add(infoStr.toString());
+			} catch(Exception e) {
+				String error = "Can not get schedule info. ID[" + info.getId() + "]";
+				this.logger.error(error, e);
+				list.add(error);
+			}
+		});
+
+		return list;
 	}
 
 	public Object getDynamicSettingList(Map<String, Object> _param) {

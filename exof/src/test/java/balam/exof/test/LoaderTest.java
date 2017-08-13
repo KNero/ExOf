@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -133,16 +135,6 @@ public class LoaderTest
 	}
 
 	@Test
-	public void test05_loadScheduler() throws Exception {
-		new ServiceLoader().load("./env");;
-		new FrameworkLoader().load("./env");
-
-		SchedulerManager.getInstance().start();
-
-		Assert.assertEquals(2, SchedulerManager.getInstance().getScheduleList().size());
-	}
-
-	@Test
 	public void test06_reloadServiceVariable() throws Exception {
 		ServiceLoader loader = new ServiceLoader();
 		loader.load("./env");
@@ -164,6 +156,24 @@ public class LoaderTest
 
 	@Test
 	public void test07_reloadSchedulerOnOff() throws Exception {
+		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
+			String jsonStr = object.getArgumentAt(0, String.class);
+			TypeReference<List<Object>> listType = new TypeReference<List<Object>>() {};
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			List<Object> resultList = objectMapper.readValue(jsonStr, listType);
+
+			Assert.assertEquals(2, resultList.size());
+			resultList.forEach(info -> {
+				String infoStr = (String) info;
+				if (infoStr.startsWith("ID:test-schedule-01") && infoStr.contains("use:yes")) {
+					Assert.fail("use is not value(no)");
+				}
+			});
+			return null;
+		});
+
 		new ServiceLoader().load("./env");;
 		new FrameworkLoader().load("./env");
 
@@ -176,12 +186,5 @@ public class LoaderTest
 
 		ConsoleCommandHandler handler = new ConsoleCommandHandler();
 		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
-
-		List<String> list = SchedulerManager.getInstance().getScheduleList();
-		for (String info  : list) {
-			if (info.startsWith("ID:test-schedule-01") && info.contains("use:yes")) {
-				Assert.fail("use is not value(no)");
-			}
-		}
 	}
 }
