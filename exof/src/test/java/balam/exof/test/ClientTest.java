@@ -78,12 +78,12 @@ public class ClientTest {
 	public void test_consoleGetServiceList() throws Exception {
 		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
 		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
-			ObjectMapper objectMapper = new ObjectMapper();
-
 			String jsonStr = object.getArgumentAt(0, String.class);
 			TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>() {};
 
+			ObjectMapper objectMapper = new ObjectMapper();
 			Map<String, Object> resultMap = objectMapper.readValue(jsonStr, mapType);
+
 			resultMap.forEach((_key, _value) -> {
 				Map<String, Object> valueMap = (Map<String, Object>) _value;
 
@@ -121,17 +121,22 @@ public class ClientTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testConsoleGetScheduleList() throws Exception {
-		Client.init();
+		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
+			String jsonStr = object.getArgumentAt(0, String.class);
+			TypeReference<List<Object>> listType = new TypeReference<List<Object>>() {};
 
-		Client.send(new Command(ServiceList.GET_SCHEDULE_LIST), _successResult -> {
-			try {
-				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
-				Assert.assertNotNull(resultMap.get("list"));
-			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail();
-			}
-		}, _failResult -> Assert.fail());
+			ObjectMapper objectMapper = new ObjectMapper();
+			List<Object> resultList = objectMapper.readValue(jsonStr, listType);
+
+			Assert.assertEquals(2, resultList.size());
+			resultList.forEach(System.out::println);
+			return null;
+		});
+
+		Command command = new Command(ServiceList.GET_SCHEDULE_LIST);
+		ConsoleCommandHandler handler = new ConsoleCommandHandler();
+		handler.channelRead(ctx, command.toJson());
 	}
 
 	@Test
