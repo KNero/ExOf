@@ -110,7 +110,7 @@ public class SchedulerManager implements Container, Observer
 		}
 
 		if (isNotStarted) {
-			List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
+			List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
 			infoList.forEach(info -> {
 				if (this.jobKeyMap.containsKey(info.getId())) {
 					if (info.isUse() && info.isInitExecution()) {
@@ -150,15 +150,9 @@ public class SchedulerManager implements Container, Observer
 			JobKey jobkey = this.jobKeyMap.get(_info.getId());
 			if (jobkey != null) {
 				try {
-					JobDataMap jobDataMap = this.scheduler.getJobDetail(jobkey).getJobDataMap();
-					SchedulerInfo info = (SchedulerInfo)jobDataMap.get("info");
+					JobDetail jobDetail = this.scheduler.getJobDetail(jobkey);
+					SchedulerInfo info = (SchedulerInfo) jobDetail.getJobDataMap().get("info");
 					info.setUse(_info.isUse());
-
-					if (!_info.isUse()) {
-						this.scheduler.pauseJob(jobkey);
-					} else {
-						this.scheduler.resumeJob(jobkey);
-					}
 
 					this.logger.warn("Complete reloading schedulerInfo. [{}]", _info.getServicePath());
 				} catch (SchedulerException e) {

@@ -25,6 +25,10 @@ public class SchedulerJob implements Job
 	{
 		JobDataMap jobData = _arg.getMergedJobDataMap();
 		SchedulerInfo info = (SchedulerInfo)jobData.get("info");
+
+		if (!info.isUse()) {
+			return;
+		}
 		
 		AtomicBoolean isRunning = info.getIsRunning();
 		Boolean isDuplicateExecution = info.isDuplicateExecution();
