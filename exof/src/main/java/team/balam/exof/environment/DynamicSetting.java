@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.util.internal.StringUtil;
 import team.balam.exof.db.DynamicSettingDao;
+import team.balam.exof.environment.vo.DynamicSettingVo;
 
 public class DynamicSetting {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSetting.class);
@@ -18,11 +19,7 @@ public class DynamicSetting {
 	private static DynamicSetting self = new DynamicSetting();
 
 	private DynamicSetting() {
-		try {
-			DynamicSettingDao.createTable();
-		} catch (Exception e) {
-			LOGGER.error("Fail to create env table", e);
-		}
+
 	}
 
 	public static DynamicSetting getInstance() {
@@ -107,8 +104,8 @@ public class DynamicSetting {
 			throw new IllegalArgumentException("DynamicSetting value is not null.");
 		}
 
-		this.cash.put(_vo.getName(), _vo);
 		DynamicSettingDao.update(_vo.getName(), _vo.getValue(), _vo.getDescription());
+		this.cash.put(_vo.getName(), _vo);
 	}
 
 	public void remove(String _name) throws Exception {
@@ -116,7 +113,7 @@ public class DynamicSetting {
 			throw new IllegalArgumentException("DynamicSetting name is not null.");
 		}
 
-		this.cash.remove(_name);
 		DynamicSettingDao.delete(_name);
+		this.cash.remove(_name);
 	}
 }

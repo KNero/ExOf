@@ -2,7 +2,7 @@ package team.balam.exof.module.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import team.balam.exof.Module;
+import team.balam.exof.module.Module;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;

@@ -1,10 +1,5 @@
 package team.balam.exof.container;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.slf4j.LoggerFactory;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -13,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
 import team.balam.exof.Container;
 import team.balam.exof.container.console.ConsoleCommandHandler;
@@ -23,8 +19,11 @@ import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 import team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec;
 import team.balam.exof.module.was.JettyModule;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Console implements Container {
-	private Channel channle;
+	private Channel channel;
 	private EventLoopGroup workerGroup;
 	private ChannelHandlerArray handlerArray;
 	
@@ -80,9 +79,9 @@ public class Console implements Container {
 
 		int port = consolePort.getAttributeToInt(EnvKey.Listener.NUMBER, 0);
 		ChannelFuture future = bootstrap.bind(port).sync();
-		this.channle = future.channel();
+		this.channel = future.channel();
 
-		LoggerFactory.getLogger(this.getClass()).info("Console Monitoring Port : " + port);
+		LoggerFactory.getLogger(this.getClass()).info("Console Monitoring Port : {}", port);
 	}
 	
 	private void createWebConsole(PortInfo port) throws Exception {
@@ -96,13 +95,17 @@ public class Console implements Container {
 		this.webConsole.start();
 		
 		SystemSetting.getInstance().set(EnvKey.FileName.LISTENER, EnvKey.Listener.ADMIN_CONSOLE, port);
-		LoggerFactory.getLogger(this.getClass()).info("Admin console Port : " + port);
+		LoggerFactory.getLogger(this.getClass()).info("Admin console Port : {}", port);
 	}
 
 	@Override
 	public void stop() throws Exception {
-		if (this.channle != null) {
-			this.channle.close();
+		if (this.webConsole != null) {
+			this.webConsole.stop();
+		}
+
+		if (this.channel != null) {
+			this.channel.close();
 		}
 
 		if (this.workerGroup != null) {

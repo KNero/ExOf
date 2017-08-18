@@ -1,15 +1,14 @@
 package team.balam.exof.db;
 
-import java.util.List;
-import java.util.Map;
-
 import team.balam.exof.Constant;
-import team.balam.util.sqlite.connection.DatabaseLoader;
 import team.balam.util.sqlite.connection.PoolManager;
 import team.balam.util.sqlite.connection.vo.QueryVo;
 import team.balam.util.sqlite.connection.vo.QueryVo.Type;
 import team.balam.util.sqlite.connection.vo.QueryVoFactory;
 import team.balam.util.sqlite.connection.vo.Result;
+
+import java.util.List;
+import java.util.Map;
 
 public class DynamicSettingDao {
 	private DynamicSettingDao() {
@@ -61,9 +60,7 @@ public class DynamicSettingDao {
 				throw result.getException();
 			}
 		} finally {
-			if (result != null) {
-				result.close();
-			}
+			result.close();
 		}
 	}
 	
@@ -84,9 +81,7 @@ public class DynamicSettingDao {
 				throw result.getException();
 			}
 		} finally {
-			if (result != null) {
-				result.close();
-			}
+			result.close();
 		}
 	}
 	

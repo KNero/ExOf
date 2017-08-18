@@ -10,43 +10,32 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-public class EnvDbHelper {
+class EnvDbHelper {
 	private EnvDbHelper() {
 
 	}
 
-	public static void close(Result result) {
-		if (result != null) {
-			try {
-				result.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public static List<Map<String, Object>> select(String query, Object[] param) throws Exception {
+	static List<Map<String, Object>> select(String query, Object[] param) throws Exception {
 		QueryVo vo = QueryVoFactory.create(QueryVo.Type.SELECT);
 		vo.setQuery(query);
 		vo.setParam(param);
 
 		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
 
-		Result result = null;
+		Result result = vo.getResult();
 
 		try {
-			result = vo.getResult();
 			if (result.isSuccess()) {
 				return result.getSelectResult();
 			} else {
 				throw result.getException();
 			}
 		} finally {
-			EnvDbHelper.close(result);
+			result.close();
 		}
 	}
 
-	public static int updateOrDelete(QueryVo.Type _type, String _query, Object[] _param) throws Exception {
+	static int updateOrDelete(QueryVo.Type _type, String _query, Object[] _param) throws Exception {
 		QueryVo vo = QueryVoFactory.create(_type);
 		vo.setQuery(_query);
 		vo.setParam(_param);

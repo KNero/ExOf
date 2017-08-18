@@ -2,7 +2,6 @@ package team.balam.exof.environment;
 
 import team.balam.exof.Constant;
 import team.balam.exof.db.DynamicSettingDao;
-import team.balam.exof.db.ServiceInfoDao;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 
 class EnvDbLoader implements Loader {
