@@ -7,7 +7,7 @@ import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.DynamicSetting;
-import team.balam.exof.environment.DynamicSettingVo;
+import team.balam.exof.environment.vo.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.SchedulerInfo;

@@ -24,10 +24,13 @@ import java.util.Map;
 public class ServiceInfoDao {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInfoDao.class);
 
+	private ServiceInfoDao() {
+
+	}
+
 	public static void initTable() throws Exception {
 		initServiceDirectoryTable();
 		initServiceVariableTable();
-		initServiceTable();
 		initScheduleTable();
 	}
 
@@ -69,29 +72,6 @@ public class ServiceInfoDao {
 
 		vo = QueryVoFactory.create(QueryVo.Type.DELETE);
 		vo.setQuery("DELETE FROM SERVICE_VARIABLE");
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
-	}
-
-	private static void initServiceTable() throws Exception {
-		String query = "CREATE TABLE IF NOT EXISTS SERVICE(" +
-				"PATH TEXT, " +
-				"CLASS TEXT NOT NULL, " +
-				"SERVICE_VARIABLE TEXT, " +
-				"PRIMARY KEY(PATH))";
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.EXECUTE);
-		vo.setQuery(query);
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
-
-		vo = QueryVoFactory.create(QueryVo.Type.DELETE);
-		vo.setQuery("DELETE FROM SERVICE");
 
 		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
 		if (!vo.getResult().isSuccess()) {
@@ -286,17 +266,6 @@ public class ServiceInfoDao {
 		}
 
 		return Collections.emptyList();
-	}
-
-	public static void updateServiceVariable(String _serviceDirectoryPath, String _serviceName, String _key, String _value) {
-		String query = "UPDATE SERVICE_VARIABLE SET VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
-		Object[] param = new Object[]{_value, _serviceDirectoryPath, _serviceName, _key};
-
-		try {
-			EnvDbHelper.updateOrDelete(QueryVo.Type.UPDATE, query, param);
-		} catch (Exception e) {
-			LOGGER.error("Error occurred execute query.", e);
-		}
 	}
 
 	public static void updateSchedulerUse(String _id, String _isUse) {
