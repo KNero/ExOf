@@ -11,43 +11,28 @@ import java.util.Map;
  */
 public class SystemSetting
 {
-	private Map<String, Object> setting = new HashMap<String, Object>();
+	private static Map<String, Object> framework = new HashMap<>();
+	private static Object external;
 
-	private static SystemSetting self = new SystemSetting();
+	private SystemSetting() {
 
-	private SystemSetting() {}
-
-	public static SystemSetting getInstance()
-	{
-		return self;
 	}
 
-	public void set(String _fileName, String _key, Object _value)
-	{
-		this.setting.put(_fileName + _key, _value);
+	public static void setFramework(String _key, Object _value) {
+		framework.put(_key, _value);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getFramework(String _key)
-	{
-		return (T)this.setting.get(EnvKey.FileName.FRAMEWORK + _key);
+	public static <T> T getFramework(String _key) {
+		return (T) framework.get(_key);
+	}
+
+	public static void setExternal(Object _value) {
+		external = _value;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T getExternal()
-	{
-		return (T)this.setting.get(EnvKey.FileName.FRAMEWORK + EnvKey.Framework.EXTERNAL);
-	}
-	
-	@Override
-	public String toString()
-	{
-		StringBuilder string = new StringBuilder();
-		for(String key : this.setting.keySet())
-		{
-			string.append(key).append(" = ").append(this.setting.get(key)).append("\n");
-		}
-		
-		return string.toString();
+	public static <T> T getExternal() {
+		return (T) external;
 	}
 }

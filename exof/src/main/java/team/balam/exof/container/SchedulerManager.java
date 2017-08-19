@@ -1,34 +1,20 @@
 package team.balam.exof.container;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Properties;
-
-import org.quartz.CronExpression;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
+import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import team.balam.exof.Container;
 import team.balam.exof.container.scheduler.ExecutionContext;
 import team.balam.exof.container.scheduler.PauseAwareCronTrigger;
 import team.balam.exof.container.scheduler.SchedulerAlreadyExists;
-import team.balam.exof.db.ServiceInfoDao;
-import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.container.scheduler.SchedulerJob;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.SchedulerInfo;
+
+import java.util.*;
 
 public class SchedulerManager implements Container, Observer
 {
@@ -55,14 +41,14 @@ public class SchedulerManager implements Container, Observer
 	
 	@Override
 	public void start() throws Exception {
-		Boolean isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
+		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER);
 		if (isAutoReload != null) {
 			this.isAutoReload = isAutoReload;
 		}
 
 		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
 		if (infoList.size() > 0) {
-			Properties pro = SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
+			Properties pro = SystemSetting.getFramework(EnvKey.Framework.SCHEDULER);
 
 			SchedulerFactory factory;
 			if (pro != null) {
