@@ -171,7 +171,7 @@ public class ServiceProvider implements Module, Observer
 
 	@Override
 	public void start() throws Exception {
-		Boolean isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
+		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
 		if (isAutoReload != null) {
 			this.isAutoReload = isAutoReload;
 		}

@@ -43,7 +43,7 @@ public class LoaderTest
 		FrameworkLoader loader = new FrameworkLoader();
 		loader.load("./env");
 		
-		Map<String, Object> extMap = SystemSetting.getInstance().getExternal();
+		Map<String, Object> extMap = SystemSetting.getExternal();
 		Assert.assertEquals("abcde", extMap.get("test"));
 	}
 
@@ -135,7 +135,7 @@ public class LoaderTest
 		ServiceLoader loader = new ServiceLoader();
 		loader.load("./env");
 
-		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
+		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
 		ServiceProvider.getInstance().start();
 
 		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
@@ -173,7 +173,7 @@ public class LoaderTest
 		new ServiceLoader().load("./env");;
 		new FrameworkLoader().load("./env");
 
-		SystemSetting.getInstance().set(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.AUTORELOAD_SCHEDULER, true);
+		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER, true);
 		SchedulerManager.getInstance().start();
 
 		Command command = new Command(ServiceList.SET_SCHEDULER_ON_OFF);
