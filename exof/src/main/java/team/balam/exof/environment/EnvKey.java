@@ -7,13 +7,11 @@ package team.balam.exof.environment;
  */
 public interface EnvKey 
 {
-	String HOME = "exof.envPath";
+	String ENV_PATH = "exof.envPath";
 	
 	interface FileName
 	{
 		String FRAMEWORK = "framework.";
-		String SERVICE = "service.";
-		String LISTENER = "listener.";
 	}
 	
 	interface Framework
@@ -52,6 +50,7 @@ public interface EnvKey
 		String CRON = "cron";
 		String DUPLICATE_EXECUTION = "duplicateExecution";
 		String USE = "use";
+		String INIT_EXECUTION = "initExecution";
 	}
 	
 	interface Listener
@@ -65,7 +64,8 @@ public interface EnvKey
 		String CHANNEL_HANDLER = "channelHandler";
 		String MESSAGE_TRANSFORM = "messageTransform";
 		String SESSION_HANDLER = "sessionHandler";
-		
+		String CLASS = "class";
+
 		String LENGTH_OFFSET = "lengthOffset";
 		String LENGTH_SIZE = "lengthSize";
 		

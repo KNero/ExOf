@@ -1,21 +1,23 @@
 package team.balam.exof.module.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import team.balam.exof.module.Module;
+import team.balam.exof.db.ServiceInfoDao;
+import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.ServiceDirectoryInfo;
+import team.balam.exof.environment.vo.ServiceVariable;
+import team.balam.exof.module.service.annotation.*;
+import team.balam.exof.module.service.annotation.Shutdown;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import team.balam.exof.Module;
-import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.service.annotation.*;
 
 public class ServiceProvider implements Module, Observer
 {
@@ -36,7 +38,7 @@ public class ServiceProvider implements Module, Observer
 		return self;
 	}
 
-	synchronized public static void register(ServiceDirectoryInfo _info) throws Exception {
+	private void _register(ServiceDirectoryInfo _info) throws Exception {
 		Class<?> clazz = Class.forName(_info.getClassName());
 		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn =
 				clazz.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
@@ -80,6 +82,7 @@ public class ServiceProvider implements Module, Observer
 				}
 			}
 		} else {
+			ServiceInfoDao.deleteServiceDirectory(_info.getPath());
 			throw new Exception("This class is not defined ServiceDirectory annotation.");
 		}
 	}
@@ -124,29 +127,23 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		Inbound inboundAnn =
-				_method.getAnnotation(Inbound.class);
-
+		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
 		if (inboundAnn != null) {
 			_service.addInbound(inboundAnn.classObject().newInstance());
 		}
 	}
 
 	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		Outbound outboundAnn =
-				_method.getAnnotation(Outbound.class);
-
+		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
 		if (outboundAnn != null) {
 			_service.addOutbound(outboundAnn.classObject().newInstance());
 		}
 	}
 
 	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception {
-		MapToVo mapTovoAnn =
-				_method.getAnnotation(MapToVo.class);
-
-		if (mapTovoAnn != null) {
-			_service.setMapToVoConverter(mapTovoAnn.classObject());
+		MapToVo mapToVoAnn =_method.getAnnotation(MapToVo.class);
+		if (mapToVoAnn != null) {
+			_service.setMapToVoConverter(mapToVoAnn.classObject());
 		}
 	}
 
@@ -173,23 +170,19 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	@Override
-	public void start() throws Exception
-	{
-		Boolean isAutoReload = SystemSetting.getInstance().getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
+	public void start() throws Exception {
+		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
 		if (isAutoReload != null) {
 			this.isAutoReload = isAutoReload;
 		}
 
-		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
+		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
 		directoryInfoList.forEach(_info -> {
-			try
-			{
-				ServiceProvider.register(_info);
+			try {
+				this._register(_info);
 				
  				logger.warn("Service Directory is loaded.\n{}", _info.toString());
-			}
-			catch(Exception e)
-			{
+			} catch(Exception e) {
 				logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
 			}
 		});
@@ -209,32 +202,17 @@ public class ServiceProvider implements Module, Observer
 			return;
 		}
 
-		List<ServiceDirectoryInfo> directoryInfoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
-		directoryInfoList.forEach(_info -> self._updateServiceDirectory(_info));
+		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
+		directoryInfoList.forEach(this::_updateServiceDirectory);
 	}
 
 	private void _updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo) {
 		try {
-			Class<?> clazz = Class.forName(_serviceDirInfo.getClassName());
-			Method[] methods = clazz.getMethods();
+			List<ServiceVariable> variableList = ServiceInfoDao.selectServiceVariable(_serviceDirInfo.getPath());
+			for (ServiceVariable variable : variableList) {
+				this._reloadServiceVariable(_serviceDirInfo.getPath(), variable.getServiceName(), _serviceDirInfo);
 
-			for (Method m : methods) {
-				team.balam.exof.module.service.annotation.Service serviceAnn =
-						m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
-
-				if (serviceAnn != null) {
-					String serviceName = serviceAnn.name();
-					if (serviceName.length() == 0) {
-						serviceName = m.getName();
-					}
-
-					ServiceDirectory serviceDir = this.serviceDirectory.get(_serviceDirInfo.getPath());
-					if (serviceDir != null) {
-						this._reloadServiceVariable(_serviceDirInfo.getPath(), serviceName, _serviceDirInfo);
-
-						logger.warn("Complete reloading ServiceVariable. [{}]", _serviceDirInfo.getPath() + "/" + serviceName);
-					}
-				}
+				logger.warn("Complete reloading ServiceVariable. [{}]", _serviceDirInfo.getPath() + "/" + variable.getServiceName());
 			}
 		} catch (Exception e) {
 			logger.error("Can not reload the ServiceVariable. Class : {}", _serviceDirInfo.getClassName());
@@ -254,40 +232,5 @@ public class ServiceProvider implements Module, Observer
 		} catch (ServiceNotFoundException e) {
 			logger.error("Can not reload service variable because Service is not exits.");
 		}
-	}
-
-	public Map<String, HashMap<String, Object>> getAllServiceInfo() {
-		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();
-
-		this.serviceDirectory.keySet().forEach(_dirPath -> {
-			ServiceDirectory serviceDir = this.serviceDirectory.get(_dirPath);
-			HashMap<String, Object> serviceMap = new HashMap<>();
-			serviceList.put(_dirPath, serviceMap);
-
-			serviceDir.getServiceNameList().forEach(_name -> {
-				ServiceImpl service = (ServiceImpl) serviceDir.getService(_name);
-
-				if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
-					serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
-				}
-				
-				Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(service);
-
-				serviceMap.put(_name, service.getMethod().getName());
-				serviceMap.put(_name + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
-			});
-		});
-
-		return serviceList;
-	}
-	
-	private Map<String, Object> makeServiceVariableMap(Service _service) {
-		Map<String, Object> variables = new HashMap<>();
-		
-		for (String key : _service.getServiceVariableKeys()) {
-			variables.put(key, _service.getServiceVariable(key));
-		}
-		
-		return variables;
 	}
 }

@@ -1,17 +1,16 @@
 package team.balam.exof.db;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.LoadEnvException;
 import team.balam.exof.environment.MyBatisLoader;
 import team.balam.exof.environment.SystemSetting;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DbSessionFactory 
 {
@@ -82,7 +81,7 @@ public class DbSessionFactory
 	public void loadSqlSessionFactory(String _datasource)
 	{
 		MyBatisLoader loader = new MyBatisLoader();
-		String envPath = SystemSetting.getInstance().getString(EnvKey.FileName.FRAMEWORK, EnvKey.HOME);
+		String envPath = SystemSetting.getFramework(EnvKey.ENV_PATH);
 		
 		try
 		{

@@ -1,5 +1,14 @@
 package team.balam.exof.container.console.client;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import team.balam.exof.container.console.Command;
+import team.balam.exof.db.ListenerDao;
+import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.ListenerLoader;
+import team.balam.exof.environment.vo.PortInfo;
+import team.balam.exof.util.StreamUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,17 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-
-import team.balam.exof.Constant;
-import team.balam.exof.container.console.Command;
-import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.ListenerLoader;
-import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.listener.PortInfo;
-import team.balam.exof.util.StreamUtil;
 
 public class Client
 {
@@ -34,18 +32,15 @@ public class Client
 	
 	public static void init() throws Exception
 	{
-		String envPath = System.getProperty(EnvKey.HOME, "./env");
+		String envPath = System.getProperty(EnvKey.ENV_PATH, "./env");
 		ListenerLoader loader = new ListenerLoader();
 		loader.load(envPath);
-		
-		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT);
-		for(PortInfo port : portList)
-		{
-			if(Constant.YES.equals(port.getAttribute(EnvKey.Listener.CONSOLE)))
-			{
-				consolePort = port.getAttributeToInt(EnvKey.Listener.NUMBER, 0);
-				break;
-			}
+
+		PortInfo consolePortInfo = ListenerDao.selectConsolePort();
+		if (!consolePortInfo.isNull()) {
+			consolePort = consolePortInfo.getNumber();
+		} else {
+			throw new Exception("Undefined console port .");
 		}
 	}
 	
@@ -74,8 +69,8 @@ public class Client
 				TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>() {};
 				result = objectMapper.readValue(jsonStr, mapType);
 			} else if (jsonStr.startsWith("[")) {
-				TypeReference<List<Object>> mapType = new TypeReference<List<Object>>() {};
-				result = objectMapper.readValue(jsonStr, mapType);
+				TypeReference<List<Object>> listType = new TypeReference<List<Object>>() {};
+				result = objectMapper.readValue(jsonStr, listType);
 			} else {
 				result = jsonStr;
 			}

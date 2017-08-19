@@ -6,9 +6,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import team.balam.exof.Module;
+import team.balam.exof.db.ListenerDao;
+import team.balam.exof.environment.vo.PortInfo;
+import team.balam.exof.module.Module;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.SystemSetting;
 
 
 public class Listener implements Module
@@ -26,41 +27,36 @@ public class Listener implements Module
 	}
 	
 	@Override
-	public void start() throws Exception
-	{
-		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT);
-		portList.forEach(_info -> {
-			ServerPort serverPort = new ServerPort(_info);
-			this.serverPortList.add(serverPort);
-			
-			try
-			{
-				serverPort.open();
-				
-				if(this.logger.isInfoEnabled())
-				{
-					this.logger.info("Port is opened. {}", _info.toString());
-				}
+	public void start() throws Exception {
+		List<PortInfo> portNumberList = ListenerDao.selectPortList();
+		portNumberList.forEach(info -> {
+			if (info.isSpecial()) {
+				return;
 			}
-			catch(Exception e)
-			{
-				this.logger.error("Can not open port[{}].", _info.getAttribute(EnvKey.Listener.NUMBER), e);
+
+			ServerPort serverPort = new ServerPort(info);
+			this.serverPortList.add(serverPort);
+
+			try {
+				serverPort.open();
+
+				if(this.logger.isInfoEnabled()) {
+					this.logger.info("Port is opened. {}", info.toString());
+				}
+			} catch(Exception e) {
+				this.logger.error("Can not open port[{}].", info.getAttribute(EnvKey.Listener.NUMBER), e);
 			}
 		});
 	}
 
 	@Override
-	public void stop() throws Exception
-	{
+	public void stop() throws Exception {
 		this.serverPortList.forEach(_info -> {
-			try
-			{
+			try {
 				_info.close();
-			}
-			catch(Exception e)
-			{
+			} catch(Exception e) {
 				this.logger.error("Can not open port[{}].", _info.getNumber(), e);
 			}
-			});
+		});
 	}
 }

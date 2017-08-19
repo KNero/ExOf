@@ -11,6 +11,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.module.service.Service;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
@@ -24,6 +25,10 @@ public class SchedulerJob implements Job
 	{
 		JobDataMap jobData = _arg.getMergedJobDataMap();
 		SchedulerInfo info = (SchedulerInfo)jobData.get("info");
+
+		if (!info.isUse()) {
+			return;
+		}
 		
 		AtomicBoolean isRunning = info.getIsRunning();
 		Boolean isDuplicateExecution = info.isDuplicateExecution();

@@ -1,25 +1,49 @@
 package balam.exof.test;
 
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import team.balam.exof.Constant;
 import team.balam.exof.client.Sender;
+import team.balam.exof.container.Framework;
+import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.container.console.Command;
+import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.FrameworkLoader;
+import team.balam.exof.environment.ServiceLoader;
+import team.balam.exof.module.service.ServiceProvider;
+import team.balam.util.sqlite.connection.DatabaseLoader;
 
+import java.io.File;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
+@RunWith(PowerMockRunner.class)
+//@PrepareForTest(Client.class)
 public class ClientTest {
-	@Test
+
+//	@Test
 	public void testSender() throws Exception {
 		Sender<String, String> client = new Sender<>(_socketChannel ->
 			new ChannelHandler[]{new StringEncoder(),
@@ -36,53 +60,83 @@ public class ClientTest {
 		Assert.assertEquals(res, "response");
 	}
 
+	@BeforeClass
+	public static void init() throws Exception {
+		String envPath = "./env/";
+		new File(envPath + Constant.ENV_DB).delete();
+		DatabaseLoader.load(Constant.ENV_DB, envPath + Constant.ENV_DB);
+
+		new FrameworkLoader().load(envPath);
+		new ServiceLoader().load(envPath);
+
+		ServiceProvider.getInstance().start();
+		SchedulerManager.getInstance().start();
+	}
+
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testConsoleGetServiceList() throws Exception {
-		Client.init();
+	public void test_consoleGetServiceList() throws Exception {
+		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
+			String jsonStr = object.getArgumentAt(0, String.class);
+			TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>() {};
 
-		Client.send(new Command(ServiceList.GET_SERVICE_LIST), _successResult -> {
-			try {
-				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
-				resultMap.forEach((_key, _value) -> {
-					Map<String, Object> valueMap = (Map<String, Object>) _value;
+			ObjectMapper objectMapper = new ObjectMapper();
+			Map<String, Object> resultMap = objectMapper.readValue(jsonStr, mapType);
 
-					Assert.assertNotNull(valueMap.get(Command.Key.CLASS));
+			resultMap.forEach((_key, _value) -> {
+				Map<String, Object> valueMap = (Map<String, Object>) _value;
 
-					valueMap.keySet().forEach(_valueKey -> {
-						if (!Command.Key.CLASS.equals(_valueKey)) {
-							if (!_valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
-								Assert.assertNotNull(valueMap.get(_valueKey));
+				StringBuilder infoLog = new StringBuilder();
+				Assert.assertNotNull(valueMap.get(Command.Key.CLASS));
 
-								Map<String, String> variables = (Map<String, String>) valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
-								variables.keySet().forEach(_name -> Assert.assertNotNull(variables.get(_name)));
-							}
+				infoLog.append("Directory path : ").append(_key).append("\n");
+				infoLog.append("Class : ").append(valueMap.get(Command.Key.CLASS)).append("\n");
+				infoLog.append("Service list").append("\n");
+
+				valueMap.keySet().forEach(_valueKey -> {
+					if (!Command.Key.CLASS.equals(_valueKey)) {
+						if (!_valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
+							Assert.assertNotNull(valueMap.get(_valueKey));
+
+							infoLog.append(" -s- ").append(_valueKey).append("(method name : ").append(valueMap.get(_valueKey)).append(")").append("\n");
+
+							Map<String, Object> variables = (Map<String, Object>) valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
+							variables.keySet().forEach(_name -> Assert.assertNotNull(variables.get(_name)));
+							variables.keySet().forEach(_name -> infoLog.append("   -v- ").append(_name).append(" : ").append(variables.get(_name).toString()).append("\n"));
 						}
-					});
-
-					System.out.println();
+					}
 				});
-			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail();
-			}
-		}, _failResult -> Assert.fail());
+
+				System.out.println(infoLog);
+			});
+			return null;
+		});
+
+		Command command = new Command(ServiceList.GET_SERVICE_LIST);
+		ConsoleCommandHandler handler = new ConsoleCommandHandler();
+		handler.channelRead(ctx, command.toJson());
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testConsoleGetScheduleList() throws Exception {
-		Client.init();
+		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
+		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
+			String jsonStr = object.getArgumentAt(0, String.class);
+			TypeReference<List<Object>> listType = new TypeReference<List<Object>>() {};
 
-		Client.send(new Command(ServiceList.GET_SCHEDULE_LIST), _successResult -> {
-			try {
-				Map<String, Object> resultMap = (Map<String, Object>) _successResult;
-				Assert.assertNotNull(resultMap.get("list"));
-			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail();
-			}
-		}, _failResult -> Assert.fail());
+			ObjectMapper objectMapper = new ObjectMapper();
+			List<Object> resultList = objectMapper.readValue(jsonStr, listType);
+
+			Assert.assertEquals(2, resultList.size());
+			resultList.forEach(System.out::println);
+			return null;
+		});
+
+		Command command = new Command(ServiceList.GET_SCHEDULE_LIST);
+		ConsoleCommandHandler handler = new ConsoleCommandHandler();
+		handler.channelRead(ctx, command.toJson());
 	}
 
 	@Test

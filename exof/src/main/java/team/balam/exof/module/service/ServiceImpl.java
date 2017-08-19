@@ -1,5 +1,6 @@
 package team.balam.exof.module.service;
 
+import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.MapToVoConverter;
@@ -11,12 +12,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class ServiceImpl implements Service
-{
+public class ServiceImpl implements Service {
 	private Method method;
 	private Object host;
 	private int methodParamCount;
-	volatile private ServiceVariable variable;
+	private volatile ServiceVariable variable;
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);

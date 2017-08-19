@@ -10,6 +10,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
+import team.balam.exof.environment.vo.SchedulerInfo;
 
 public class ExecutionContext implements JobExecutionContext
 {

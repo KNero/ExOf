@@ -1,10 +1,5 @@
 package team.balam.exof.container;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.slf4j.LoggerFactory;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -13,18 +8,18 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import team.balam.exof.Constant;
+import org.slf4j.LoggerFactory;
 import team.balam.exof.Container;
 import team.balam.exof.container.console.ConsoleCommandHandler;
+import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 import team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec;
 import team.balam.exof.module.was.JettyModule;
 
 public class Console implements Container {
-	private Channel channle;
+	private Channel channel;
 	private EventLoopGroup workerGroup;
 	private ChannelHandlerArray handlerArray;
 	
@@ -37,26 +32,15 @@ public class Console implements Container {
 
 	@Override
 	public void start() throws Exception {
-		List<PortInfo> deleteList = new LinkedList<>();
-
-		List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT);
-		for (PortInfo info : portList) {
-			String isConsole = info.getAttribute(EnvKey.Listener.CONSOLE);
-			if (Constant.YES.equals(isConsole)) {
-				this.openConsolePort(info);
-				
-				deleteList.add(info);
-			}
-			
-			String isWebConsole = info.getAttribute(EnvKey.Listener.ADMIN_CONSOLE);
-			if (Constant.YES.equals(isWebConsole)) {
-				this.createWebConsole(info);
-				
-				deleteList.add(info);
-			}
+		PortInfo consolePort = ListenerDao.selectConsolePort();
+		if (!consolePort.isNull()) {
+			this.openConsolePort(consolePort);
 		}
 
-		portList.removeAll(deleteList);
+		PortInfo adminPort = ListenerDao.selectAdminConsolePort();
+		if (!adminPort.isNull()) {
+			this.createWebConsole(adminPort);
+		}
 	}
 	
 	private void openConsolePort(PortInfo consolePort) throws InterruptedException {
@@ -80,29 +64,32 @@ public class Console implements Container {
 
 		int port = consolePort.getAttributeToInt(EnvKey.Listener.NUMBER, 0);
 		ChannelFuture future = bootstrap.bind(port).sync();
-		this.channle = future.channel();
+		this.channel = future.channel();
 
-		LoggerFactory.getLogger(this.getClass()).info("Console Monitoring Port : " + port);
+		LoggerFactory.getLogger(this.getClass()).info("Console Monitoring Port : {}", port);
 	}
 	
 	private void createWebConsole(PortInfo port) throws Exception {
-		port.addAttribute(EnvKey.Listener.HTTP, port.getAttribute(EnvKey.Listener.NUMBER));
-		port.addAttribute(EnvKey.Listener.DESCRIPTOR, "./admin_console/WEB-INF/web.xml");
-		port.addAttribute(EnvKey.Listener.RESOURCE_BASE, "./admin_console");
-		port.addAttribute(EnvKey.Listener.CONTEXT_PATH, "/");
+		ListenerDao.insertPortAttribute(port.getNumber(), EnvKey.Listener.HTTP, String.valueOf(port.getNumber()));
+		ListenerDao.insertPortAttribute(port.getNumber(), EnvKey.Listener.DESCRIPTOR, "./admin_console/WEB-INF/web.xml");
+		ListenerDao.insertPortAttribute(port.getNumber(), EnvKey.Listener.RESOURCE_BASE, "./admin_console");
+		ListenerDao.insertPortAttribute(port.getNumber(), EnvKey.Listener.CONTEXT_PATH, "/");
 		
 		this.webConsole = new JettyModule();
 		this.webConsole.setPortInfo(port);
 		this.webConsole.start();
-		
-		SystemSetting.getInstance().set(EnvKey.FileName.LISTENER, EnvKey.Listener.ADMIN_CONSOLE, port);
-		LoggerFactory.getLogger(this.getClass()).info("Admin console Port : " + port);
+
+		LoggerFactory.getLogger(this.getClass()).info("Admin console Port : {}", port);
 	}
 
 	@Override
 	public void stop() throws Exception {
-		if (this.channle != null) {
-			this.channle.close();
+		if (this.webConsole != null) {
+			this.webConsole.stop();
+		}
+
+		if (this.channel != null) {
+			this.channel.close();
 		}
 
 		if (this.workerGroup != null) {

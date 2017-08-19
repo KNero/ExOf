@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 
 import team.balam.exof.Constant;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
 public class NullDelimiterStringCodec implements ChannelHandlerArray

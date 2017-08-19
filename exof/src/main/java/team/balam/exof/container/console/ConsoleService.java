@@ -5,19 +5,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
-import team.balam.exof.container.scheduler.SchedulerInfo;
+import team.balam.exof.db.ListenerDao;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.DynamicSetting;
-import team.balam.exof.environment.DynamicSettingVo;
+import team.balam.exof.environment.vo.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.environment.vo.SchedulerInfo;
+import team.balam.exof.environment.vo.ServiceDirectoryInfo;
+import team.balam.exof.environment.vo.ServiceVariable;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.Service;
-import team.balam.exof.module.service.ServiceDirectoryInfo;
+import team.balam.exof.module.service.ServiceImpl;
+import team.balam.exof.module.service.ServiceNotFoundException;
 import team.balam.exof.module.service.ServiceProvider;
-import team.balam.exof.module.service.ServiceVariable;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +31,13 @@ class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	public Object loginAdminConsole(Map<String, Object> _param) {
-		String id = (String)_param.get("id");
-		String password = (String)_param.get("password");
+		String id = (String) _param.get("id");
+		String password = (String) _param.get("password");
 
-		PortInfo port = (PortInfo)SystemSetting.getInstance().get(EnvKey.FileName.LISTENER, EnvKey.Listener.ADMIN_CONSOLE);
-		String portId = port.getAttribute(EnvKey.Listener.ID);
-		String portPw = port.getAttribute(EnvKey.Listener.PASSWORD);
+		PortInfo consolePort = ListenerDao.selectAdminConsolePort();
+
+		String portId = consolePort.getAttribute(EnvKey.Listener.ID);
+		String portPw = consolePort.getAttribute(EnvKey.Listener.PASSWORD);
 		
 		if (portId != null && portId.equals(id)) {
 			if (portPw != null && portPw.equals(password)) {
@@ -49,7 +54,7 @@ class ConsoleService {
 	public Object getServiceList(Map<String, Object> _param) {
 		String findServicePath = (String) _param.get(Command.Key.SERVICE_PATH);
 
-		Map<String, HashMap<String, Object>> result = ServiceProvider.getInstance().getAllServiceInfo();
+		Map<String, HashMap<String, Object>> result = this.getAllServiceInfo();
 
 		if (!StringUtil.isNullOrEmpty(findServicePath)) {
 			result.forEach((_key, _value) -> _value.keySet().forEach(_valueKey -> {
@@ -69,9 +74,63 @@ class ConsoleService {
 		}
 	}
 
+	private Map<String, HashMap<String, Object>> getAllServiceInfo() {
+		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();
+
+		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
+		directoryInfoList.forEach(directoryInfo -> {
+			HashMap<String, Object> serviceMap = new HashMap<>();
+			serviceList.put(directoryInfo.getPath(), serviceMap);
+
+			try {
+				Class directoryClass = Class.forName(directoryInfo.getClassName());
+				Method[] methods = directoryClass.getMethods();
+
+				for (Method method : methods) {
+					team.balam.exof.module.service.annotation.Service serviceAnn =
+							method.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
+
+					if (serviceAnn != null) {
+						String serviceName = method.getName();
+						if (!serviceAnn.name().isEmpty()) {
+							serviceName = serviceAnn.name();
+						}
+
+						ServiceImpl service = (ServiceImpl) ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
+
+						if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
+							serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
+						}
+
+						Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(service);
+
+						serviceMap.put(serviceName, service.getMethod().getName());
+						serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				this.logger.error("class not found : " + directoryInfo.getClassName(), e);
+			} catch (ServiceNotFoundException e) {
+				this.logger.error("service not found", e);
+			}
+		});
+
+		return serviceList;
+	}
+
+	private Map<String, Object> makeServiceVariableMap(Service _service) {
+		Map<String, Object> variables = new HashMap<>();
+
+		for (String key : _service.getServiceVariableKeys()) {
+			variables.put(key, _service.getServiceVariable(key));
+		}
+
+		return variables;
+	}
+
 	public Object getScheduleList(Map<String, Object> _param) {
 		List<String> resultList = new ArrayList<>();
-		List<String> list = SchedulerManager.getInstance().getScheduleList();
+		List<String> list = this._getScheduleList();
 
 		String id = (String) _param.get(Command.Key.ID);
 		if (!StringUtil.isNullOrEmpty(id)) {
@@ -87,11 +146,31 @@ class ConsoleService {
 		if (resultList.size() == 0) {
 			return Command.NO_DATA_RESPONSE;
 		} else {
-			Map<String, Object> result = new HashMap<>();
-			result.put("list", resultList);
-
-			return result;
+			return resultList;
 		}
+	}
+
+	private List<String> _getScheduleList()
+	{
+		ArrayList<String> list = new ArrayList<>();
+
+		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
+		infoList.forEach(info -> {
+			try {
+				StringBuilder infoStr = new StringBuilder();
+				infoStr.append("ID:").append(info.getId()).append(", service path:").append(info.getServicePath());
+				infoStr.append(", cron:").append(info.getCronExpression()).append(", use:").append(info.isUse() ? "yes" : "no");
+				infoStr.append(", duplicateExecution:").append(info.isDuplicateExecution() ? "yes" : "no");
+
+				list.add(infoStr.toString());
+			} catch(Exception e) {
+				String error = "Can not get schedule info. ID[" + info.getId() + "]";
+				this.logger.error(error, e);
+				list.add(error);
+			}
+		});
+
+		return list;
 	}
 
 	public Object getDynamicSettingList(Map<String, Object> _param) {
@@ -173,20 +252,22 @@ class ConsoleService {
 		try {
 			String[] pathArray = servicePath.split("/");
 			String serviceName = pathArray[pathArray.length - 1];
-			String serviceDirPath = servicePath.split("/" + serviceName)[0];
+			String serviceDirPath = this._getServiceDirectoryPath(servicePath);
 
-			List<ServiceDirectoryInfo> serviceList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SERVICES);
-			for (ServiceDirectoryInfo service : serviceList) {
-				if (service.getPath().equals(serviceDirPath)) {
-					ServiceVariable variable = service.getVariable(serviceName);
+			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
 
-					synchronized (variable) {
-						this._changeVariable(variable, variableName, variableValue);
-					}
+			ServiceInfoDao.deleteServiceVariable(serviceDirPath, serviceName, variableName);
 
+			String[] values = variableValue.split(",");
+			for(String value : values) {
+				ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
+
+				if (serviceVariable.get(variableName) instanceof String) {
 					break;
 				}
 			}
+
+			ServiceProvider.getInstance().update(null, null);
 
 			Service service = ServiceProvider.lookup(servicePath);
 			return service.getServiceVariable(variableName);
@@ -196,22 +277,18 @@ class ConsoleService {
 		}
 	}
 
-	/**
-	 * ServiceVariable은 내부 적으로 모두 List 로 관리되는데
-	 * 하나였던 variable 에 새로운 variable 이 들어갈 경우 List 로 인식된다.
-	 * 그러므로 처음 하나를 삭제해서 String 으로 인식되도록 해줘야 한다
-	 * @param _serviceVariable ServiceDirectory 의 모든 variable 을 관리하는 객체
-	 * @param _variableName serviceVariable name
-	 */
-	@SuppressWarnings("unchecked")
-	private void _changeVariable(ServiceVariable _serviceVariable, String _variableName, String _variableValue) {
-		if (_serviceVariable.get(_variableName) instanceof String) {
-			_serviceVariable.put(_variableName, _variableValue);
+	private String _getServiceDirectoryPath(String _servicePath) {
+		int lastSlash;
+		for (lastSlash = _servicePath.length() - 1; lastSlash >= 0; --lastSlash) {
+			if (_servicePath.charAt(lastSlash) == '/') {
+				break;
+			}
+		}
 
-			List<String> variableList = (List<String>) _serviceVariable.get(_variableName);
-			variableList.remove(0);
+		if (lastSlash > 0) {
+			return _servicePath.substring(0, lastSlash);
 		} else {
-			_serviceVariable.put(_variableName, _variableValue);
+			return Constant.EMPTY_STRING;
 		}
 	}
 
@@ -219,18 +296,9 @@ class ConsoleService {
 		String id = (String) _parameter.get(Command.Key.ID);
 		String value = (String) _parameter.get(Command.Key.VALUE);
 
-		List<SchedulerInfo> infoList = SystemSetting.getInstance().getList(EnvKey.FileName.SERVICE, EnvKey.Service.SCHEDULER);
-		for (SchedulerInfo info : infoList) {
-			if (info.getId().equals(id)) {
-				info.setUse(Boolean.parseBoolean(value));
-				SchedulerManager.getInstance().update(null, null);
+		ServiceInfoDao.updateSchedulerUse(id, value);
+		SchedulerManager.getInstance().update(null, null);
 
-				Map<String, Object> param = new HashMap<>();
-				param.put(Command.Key.NAME, id);
-				return this.getScheduleList(param);
-			}
-		}
-
-		return Command.makeSimpleResult("Write the id exactly");
+		return this.getScheduleList(_parameter);
 	}
 }

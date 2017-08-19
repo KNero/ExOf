@@ -1,4 +1,6 @@
-package team.balam.exof.module.service;
+package team.balam.exof.environment.vo;
+
+import team.balam.exof.Constant;
 
 import java.util.*;
 
@@ -7,13 +9,37 @@ import java.util.*;
  * Service.xml 에서 serviceVariable 의 variable 을 리스트 형태로 저장한다
  */
 public class ServiceVariable {
+	private String serviceName;
     private Map<String, List<String>> variable = new LinkedHashMap<>();
+	private boolean isNull;
 
-    Set<String> getKeys() {
+	public static final ServiceVariable NULL_OBJECT = new ServiceVariable();
+
+	private ServiceVariable() {
+		this.isNull = true;
+	}
+
+	public ServiceVariable(String _serviceName, List<Map<String, Object>> _dbList) {
+		this.serviceName = _serviceName;
+
+		for (Map<String, Object> variable : _dbList) {
+			String key = (String) variable.get("key");
+			String value = (String) variable.get("value");
+
+			List<String> variableList = this.variable.computeIfAbsent(key, _key -> new ArrayList<>());
+			variableList.add(value);
+		}
+	}
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public Set<String> getKeys() {
         return this.variable.keySet();
     }
 
-    Set<Object> getValues() {
+	public Set<Object> getValues() {
         Set<Object> values = new LinkedHashSet<>();
         for (String key : this.variable.keySet()) {
             values.add(this.get(key));
@@ -22,7 +48,11 @@ public class ServiceVariable {
         return values;
     }
 
-    public int size() {
+	public boolean isNull() {
+		return isNull;
+	}
+
+	public int size() {
         return this.variable.size();
     }
 
@@ -55,10 +85,10 @@ public class ServiceVariable {
      * @param _key serviceVariable 의 name
      * @return name에 개수에 상관없이 첫 번째 값을 반환
      */
-    String getString(String _key) {
+    public String getString(String _key) {
         List<String> valueList = this.variable.get(_key);
         if (valueList == null || valueList.isEmpty()) {
-            return "";
+            return Constant.EMPTY_STRING;
         } else {
             return valueList.get(0);
         }

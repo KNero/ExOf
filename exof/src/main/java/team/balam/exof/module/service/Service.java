@@ -5,9 +5,9 @@ import java.util.Set;
 public interface Service
 {
 	/**
-	 * Can get the object of serivceDirectory set class. (service.xml)<br>
+	 * Can get the object of serviceDirectory set class. (service.xml)<br>
 	 * All service is same in service directory.
-	 * @return The object of serivceDirectory set class
+	 * @return The object of serviceDirectory set class
 	 */
 	<T> T getHost();
 	

@@ -5,7 +5,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import team.balam.exof.environment.DynamicSetting;
-import team.balam.exof.environment.DynamicSettingVo;
+import team.balam.exof.environment.vo.DynamicSettingVo;
 
 import java.io.File;
 import java.util.List;

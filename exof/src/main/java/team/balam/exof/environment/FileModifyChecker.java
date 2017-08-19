@@ -32,7 +32,7 @@ public class FileModifyChecker
 	public void start() throws Exception
 	{
 		//파일이 수정될 경우 모든 옵저버들에게 알려준다.
-		String envPath = SystemSetting.getInstance().getString(EnvKey.FileName.FRAMEWORK, EnvKey.HOME);
+		String envPath = SystemSetting.getFramework(EnvKey.ENV_PATH);
 		this.envDirPath = Paths.get(envPath);
 		
 		WatchService ws = FileSystems.getDefault().newWatchService();
@@ -56,7 +56,7 @@ public class FileModifyChecker
 							{
 								try
 								{
-									String envHome = SystemSetting.getInstance().getString(EnvKey.FileName.FRAMEWORK, EnvKey.HOME);
+									String envHome = SystemSetting.getFramework(EnvKey.ENV_PATH);
 									Loader loader = new ServiceLoader();
 									loader.load(envHome);
 									

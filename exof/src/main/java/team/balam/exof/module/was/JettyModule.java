@@ -1,18 +1,14 @@
 package team.balam.exof.module.was;
 
-import java.util.List;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
-
-import team.balam.exof.Constant;
-import team.balam.exof.Module;
+import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.SystemSetting;
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.module.Module;
+import team.balam.exof.environment.vo.PortInfo;
 
 public class JettyModule implements Module {
 	private PortInfo portInfo;
@@ -24,18 +20,11 @@ public class JettyModule implements Module {
 
 	@Override
 	public void start() throws Exception {
-		if (this.portInfo == null) {
-			List<PortInfo> portList = SystemSetting.getInstance().getList(EnvKey.FileName.LISTENER, EnvKey.Listener.PORT);
-			portList.forEach(_portInfo -> {
-				if (Constant.YES.equals(_portInfo.getAttribute(EnvKey.Listener.JETTY))) {
-					this.portInfo = _portInfo;
-				}
-			});
-			
-			portList.remove(this.portInfo);
+		if (this.portInfo == null || this.portInfo.isNull()) {
+			this.portInfo = ListenerDao.selectJettyModule();
 		}
 
-		if (this.portInfo != null) {
+		if (!this.portInfo.isNull()) {
 			int http = this.portInfo.getAttributeToInt(EnvKey.Listener.HTTP, 0);
 			int https = this.portInfo.getAttributeToInt(EnvKey.Listener.HTTPS, 0);
 
@@ -49,42 +38,45 @@ public class JettyModule implements Module {
 			int headerSize = this.portInfo.getAttributeToInt(EnvKey.Listener.HEADER_SIZE, 1024 * 8);
 
 			if (http != 0) {
-				SelectChannelConnector connector = new SelectChannelConnector();
-				connector.setPort(http);
-				connector.setMaxIdleTime(maxIdleTime);
-				connector.setRequestHeaderSize(headerSize);
-				this.server.addConnector(connector);
+				this.addHttp(http, maxIdleTime, headerSize);
 			}
 
 			if (https != 0) {
-				String sslCtxClass = this.portInfo.getAttribute(EnvKey.Listener.SSL_CONTEXT);
-				if (sslCtxClass == null || sslCtxClass.length() == 0) {
-					throw new Exception("Https must be declared sslContextClass.");
-				}
-
-				SslContextFactoryBuilder sslCtxFactoryBuilder = (SslContextFactoryBuilder) Class.forName(sslCtxClass)
-						.newInstance();
-				SslContextFactory sslCtxFactory = sslCtxFactoryBuilder.build(this.portInfo);
-
-				SslSelectChannelConnector sslConnector = new SslSelectChannelConnector(sslCtxFactory);
-				sslConnector.setPort(https);
-				sslConnector.setMaxIdleTime(maxIdleTime);
-				sslConnector.setRequestHeaderSize(headerSize);
-				this.server.addConnector(sslConnector);
+				this.addHttps(https, maxIdleTime, headerSize);
 			}
 
-			String descriptor = this.portInfo.getAttribute(EnvKey.Listener.DESCRIPTOR);
-			String resourceBase = this.portInfo.getAttribute(EnvKey.Listener.RESOURCE_BASE);
-			String contextPath = this.portInfo.getAttribute(EnvKey.Listener.CONTEXT_PATH);
-
 			WebAppContext webapp = new WebAppContext();
-			webapp.setDescriptor(descriptor);
-			webapp.setResourceBase(resourceBase);
-			webapp.setContextPath(contextPath);
+			webapp.setDescriptor(this.portInfo.getAttribute(EnvKey.Listener.DESCRIPTOR));
+			webapp.setResourceBase(this.portInfo.getAttribute(EnvKey.Listener.RESOURCE_BASE));
+			webapp.setContextPath(this.portInfo.getAttribute(EnvKey.Listener.CONTEXT_PATH));
 
 			this.server.setHandler(webapp);
 			this.server.start();
 		}
+	}
+
+	private void addHttp(int port, int maxIdleTime, int headerSize) {
+		SelectChannelConnector connector = new SelectChannelConnector();
+		connector.setPort(port);
+		connector.setMaxIdleTime(maxIdleTime);
+		connector.setRequestHeaderSize(headerSize);
+		this.server.addConnector(connector);
+	}
+
+	private void addHttps(int port, int maxIdleTime, int headerSize) throws Exception {
+		String sslCtxClass = this.portInfo.getAttribute(EnvKey.Listener.SSL_CONTEXT);
+		if (sslCtxClass == null || sslCtxClass.length() == 0) {
+			throw new Exception("Https must be declared sslContextClass.");
+		}
+
+		SslContextFactoryBuilder sslCtxFactoryBuilder = (SslContextFactoryBuilder) Class.forName(sslCtxClass).newInstance();
+		SslContextFactory sslCtxFactory = sslCtxFactoryBuilder.build(this.portInfo);
+
+		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector(sslCtxFactory);
+		sslConnector.setPort(port);
+		sslConnector.setMaxIdleTime(maxIdleTime);
+		sslConnector.setRequestHeaderSize(headerSize);
+		this.server.addConnector(sslConnector);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package team.balam.exof.environment;
+package team.balam.exof.environment.vo;
 
 public class DynamicSettingVo {
 	private String name;

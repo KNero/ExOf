@@ -1,5 +1,7 @@
 package team.balam.exof.module.service;
 
+import team.balam.exof.environment.vo.ServiceVariable;
+
 public final class ServiceObject
 {
 	protected Object request;
