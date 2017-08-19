@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import team.balam.exof.Constant;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
 public class HttpServerCodec implements ChannelHandlerArray

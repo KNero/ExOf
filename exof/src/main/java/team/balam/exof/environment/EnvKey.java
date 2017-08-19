@@ -12,8 +12,6 @@ public interface EnvKey
 	interface FileName
 	{
 		String FRAMEWORK = "framework.";
-		String SERVICE = "service.";
-		String LISTENER = "listener.";
 	}
 	
 	interface Framework
@@ -66,7 +64,8 @@ public interface EnvKey
 		String CHANNEL_HANDLER = "channelHandler";
 		String MESSAGE_TRANSFORM = "messageTransform";
 		String SESSION_HANDLER = "sessionHandler";
-		
+		String CLASS = "class";
+
 		String LENGTH_OFFSET = "lengthOffset";
 		String LENGTH_SIZE = "lengthSize";
 		

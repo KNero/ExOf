@@ -5,15 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
 import team.balam.exof.container.SchedulerManager;
+import team.balam.exof.db.ListenerDao;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.vo.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.Service;
 import team.balam.exof.module.service.ServiceImpl;
@@ -31,12 +31,13 @@ class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	public Object loginAdminConsole(Map<String, Object> _param) {
-		String id = (String)_param.get("id");
-		String password = (String)_param.get("password");
+		String id = (String) _param.get("id");
+		String password = (String) _param.get("password");
 
-		PortInfo port = (PortInfo)SystemSetting.getInstance().get(EnvKey.FileName.LISTENER, EnvKey.Listener.ADMIN_CONSOLE);
-		String portId = port.getAttribute(EnvKey.Listener.ID);
-		String portPw = port.getAttribute(EnvKey.Listener.PASSWORD);
+		PortInfo consolePort = ListenerDao.selectAdminConsolePort();
+
+		String portId = consolePort.getAttribute(EnvKey.Listener.ID);
+		String portPw = consolePort.getAttribute(EnvKey.Listener.PASSWORD);
 		
 		if (portId != null && portId.equals(id)) {
 			if (portPw != null && portPw.equals(password)) {

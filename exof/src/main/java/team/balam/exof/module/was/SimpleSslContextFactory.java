@@ -2,7 +2,7 @@ package team.balam.exof.module.was;
 
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.environment.vo.PortInfo;
 
 public class SimpleSslContextFactory implements SslContextFactoryBuilder
 {

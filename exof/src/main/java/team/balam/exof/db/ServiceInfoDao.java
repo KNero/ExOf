@@ -35,52 +35,30 @@ public class ServiceInfoDao {
 	}
 
 	private static void initServiceDirectoryTable() throws Exception {
-		String query = "CREATE TABLE IF NOT EXISTS SERVICE_DIRECTORY(" +
+		String query = "CREATE TABLE IF NOT EXISTS SERVICE_DIRECTORY (" +
 				"PATH TEXT NOT NULL, " +
 				"CLASS TEXT NOT NULL," +
 				"PRIMARY KEY(PATH))";
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.EXECUTE);
-		vo.setQuery(query);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
 
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
-
-		vo = QueryVoFactory.create(QueryVo.Type.DELETE);
-		vo.setQuery("DELETE FROM SERVICE_DIRECTORY");
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
+		query = "DELETE FROM SERVICE_DIRECTORY";
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
 	}
 
 	private static void initServiceVariableTable() throws Exception {
-		String query = "CREATE TABLE IF NOT EXISTS SERVICE_VARIABLE(" +
+		String query = "CREATE TABLE IF NOT EXISTS SERVICE_VARIABLE (" +
 				"SERVICE_DIRECTORY_PATH TEXT NOT NULL, " +
 				"SERVICE TEXT, " +
 				"KEY TEXT, " +
 				"VALUE TEXT)";
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.EXECUTE);
-		vo.setQuery(query);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
 
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
-
-		vo = QueryVoFactory.create(QueryVo.Type.DELETE);
-		vo.setQuery("DELETE FROM SERVICE_VARIABLE");
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
+		query = "DELETE FROM SERVICE_VARIABLE";
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
 	}
 
 	private static void initScheduleTable() throws Exception {
-		String query = "CREATE TABLE IF NOT EXISTS SCHEDULER(" +
+		String query = "CREATE TABLE IF NOT EXISTS SCHEDULER (" +
 				"ID TEXT, " +
 				"SERVICE_PATH TEXT, " +
 				"CRON TEXT, " +
@@ -88,72 +66,43 @@ public class ServiceInfoDao {
 				"USE TEXT, " +
 				"INIT_EXECUTION TEXT, " +
 				"PRIMARY KEY(ID))";
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.EXECUTE);
-		vo.setQuery(query);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
 
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
-
-		vo = QueryVoFactory.create(QueryVo.Type.DELETE);
-		vo.setQuery("DELETE FROM SCHEDULER");
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
-		if (!vo.getResult().isSuccess()) {
-			throw vo.getResult().getException();
-		}
+		query = "DELETE FROM SCHEDULER";
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
 	}
 
 	public static void insertServiceDirectory(String _path, String _class) throws LoadEnvException {
-		String query = "INSERT INTO SERVICE_DIRECTORY(PATH, CLASS) VALUES (?, ?)";
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.INSERT);
-		vo.setQuery(query);
-		vo.setParam(new Object[]{_path, _class});
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		String query = "INSERT INTO SERVICE_DIRECTORY (PATH, CLASS) VALUES (?, ?)";
+		Object[] param = new Object[]{_path, _class};
 
 		try {
-			if (!vo.getResult().isSuccess()) {
-				throw new LoadEnvException("fail insert to SERVICE_DIRECTORY table.", vo.getResult().getException());
-			}
-		} catch (QueryTimeoutException e) {
-			throw new LoadEnvException("query time out.", e);
+			EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
+		} catch (Exception e) {
+			throw new LoadEnvException("Fail insert to SERVICE_DIRECTORY", e);
 		}
 	}
 
 	public static void insertServiceVariable(String _directoryPath, String _service, String _key, String _value) throws LoadEnvException {
-		String query = "INSERT INTO SERVICE_VARIABLE(SERVICE_DIRECTORY_PATH, SERVICE, KEY, VALUE) VALUES (?, ?, ?, ?)";
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.INSERT);
-		vo.setQuery(query);
-		vo.setParam(new Object[]{_directoryPath, _service, _key, _value});
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		String query = "INSERT INTO SERVICE_VARIABLE (SERVICE_DIRECTORY_PATH, SERVICE, KEY, VALUE) VALUES (?, ?, ?, ?)";
+		Object[] param = new Object[]{_directoryPath, _service, _key, _value};
 
 		try {
-			if (!vo.getResult().isSuccess()) {
-				throw new LoadEnvException("fail insert to SERVICE_VARIABLE table.", vo.getResult().getException());
-			}
-		} catch (QueryTimeoutException e) {
-			throw new LoadEnvException("query time out.", e);
+			EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
+		} catch (Exception e) {
+			throw new LoadEnvException("Fail insert to SERVICE_VARIABLE", e);
 		}
 	}
 
 	public static void insertSchedule(String _id, String _servicePath, String _cron, String _duplicateExecution, String _use, String _initExecution)
 			throws LoadEnvException {
-		String query = "INSERT INTO SCHEDULER(ID, SERVICE_PATH, CRON, DUPLICATE_EXECUTION, USE, INIT_EXECUTION) VALUES (?, ?, ?, ?, ?, ?)";
-		QueryVo vo = QueryVoFactory.create(QueryVo.Type.INSERT);
-		vo.setQuery(query);
-		vo.setParam(new Object[]{_id, _servicePath, _cron, _duplicateExecution, _use, _initExecution});
-
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		String query = "INSERT INTO SCHEDULER (ID, SERVICE_PATH, CRON, DUPLICATE_EXECUTION, USE, INIT_EXECUTION) VALUES (?, ?, ?, ?, ?, ?)";
+		Object[] param = new Object[]{_id, _servicePath, _cron, _duplicateExecution, _use, _initExecution};
 
 		try {
-			if (!vo.getResult().isSuccess()) {
-				throw new LoadEnvException("fail insert to SCHEDULER table.", vo.getResult().getException());
-			}
-		} catch (QueryTimeoutException e) {
-			throw new LoadEnvException("query time out.", e);
+			EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
+		} catch (Exception e) {
+			throw new LoadEnvException("Fail insert to SCHEDULER", e);
 		}
 	}
 
@@ -183,7 +132,7 @@ public class ServiceInfoDao {
 		Object[] param = new Object[]{_path};
 
 		try {
-			EnvDbHelper.updateOrDelete(QueryVo.Type.DELETE, query, param);
+			EnvDbHelper.execute(QueryVo.Type.DELETE, query, param);
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
@@ -273,7 +222,7 @@ public class ServiceInfoDao {
 		Object[] param = new Object[]{_isUse, _id};
 
 		try {
-			EnvDbHelper.updateOrDelete(QueryVo.Type.UPDATE, query, param);
+			EnvDbHelper.execute(QueryVo.Type.UPDATE, query, param);
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
@@ -284,7 +233,7 @@ public class ServiceInfoDao {
 		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName, _key};
 
 		try {
-			EnvDbHelper.updateOrDelete(QueryVo.Type.DELETE, query, param);
+			EnvDbHelper.execute(QueryVo.Type.DELETE, query, param);
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}

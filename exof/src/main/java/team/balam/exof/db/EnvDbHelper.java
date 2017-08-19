@@ -35,7 +35,7 @@ class EnvDbHelper {
 		}
 	}
 
-	static int updateOrDelete(QueryVo.Type _type, String _query, Object[] _param) throws Exception {
+	static void execute(QueryVo.Type _type, String _query, Object[] _param) throws Exception {
 		QueryVo vo = QueryVoFactory.create(_type);
 		vo.setQuery(_query);
 		vo.setParam(_param);
@@ -44,9 +44,7 @@ class EnvDbHelper {
 
 		Result result = vo.getResult();
 
-		if (result.isSuccess()) {
-			return result.getResultCount();
-		} else {
+		if (!result.isSuccess()) {
 			throw result.getException();
 		}
 	}
