@@ -1,6 +1,6 @@
 package team.balam.exof.module.listener.handler.transform;
 
-import team.balam.exof.module.listener.PortInfo;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.service.ServiceObject;
 
 public interface ServiceObjectTransform<T>

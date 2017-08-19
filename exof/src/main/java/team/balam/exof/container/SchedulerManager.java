@@ -63,9 +63,15 @@ public class SchedulerManager implements Container, Observer
 		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
 		if (infoList.size() > 0) {
 			Properties pro = SystemSetting.getInstance().getFramework(EnvKey.Framework.SCHEDULER);
-			SchedulerFactory factory = new StdSchedulerFactory(pro);
-			this.scheduler = factory.getScheduler();
 
+			SchedulerFactory factory;
+			if (pro != null) {
+				factory = new StdSchedulerFactory(pro);
+			} else {
+				factory = new StdSchedulerFactory();
+			}
+
+			this.scheduler = factory.getScheduler();
 			infoList.forEach(this::_loadScheduler);
 
 			if (this.logger.isInfoEnabled()) {

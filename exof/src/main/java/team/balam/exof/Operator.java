@@ -1,19 +1,18 @@
 package team.balam.exof;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import team.balam.exof.container.Console;
 import team.balam.exof.container.Framework;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 컨테이너의 구동을 담당한다.
@@ -23,7 +22,7 @@ import team.balam.exof.environment.SystemSetting;
 public class Operator 
 {
 	private static Logger logger = LoggerFactory.getLogger(Operator.class);
-	private static List<Container> containerList = new LinkedList<Container>();
+	private static List<Container> containerList = new LinkedList<>();
 	
 	public static void init()
 	{
@@ -31,7 +30,7 @@ public class Operator
 		containerList.add(new Framework());
 		containerList.add(SchedulerManager.getInstance());
 		
-		List<String> extraContainerList = SystemSetting.getInstance().getList(EnvKey.FileName.FRAMEWORK, EnvKey.Framework.CONTAINER);
+		List<String> extraContainerList = SystemSetting.getInstance().getFramework(EnvKey.Framework.CONTAINER);
 		if(extraContainerList != null) {
 			extraContainerList.forEach(_containerClass -> {
 				try {

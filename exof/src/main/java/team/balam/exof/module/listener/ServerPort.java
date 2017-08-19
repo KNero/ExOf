@@ -1,28 +1,24 @@
 package team.balam.exof.module.listener;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 import team.balam.exof.module.listener.handler.RequestServiceHandler;
 import team.balam.exof.module.listener.handler.SessionEventHandler;
-import team.balam.exof.module.listener.handler.codec.LengthFieldByteCodec;
 import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ServerPort
 {
@@ -36,14 +32,14 @@ public class ServerPort
 	
 	private ChannelHandlerMaker channelHandlerArray;
 	
-	public ServerPort(PortInfo _info)
+	ServerPort(PortInfo _info)
 	{
 		this.portInfo = _info;
 	}
 	
 	public int getNumber()
 	{
-		return this.portInfo.getAttributeToInt(EnvKey.Listener.NUMBER, 0);
+		return this.portInfo.getNumber();
 	}
 	
 	public void open() throws Exception
@@ -73,7 +69,7 @@ public class ServerPort
 			.childOption(ChannelOption.SO_KEEPALIVE, true)
 			.childOption(ChannelOption.SO_REUSEADDR, true);
 		
-		int port = this.portInfo.getAttributeToInt(EnvKey.Listener.NUMBER, 0);
+		int port = this.portInfo.getNumber();
 		ChannelFuture future = b.bind(port).sync(); 
 		this.channel = future.channel();
 	}
@@ -81,8 +77,9 @@ public class ServerPort
 	private RequestServiceHandler _createRequestServiceHandler() throws Exception {
 		RequestServiceHandler requestHandler = new RequestServiceHandler();
 
-		if (this.portInfo.getChannelHandler() != null) {
-			this.channelHandlerArray = (ChannelHandlerArray) Class.forName(this.portInfo.getChannelHandler()).newInstance();
+		String channelHandler = this.portInfo.getChannelHandler();
+		if (!channelHandler.isEmpty()) {
+			this.channelHandlerArray = (ChannelHandlerArray) Class.forName(channelHandler).newInstance();
 
 			if (this.channelHandlerArray instanceof ChannelHandlerArray) {
 				((ChannelHandlerArray) this.channelHandlerArray).init(this.portInfo);
@@ -91,10 +88,11 @@ public class ServerPort
 			throw new ServerPortInitializeException("channelHandler is null. Check listener.xml");
 		}
 
-		if (this.portInfo.getMessageTransform() != null) {
+		String messageTransformClass = this.portInfo.getMessageTransform();
+		if (!messageTransformClass.isEmpty()) {
 			@SuppressWarnings("rawtypes")
 			ServiceObjectTransform messageTransform =
-					(ServiceObjectTransform) Class.forName(this.portInfo.getMessageTransform()).newInstance();
+					(ServiceObjectTransform) Class.forName(messageTransformClass).newInstance();
 			requestHandler.setServiceObjectTransform(messageTransform);
 
 			messageTransform.init(this.portInfo);
@@ -102,9 +100,10 @@ public class ServerPort
 			throw new ServerPortInitializeException("messageTransform is null. Check listener.xml");
 		}
 
-		if (this.portInfo.getSessionHandler() != null) {
+		String sessionHandlerClass = this.portInfo.getSessionHandler();
+		if (!sessionHandlerClass.isEmpty()) {
 			SessionEventHandler sessionHandler =
-					(SessionEventHandler) Class.forName(this.portInfo.getSessionHandler()).newInstance();
+					(SessionEventHandler) Class.forName(sessionHandlerClass).newInstance();
 			requestHandler.setSessionEventHandler(sessionHandler);
 
 			sessionHandler.init(this.portInfo);
