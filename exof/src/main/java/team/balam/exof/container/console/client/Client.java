@@ -2,18 +2,12 @@ package team.balam.exof.container.console.client;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import team.balam.exof.container.console.Command;
-import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.ListenerLoader;
-import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.util.StreamUtil;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -45,7 +39,7 @@ public class Client
 			InputSource is = new InputSource(input);
 
 			XPath xpath = XPathFactory.newInstance().newXPath();
-			consolePort = Integer.parseInt(xpath.evaluate("//port[@console]/@number", new InputSource(input)));
+			consolePort = Integer.parseInt(xpath.evaluate("//port[@console]/@number", is));
 		} finally {
 			if (input != null) {
 				input.close();

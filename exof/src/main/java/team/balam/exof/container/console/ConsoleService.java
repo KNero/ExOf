@@ -29,7 +29,7 @@ import java.util.Map;
 
 class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	public String loginAdminConsole(Map<String, Object> _param) {
 		String id = (String) _param.get("id");
 		String password = (String) _param.get("password");
@@ -261,7 +261,6 @@ class ConsoleService {
 			String[] values = variableValue.split(",");
 			for(String value : values) {
 				ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
-
 				if (serviceVariable.get(variableName) instanceof String) {
 					break;
 				}
