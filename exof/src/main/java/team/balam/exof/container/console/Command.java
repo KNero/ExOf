@@ -21,6 +21,9 @@ public class Command
 		String SERVICE_PATH = "servicePath";
 		String VARIABLE_NAME = "variableName";
 		String VARIABLE_VALUE = "variableValue";
+		String PORT = "port";
+		String ATTRIBUTE = "attribute";
+		String CHILD_ATTRIBUTE = "child_attribute";
 	}
 	
 	public static final String NO_DATA_RESPONSE = makeSimpleResult("No data.");

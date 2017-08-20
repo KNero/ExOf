@@ -2,16 +2,14 @@ package team.balam.exof.container.console.client;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.xml.sax.InputSource;
 import team.balam.exof.container.console.Command;
-import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.ListenerLoader;
-import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.util.StreamUtil;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.HashMap;
@@ -25,7 +23,7 @@ public class Client
 	
 	public static void main(String[] _arge) throws Exception
 	{
-		Client.init();
+		init();
 		
 		new Viewer().start();
 	}
@@ -33,14 +31,19 @@ public class Client
 	public static void init() throws Exception
 	{
 		String envPath = System.getProperty(EnvKey.ENV_PATH, "./env");
-		ListenerLoader loader = new ListenerLoader();
-		loader.load(envPath);
+		String filePath = envPath + "/listener.xml";
+		InputStream input = null;
 
-		PortInfo consolePortInfo = ListenerDao.selectConsolePort();
-		if (!consolePortInfo.isNull()) {
-			consolePort = consolePortInfo.getNumber();
-		} else {
-			throw new Exception("Undefined console port .");
+		try {
+			input = new FileInputStream(new File(filePath));
+			InputSource is = new InputSource(input);
+
+			XPath xpath = XPathFactory.newInstance().newXPath();
+			consolePort = Integer.parseInt(xpath.evaluate("//port[@console]/@number", is));
+		} finally {
+			if (input != null) {
+				input.close();
+			}
 		}
 	}
 	

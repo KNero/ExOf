@@ -29,8 +29,8 @@ import java.util.Map;
 
 class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	public Object loginAdminConsole(Map<String, Object> _param) {
+
+	public String loginAdminConsole(Map<String, Object> _param) {
 		String id = (String) _param.get("id");
 		String password = (String) _param.get("password");
 
@@ -173,7 +173,7 @@ class ConsoleService {
 		return list;
 	}
 
-	public Object getDynamicSettingList(Map<String, Object> _param) {
+	public List<DynamicSettingVo> getDynamicSettingList(Map<String, Object> _param) {
 		String settingName = (String) _param.get(Command.Key.NAME);
 		
 		if (settingName == null) {
@@ -183,7 +183,7 @@ class ConsoleService {
 		return DynamicSetting.getInstance().getList(settingName);
 	}
 
-	public Object updateDynamicSetting(Map<String, Object> _param) {
+	public String updateDynamicSetting(Map<String, Object> _param) {
 		String name = (String) _param.get(Command.Key.NAME);
 		String value = (String) _param.get(Command.Key.VALUE);
 		String des = (String) _param.get(Command.Key.DESCRIPTION);
@@ -261,7 +261,6 @@ class ConsoleService {
 			String[] values = variableValue.split(",");
 			for(String value : values) {
 				ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
-
 				if (serviceVariable.get(variableName) instanceof String) {
 					break;
 				}
@@ -300,5 +299,25 @@ class ConsoleService {
 		SchedulerManager.getInstance().update(null, null);
 
 		return this.getScheduleList(_parameter);
+	}
+
+	public Object getPortInfo(Map<String, Object> _parameter) {
+		List<Map<String, Object>> result = new ArrayList<>();
+
+		List<PortInfo> infoList = ListenerDao.selectPortList();
+		for (PortInfo portInfo : infoList) {
+			Map<String, Object> map = new HashMap<>();
+			map.put(Command.Key.PORT, portInfo.getNumber());
+
+			List<Map<String, Object>> attr = ListenerDao.selectPortAttribute(portInfo.getNumber());
+			map.put(Command.Key.ATTRIBUTE, attr);
+
+			List<Map<String, Object>> childAttr = ListenerDao.selectChildAttribute(portInfo.getNumber());
+			map.put(Command.Key.CHILD_ATTRIBUTE, childAttr);
+
+			result.add(map);
+		}
+
+		return result;
 	}
 }

@@ -9,7 +9,8 @@ public enum ServiceList {
 	SET_SCHEDULER_ON_OFF("setSchedulerOnOff"),
 	ADD_DYNAMIC_SETTING("addDynamicSetting"),
 	UPDATE_DYNAMIC_SETTING("updateDynamicSetting"),
-	REMOVE_DYNAMIC_SETTING("removeDynamicSetting");
+	REMOVE_DYNAMIC_SETTING("removeDynamicSetting"),
+	GET_PORT_INFO("getPortInfo");
 	
 	private String value;
 	
