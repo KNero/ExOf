@@ -56,7 +56,7 @@ public class Viewer
 	private void _showLevelTwoMenu() throws IOException {
 		while (true) {
 			if (Menu.LevelOne.GET.equals(this.command.getLevelOne())) {
-				System.out.println("\n(1)service list   (2)schedule list   (3)dynamic setting   (9)quit");
+				System.out.println("\n(1)service list\n(2)schedule list\n(3)dynamic setting\n(4)port info\n(9)quit");
 			} else if (Menu.LevelOne.SET.equals(this.command.getLevelOne())) {
 				System.out.println("\n(1)service variable\n(2)scheduler on/off\n" +
 						"(3)add dynamic setting\n(4)update dynamic setting value, description\n(5)remove dynamic setting\n(9)quit");
@@ -75,11 +75,23 @@ public class Viewer
 				continue;
 			}
 
+			clearView();
+
 			try {
 				Executor.execute(this.command);
 			} catch (NotFoundOperation e) {
 				System.out.println("\nThere is no menu.");
 			}
 		}
+	}
+
+	public static void clearView(){
+		//Clears Screen in java
+		try {
+			if (System.getProperty("os.name").contains("Windows"))
+				new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+			else
+				Runtime.getRuntime().exec("clear");
+		} catch (IOException | InterruptedException ex) {}
 	}
 }

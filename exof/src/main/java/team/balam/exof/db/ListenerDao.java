@@ -99,9 +99,8 @@ public class ListenerDao {
 			return EnvDbHelper.select(query, param);
 		} catch (Exception e) {
 			LOGGER.error("Can not get port attribute value.", e);
+			return Collections.emptyList();
 		}
-
-		return Collections.emptyList();
 	}
 
 	public static String selectPortAttribute(int _port, String _key) {
@@ -182,8 +181,31 @@ public class ListenerDao {
 			return (Integer) list.get(0).get("cnt") > 0;
 		} catch (Exception e) {
 			LOGGER.error("Can not get port.", e);
+			return false;
 		}
+	}
 
-		return false;
+	public static List<Map<String, Object>> selectPortAttribute(int _number) {
+		String query = "SELECT KEY, VALUE FROM PORT_ATTRIBUTE WHERE PORT=?";
+		Object[] param = new Object[]{_number};
+
+		try {
+			return EnvDbHelper.select(query, param);
+		} catch (Exception e) {
+			LOGGER.error("Can not get port info.", e);
+			return Collections.emptyList();
+		}
+	}
+
+	public static List<Map<String, Object>> selectChildAttribute(int _number) {
+		String query = "SELECT NODE_NAME, KEY, VALUE FROM PORT_CHILD_ATTRIBUTE WHERE PORT=?";
+		Object[] param = new Object[]{_number};
+
+		try {
+			return EnvDbHelper.select(query, param);
+		} catch (Exception e) {
+			LOGGER.error("Can not get port info.", e);
+			return Collections.emptyList();
+		}
 	}
 }

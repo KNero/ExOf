@@ -27,6 +27,8 @@ public class Executor {
 
 			setter.setServiceVariable(servicePath, variableName, variableValue);
 		});
+		executorList.put(Menu.Execute.GET_PORT_INFO, parameter -> getter.getPortInfo());
+
 		executorList.put(Menu.Execute.SET_SCHEDULER_USE_ON_OFF, parameter -> {
 			String id = parameter.get(Command.Key.ID);
 			String onOff = parameter.get(Command.Key.VALUE);

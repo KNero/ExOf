@@ -102,4 +102,38 @@ class InfoGetter
 			e.printStackTrace();
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	void getPortInfo() {
+		Command command = new Command(ServiceList.GET_PORT_INFO);
+
+		try {
+			Client.send(command, _result -> {
+				List<Map<String, Object>> resultList = (List<Map<String, Object>>) _result;
+				if (resultList.size() > 0) {
+					resultList.forEach(info -> {
+						int port = (Integer) info.get(Command.Key.PORT);
+						List<Map<String, Object>> attribute = (List<Map<String, Object>>) info.get(Command.Key.ATTRIBUTE);
+						List<Map<String, Object>> childAttribute = (List<Map<String, Object>>) info.get(Command.Key.CHILD_ATTRIBUTE);
+
+						System.out.println("Port : " + port);
+						System.out.print(" - Attribute : ");
+						for (Map<String, Object> attr : attribute) {
+							System.out.print("[" + attr.get("key") + "=" + attr.get("value") + "]");
+						}
+						System.out.println();
+
+						for (Map<String, Object> attr : childAttribute) {
+							System.out.println(" - " + attr.get("node_name") + " : " + attr.get("value"));
+						}
+						System.out.println();
+					});
+				} else {
+					System.out.println("No data.");
+				}
+			}, null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
