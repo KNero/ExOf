@@ -14,5 +14,5 @@ Socket 으로 들어온 요청을 Service 가 처리할 수 있는 형태로 변
 ## [Scheduler](https://github.com/KNero/ExOf/wiki/Scheduler로_Service_호출)
 service.xml 에서 간단한 설정을 통해서 원하는 Service를 주기적으로 실행시켜 준다.
 
-## [Console](https://github.com/KNero/ExOf/wiki/추가기능#콘솔-모니터링)
-command를 사용한 서버 정보 검색 및 설정
+## [Console](https://github.com/KNero/ExOf/wiki/Console_monitoring)
+CLI를 사용한 서버 정보 검색 및 설정
