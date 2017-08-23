@@ -44,6 +44,6 @@ public class Framework implements Container
 			}
 		}
 
-		PoolManager.getInstance().destroyPool();
+		PoolManager.destroyPool();
 	}
 }

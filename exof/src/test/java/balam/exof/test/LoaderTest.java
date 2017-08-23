@@ -1,14 +1,12 @@
 package balam.exof.test;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import io.netty.channel.ChannelHandlerContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.junit.*;
-
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 import team.balam.exof.Constant;
@@ -16,27 +14,28 @@ import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.container.console.ServiceList;
-import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.db.ServiceInfoDao;
+import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.FrameworkLoader;
-import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.environment.SystemSetting;
+import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.service.Service;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
-import team.balam.util.sqlite.connection.pool.AlreadyExistsConnectionException;
+
+import java.util.List;
+import java.util.Map;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoaderTest
 {
 	@BeforeClass
-	public static void init() throws Exception {
+	public static void init() {
 		try {
 			DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
-		} catch (AlreadyExistsConnectionException e) {
+		} catch (Exception e) {
 		}
 	}
 
@@ -103,6 +102,7 @@ public class LoaderTest
 	@Test
 	@SuppressWarnings("unchecked")
 	public void test04_loadService() throws Exception {
+		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
 		ServiceProvider.getInstance().start();
 
 		Service service = ServiceProvider.lookup("/test/schedule");
@@ -123,9 +123,6 @@ public class LoaderTest
 
 	@Test
 	public void test05_reloadServiceVariable() throws Exception {
-		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
-		ServiceProvider.getInstance().start();
-
 		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
 		command.addParameter(Command.Key.SERVICE_PATH, "/test/schedule");
 		command.addParameter(Command.Key.VARIABLE_NAME, "a");

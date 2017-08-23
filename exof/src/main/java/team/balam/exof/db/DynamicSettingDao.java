@@ -20,7 +20,7 @@ public class DynamicSettingDao {
 		QueryVo vo = QueryVoFactory.create(Type.EXECUTE);
 		vo.setQuery(query);
 		
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 		
 		if (!vo.getResult().isSuccess()) {
 			throw vo.getResult().getException();
@@ -32,7 +32,7 @@ public class DynamicSettingDao {
 		vo.setQuery("INSERT INTO ENVIRONMENT VALUES(?, ?, ?)");
 		vo.setParam(new Object[]{_name, _value, _description});
 		
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 		
 		if (!vo.getResult().isSuccess()) {
 			throw vo.getResult().getException();
@@ -44,7 +44,7 @@ public class DynamicSettingDao {
 		vo.setQuery("SELECT VALUE, DESCRIPTION FROM ENVIRONMENT WHERE NAME=?");
 		vo.setParam(new Object[]{_name});
 		
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 		
 		Result result = vo.getResult();
 		
@@ -69,7 +69,7 @@ public class DynamicSettingDao {
 		vo.setQuery("SELECT NAME, VALUE, DESCRIPTION FROM ENVIRONMENT WHERE NAME LIKE ? ORDER BY NAME");
 		vo.setParam(new Object[]{"%" + _name + "%"});
 		
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 		
 		Result result = vo.getResult();
 		
@@ -90,7 +90,7 @@ public class DynamicSettingDao {
 		vo.setQuery("UPDATE ENVIRONMENT SET VALUE=?, DESCRIPTION=? WHERE NAME=?");
 		vo.setParam(new Object[]{_value, _description, _name});
 		
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 		
 		if (!vo.getResult().isSuccess()) {
 			throw vo.getResult().getException();
@@ -102,7 +102,7 @@ public class DynamicSettingDao {
 		vo.setQuery("DELETE FROM ENVIRONMENT WHERE NAME=?");
 		vo.setParam(new Object[]{_name});
 		
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 		
 		if (!vo.getResult().isSuccess()) {
 			throw vo.getResult().getException();

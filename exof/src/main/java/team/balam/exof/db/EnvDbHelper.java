@@ -20,7 +20,7 @@ class EnvDbHelper {
 		vo.setQuery(query);
 		vo.setParam(param);
 
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 
 		Result result = vo.getResult();
 
@@ -40,7 +40,7 @@ class EnvDbHelper {
 		vo.setQuery(_query);
 		vo.setParam(_param);
 
-		PoolManager.getInstance().executeQuery(Constant.ENV_DB, vo);
+		PoolManager.executeQuery(Constant.ENV_DB, vo);
 
 		Result result = vo.getResult();
 
