@@ -3,7 +3,6 @@ package team.balam.exof.container;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Container;
-import team.balam.exof.environment.FileModifyChecker;
 import team.balam.exof.module.Module;
 import team.balam.exof.module.listener.Listener;
 import team.balam.exof.module.service.ServiceProvider;
@@ -32,8 +31,6 @@ public class Framework implements Container
 				LOGGER.error("Fail to start module.", e);
 			}
 		}
-
-		new FileModifyChecker().start();
 	}
 
 	@Override

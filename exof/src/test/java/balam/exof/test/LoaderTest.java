@@ -27,31 +27,28 @@ import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.service.Service;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
+import team.balam.util.sqlite.connection.pool.AlreadyExistsConnectionException;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoaderTest
 {
 	@BeforeClass
 	public static void init() throws Exception {
-		new File("./env/" + Constant.ENV_DB).delete();
-		DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
+		try {
+			DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
+		} catch (AlreadyExistsConnectionException e) {
+		}
 	}
 
 	@Test
-	public void test01_getFrameworkExternal() throws Exception
-	{
-		FrameworkLoader loader = new FrameworkLoader();
-		loader.load("./env");
-		
+	public void test01_getFrameworkExternal() throws Exception {
+		new FrameworkLoader().load("./env");
 		Map<String, Object> extMap = SystemSetting.getExternal();
 		Assert.assertEquals("abcde", extMap.get("test"));
 	}
 
 	@Test
 	public void test02_scheduleAndServiceDirectory() throws Exception {
-		ServiceLoader loader = new ServiceLoader();
-		loader.load("./env");
-
 		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectScheduler();
 		Assert.assertEquals(2, schedulerInfos.size());
 
@@ -87,9 +84,6 @@ public class LoaderTest
 	@Test
 	@SuppressWarnings("unchecked")
 	public void test03_serviceVariable() throws Exception {
-		ServiceLoader loader = new ServiceLoader();
-		loader.load("./env");
-
 		ServiceVariable result = ServiceInfoDao.selectServiceVariable("/test", "schedule");
 		Assert.assertEquals("a1", result.getString("a"));
 		Assert.assertEquals("b2", result.getString("b"));
@@ -109,9 +103,6 @@ public class LoaderTest
 	@Test
 	@SuppressWarnings("unchecked")
 	public void test04_loadService() throws Exception {
-		ServiceLoader loader = new ServiceLoader();
-		loader.load("./env");
-
 		ServiceProvider.getInstance().start();
 
 		Service service = ServiceProvider.lookup("/test/schedule");
@@ -131,10 +122,7 @@ public class LoaderTest
 	}
 
 	@Test
-	public void test06_reloadServiceVariable() throws Exception {
-		ServiceLoader loader = new ServiceLoader();
-		loader.load("./env");
-
+	public void test05_reloadServiceVariable() throws Exception {
 		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
 		ServiceProvider.getInstance().start();
 
@@ -151,7 +139,7 @@ public class LoaderTest
 	}
 
 	@Test
-	public void test07_reloadSchedulerOnOff() throws Exception {
+	public void test06_reloadSchedulerOnOff() throws Exception {
 		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
 		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
 			String jsonStr = object.getArgumentAt(0, String.class);
@@ -169,9 +157,6 @@ public class LoaderTest
 			});
 			return null;
 		});
-
-		new ServiceLoader().load("./env");;
-		new FrameworkLoader().load("./env");
 
 		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SCHEDULER, true);
 		SchedulerManager.getInstance().start();
