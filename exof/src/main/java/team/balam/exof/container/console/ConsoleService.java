@@ -192,7 +192,7 @@ class ConsoleService {
 			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
 			if (vo.isValid()) {
 				DynamicSetting.getInstance().change(new DynamicSettingVo(name, value, des));
-				return Command.SUCCESS_RESPONSE;
+				return DynamicSetting.getInstance().get(name).toString();
 			} else {
 				return Command.makeSimpleResult("Dynamic setting is not exist. name=" + name);
 			}
@@ -228,7 +228,7 @@ class ConsoleService {
 			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
 			if (!vo.isValid()) {
 				DynamicSetting.getInstance().put(new DynamicSettingVo(name, value, des));
-				return Command.SUCCESS_RESPONSE;
+				return DynamicSetting.getInstance().get(name).toString();
 			} else {
 				return Command.makeSimpleResult("Dynamic setting is exist already. name=" + name);
 			}
@@ -255,6 +255,9 @@ class ConsoleService {
 			String serviceDirPath = this._getServiceDirectoryPath(servicePath);
 
 			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
+			if (serviceVariable.get(variableName) == null) {
+				return Command.makeSimpleResult("Variable is not exist.");
+			}
 
 			ServiceInfoDao.deleteServiceVariable(serviceDirPath, serviceName, variableName);
 

@@ -104,6 +104,12 @@ public class DynamicSetting {
 			throw new IllegalArgumentException("DynamicSetting value is not null.");
 		}
 
+		String newDes = _vo.getDescription();
+		if (newDes == null || newDes.isEmpty()) {
+			DynamicSettingVo oldVo = DynamicSetting.getInstance().get(_vo.getName());
+			_vo = new DynamicSettingVo(_vo.getName(), _vo.getValue(), oldVo.getDescription());
+		}
+
 		DynamicSettingDao.update(_vo.getName(), _vo.getValue(), _vo.getDescription());
 		this.cash.put(_vo.getName(), _vo);
 	}
