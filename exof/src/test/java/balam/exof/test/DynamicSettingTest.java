@@ -18,7 +18,7 @@ public class DynamicSettingTest {
 	@BeforeClass
 	public static void init() throws Exception {
 		try {
-			DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
+			DatabaseLoader.load(Constant.ENV_DB, InitTest.TEST_DB);
 		} catch (AlreadyExistsConnectionException e) {
 		}
 	}

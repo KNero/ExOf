@@ -42,4 +42,11 @@ public class DynamicSettingVo {
 	public String getDescription() {
 		return description;
 	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("name [").append(this.name)
+				.append("] / value [").append(this.value)
+				.append("] / description [").append(this.description).append("]").toString();
+	}
 }

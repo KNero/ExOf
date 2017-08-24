@@ -77,11 +77,13 @@ public class Viewer
 
 			clearView();
 
+			System.out.println("\n----------------------------------------------------------------------------------");
 			try {
 				Executor.execute(this.command);
 			} catch (NotFoundOperation e) {
-				System.out.println("\nThere is no menu.");
+				System.out.println("There is no menu.");
 			}
+			System.out.println("----------------------------------------------------------------------------------\n");
 		}
 	}
 

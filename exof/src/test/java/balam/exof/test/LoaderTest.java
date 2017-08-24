@@ -34,7 +34,7 @@ public class LoaderTest
 	@BeforeClass
 	public static void init() {
 		try {
-			DatabaseLoader.load(Constant.ENV_DB, "./env/" + Constant.ENV_DB);
+			DatabaseLoader.load(Constant.ENV_DB, InitTest.TEST_DB);
 		} catch (Exception e) {
 		}
 	}
