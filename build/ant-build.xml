@@ -3,13 +3,20 @@
 	<property name="version" value="1.1.1"/>
 	<property name="install_file_name" value="exof-${version}-install.zip"/>
 
-	<target name="delete">
+	<target name="delete_zip">
 		<echo>delete zip file</echo>
 		<delete file="./${install_file_name}"/>
 	</target>
 
-	<target name="zip" depends="delete">
+	<target name="zip" depends="delete_zip">
 		<echo>make zip file</echo>
 		<zip destfile="./${install_file_name}" basedir="./build template" excludes=".*" />
+	</target>
+
+	<target name="delete_lib">
+		<delete>
+			<echo>delete jar in lib directory</echo>
+			<fileset dir="./build template/lib" includes="**/*"/>
+		</delete>
 	</target>
 </project>
