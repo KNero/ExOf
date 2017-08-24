@@ -30,7 +30,7 @@
 			<artifactId>SQLite-Helper</artifactId>
 			<version>0.1.1-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>/Users/kwonsm/git/ExOf/build/build template/lib/SQLite-Helper-0.2.0-SNAPSHOT.jar</systemPath>
+			<systemPath>/Users/kwonsm/git/ExOf/exof/lib/SQLite-Helper-0.2.0-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 		    <groupId>org.xerial</groupId>

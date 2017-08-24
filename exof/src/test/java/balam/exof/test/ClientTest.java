@@ -31,10 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
-//@PrepareForTest(Client.class)
 public class ClientTest {
 
-//	@Test
+	@Test
 	public void testSender() throws Exception {
 		Sender<String, String> client = new Sender<>(_socketChannel ->
 			new ChannelHandler[]{new StringEncoder(),
@@ -59,6 +58,14 @@ public class ClientTest {
 		}
 
 		ServiceProvider.getInstance().start();
+
+		Client.init();
+
+		Command command = new Command(ServiceList.ADD_DYNAMIC_SETTING);
+		command.addParameter(Command.Key.NAME, "name0");
+		command.addParameter(Command.Key.VALUE, "value0");
+		command.addParameter(Command.Key.DESCRIPTION, "des0");
+		Client.send(command, System.out::println, null);
 	}
 
 	@Test
@@ -127,7 +134,7 @@ public class ClientTest {
 		handler.channelRead(ctx, command.toJson());
 	}
 
-//	@Test
+	@Test
 	@SuppressWarnings("unchecked")
 	public void test_ConsoleGetDynamicSettingList() throws Exception {
 		Client.init();
@@ -142,7 +149,7 @@ public class ClientTest {
 		}, _failResult -> Assert.fail());
 	}
 
-//	@Test
+	@Test
 	@SuppressWarnings("unchecked")
 	public void test_ConsoleGetDynamicSettingSingle() throws Exception {
 		Client.init();
@@ -160,7 +167,7 @@ public class ClientTest {
 		}, _failResult -> Assert.fail());
 	}
 
-//	@Test
+	@Test
 	public void test_consoleSetServiceVariable() throws Exception {
 		Client.init();
 
