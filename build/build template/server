@@ -1,49 +1,57 @@
 #!/bin/sh
 JAVA_HOME=``
 DIR=`cd "\`dirname "$0"\`" && pwd`
-SERVICE_NAME=ExOf1
-PID_PATH_NAME=./service-pid
+SERVICE_NAME=ExOf
+PID_PATH_NAME=./pid
 
 if [ -z "$JAVA_HOME" ] ; then
         JAVA_HOME=`readlink -f \`which java 2>/dev/null\` 2>/dev/null | \
         sed 's/\/bin\/java//'`
 fi
 
+PID=-1
+if [ -f $PID_PATH_NAME ]; then
+	PID=$(cat $PID_PATH_NAME);
+fi
 
+COUNT=0
+if [ $PID != -1 ]; then
+	COUNT=$(ps -ef | grep java | grep $PID | wc -l);
+fi
 
 case "$1" in
 	start)
-	if [ ! -f $PID_PATH_NAME ]; 
-	then
-		echo "Starting $SERVICE_NAME "
-                nohup java -server -Xms256m -Xmx1024m -Dfile.encoding=utf-8 -Dlogback.configurationFile=./env/logback.xml -cp "./lib/*:./lib/external/*:./classes" team.balam.exof.App > /dev/null 2>&1 &
-		echo $! > $PID_PATH_NAME
-		echo "$SERVICE_NAME Process started by PID : $!" 
-				sleep 3;
-				tail -100f ./logs/exof.log
-	else
-		echo "$SERVICE_NAME Process is Already Running"
-	fi
+		if [ $COUNT == 0 ]; then
+			echo "Starting $SERVICE_NAME "
+
+            nohup java -server -Xms256m -Xmx1024m -Dfile.encoding=utf-8 -Dlogback.configurationFile=./env/logback.xml -cp "./lib/*:./lib/external/*:./classes" team.balam.exof.App > /dev/null 2>&1 &
+
+        	echo $! > $PID_PATH_NAME
+        	echo "Process started by PID : $!" 
+            
+			sleep 3;
+            tail -100f ./logs/exof.log
+		else
+			echo "$PID Process is ALREADY running."
+		fi	
 	;;
 	stop)
-		echo "Shutting down $SERVICE_NAME Process"
-		if [ -f $PID_PATH_NAME ]; then
-            		PID=$(cat $PID_PATH_NAME);
-			echo "$SERVICE_NAME stoping ..."
+		if [ $COUNT == 1  ]; then
+			echo "Shutting down $PID Process"
+			echo "$PID stoping ..."
 			kill $PID;
-			echo "$SERVICE_NAME Process stopped ..."
+			echo "$PID Process stopped ..."
 			rm $PID_PATH_NAME
-        	else
-            		echo "$SERVICE_NAME Process is not running ..."
-        	fi
+		else
+			echo "$SERVICE_NAME Process is NOT running ..."
+		fi
 	;;
 	status)
-		if [ ! -f $PID_PATH_NAME ]; 
-		then
-                	echo "$SERVICE_NAME Process is not Running"
-        	else
-                	echo "$SERVICE_NAME Process is Running"
-        	fi
+		if [ $COUNT == 0 ]; then
+			echo "$SERVICE_NAME Process is NOT running"
+        else
+			echo "$PID Process is running"
+        fi
 
 	;;
 	*)
