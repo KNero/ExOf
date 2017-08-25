@@ -259,13 +259,14 @@ class ConsoleService {
 				return Command.makeSimpleResult("Variable is not exist.");
 			}
 
-			ServiceInfoDao.deleteServiceVariable(serviceDirPath, serviceName, variableName);
+			if (serviceVariable.get(variableName) instanceof String) {
+				ServiceInfoDao.updateServiceVariableValue(serviceDirPath, serviceName, variableName, variableValue);
+			} else {
+				ServiceInfoDao.deleteServiceVariable(serviceDirPath, serviceName, variableName);
 
-			String[] values = variableValue.split(",");
-			for(String value : values) {
-				ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
-				if (serviceVariable.get(variableName) instanceof String) {
-					break;
+				String[] values = variableValue.split(",");
+				for(String value : values) {
+					ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
 				}
 			}
 

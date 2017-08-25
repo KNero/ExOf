@@ -1,5 +1,6 @@
 package team.balam.exof.db;
 
+import com.sun.jmx.remote.util.EnvHelp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
@@ -50,7 +51,8 @@ public class ServiceInfoDao {
 				"SERVICE_DIRECTORY_PATH TEXT NOT NULL, " +
 				"SERVICE TEXT, " +
 				"KEY TEXT, " +
-				"VALUE TEXT)";
+				"VALUE TEXT, " +
+				"SORT_ORDER NUMBER)";
 		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
 
 		query = "DELETE FROM SERVICE_VARIABLE";
@@ -84,13 +86,27 @@ public class ServiceInfoDao {
 	}
 
 	public static void insertServiceVariable(String _directoryPath, String _service, String _key, String _value) throws LoadEnvException {
-		String query = "INSERT INTO SERVICE_VARIABLE (SERVICE_DIRECTORY_PATH, SERVICE, KEY, VALUE) VALUES (?, ?, ?, ?)";
-		Object[] param = new Object[]{_directoryPath, _service, _key, _value};
+		int maxOrder = selectServiceVariableMaxOrder(_directoryPath, _service);
+
+		String query = "INSERT INTO SERVICE_VARIABLE (SERVICE_DIRECTORY_PATH, SERVICE, KEY, VALUE, SORT_ORDER) VALUES (?, ?, ?, ?, ?)";
+		Object[] param = new Object[]{_directoryPath, _service, _key, _value, maxOrder};
 
 		try {
 			EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
 		} catch (Exception e) {
-			throw new LoadEnvException("Fail insert to SERVICE_VARIABLE", e);
+			throw new LoadEnvException("Fail to insert to SERVICE_VARIABLE", e);
+		}
+	}
+
+	private static int selectServiceVariableMaxOrder(String _directoryPath, String _service) throws LoadEnvException {
+		String query = "SELECT COUNT(*) AS CNT FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=?";
+		Object[] param = new Object[]{_directoryPath, _service};
+
+		try {
+			List<Map<String, Object>> result = EnvDbHelper.select(query, param);
+			return (Integer) result.get(0).get("cnt");
+		} catch (Exception e) {
+			throw new LoadEnvException("Fail to select service variable max order.", e);
 		}
 	}
 
@@ -139,7 +155,7 @@ public class ServiceInfoDao {
 	}
 
 	public static ServiceVariable selectServiceVariable(String _serviceDirectoryPath, String _serviceName) {
-		String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=?";
+		String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? ORDER BY SORT_ORDER";
 		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
 
 		try {
@@ -177,6 +193,17 @@ public class ServiceInfoDao {
 		}
 
 		return Collections.emptyList();
+	}
+
+	public static void updateServiceVariableValue(String _directoryPath, String _service, String _key, String _value) {
+		String query = "UPDATE SERVICE_VARIABLE SET VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
+		Object[] param = new Object[]{_value, _directoryPath, _service, _key};
+
+		try {
+			EnvDbHelper.execute(QueryVo.Type.UPDATE, query, param);
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
 	}
 
 	public static SchedulerInfo selectScheduler(String _id) {
