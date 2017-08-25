@@ -56,7 +56,7 @@ public class ServiceVariable {
         return this.variable.size();
     }
 
-    public void put(String _key, String _value) {
+    private void put(String _key, String _value) {
         List<String> valueList = this.variable.computeIfAbsent(_key, _variableKey -> new LinkedList<>());
         valueList.add(_value);
     }

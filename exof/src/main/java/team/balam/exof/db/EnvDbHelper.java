@@ -25,13 +25,11 @@ class EnvDbHelper {
 		Result result = vo.getResult();
 
 		try {
-			if (result.isSuccess()) {
-				return result.getSelectResult();
-			} else {
-				throw result.getException();
-			}
+			return vo.getResult().getSelectResult();
 		} finally {
-			result.close();
+			if (result != null) {
+				result.close();
+			}
 		}
 	}
 
