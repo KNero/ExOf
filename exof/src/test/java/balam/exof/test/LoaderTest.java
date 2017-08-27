@@ -49,7 +49,7 @@ public class LoaderTest
 	@Test
 	public void test02_scheduleAndServiceDirectory() throws Exception {
 		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectScheduler();
-		Assert.assertEquals(2, schedulerInfos.size());
+		Assert.assertEquals(3, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
 		Assert.assertEquals(2, directoryInfos.size());

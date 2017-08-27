@@ -124,7 +124,7 @@ public class ClientTest {
 			ObjectMapper objectMapper = new ObjectMapper();
 			List<Object> resultList = objectMapper.readValue(jsonStr, listType);
 
-			Assert.assertEquals(2, resultList.size());
+			Assert.assertEquals(3, resultList.size());
 			resultList.forEach(System.out::println);
 			return null;
 		});
