@@ -202,35 +202,17 @@ public class ServiceProvider implements Module, Observer
 			return;
 		}
 
-		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
-		directoryInfoList.forEach(this::_updateServiceDirectory);
-	}
+		String serviceDirPath = ((String[]) arg)[0];
+		String serviceName = ((String[]) arg)[1];
 
-	private void _updateServiceDirectory(ServiceDirectoryInfo _serviceDirInfo) {
-		try {
-			List<ServiceVariable> variableList = ServiceInfoDao.selectServiceVariable(_serviceDirInfo.getPath());
-			for (ServiceVariable variable : variableList) {
-				this._reloadServiceVariable(_serviceDirInfo.getPath(), variable.getServiceName(), _serviceDirInfo);
-
-				logger.warn("Complete reloading ServiceVariable. [{}]", _serviceDirInfo.getPath() + "/" + variable.getServiceName());
-			}
-		} catch (Exception e) {
-			logger.error("Can not reload the ServiceVariable. Class : {}", _serviceDirInfo.getClassName());
-		}
-	}
-
-	private void _reloadServiceVariable(String _serviceDirPath, String _serviceName, ServiceDirectoryInfo _info) {
-		try {
-			ServiceImpl service = (ServiceImpl) lookup(_serviceDirPath + "/" + _serviceName);
-			service.setVariable(_info.getVariable(_serviceName));
-
+		ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
+		if (!serviceVariable.isNull()) {
 			try {
-				_setServiceVariableByAnnotation(service.getHost(), _info);
-			} catch (Exception e) {
-				logger.error("Can not reload service's member variable.", e);
+				ServiceImpl service = (ServiceImpl) lookup(serviceDirPath + "/" + serviceName);
+				service.setVariable(serviceVariable);
+			} catch (ServiceNotFoundException e) {
+				logger.error("Can not reload the ServiceVariable. {}", serviceDirPath + "/" + serviceName);
 			}
-		} catch (ServiceNotFoundException e) {
-			logger.error("Can not reload service variable because Service is not exits.");
 		}
 	}
 }

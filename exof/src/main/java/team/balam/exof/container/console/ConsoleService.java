@@ -270,7 +270,8 @@ class ConsoleService {
 				}
 			}
 
-			ServiceProvider.getInstance().update(null, null);
+			String[] serviceParam = new String[]{serviceDirPath, serviceName};
+			ServiceProvider.getInstance().update(null, serviceParam);
 
 			Service service = ServiceProvider.lookup(servicePath);
 			return service.getServiceVariable(variableName);
