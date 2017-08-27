@@ -24,6 +24,7 @@ public class Command
 		String PORT = "port";
 		String ATTRIBUTE = "attribute";
 		String CHILD_ATTRIBUTE = "child_attribute";
+		String CRON = "cron";
 	}
 	
 	public static final String NO_DATA_RESPONSE = makeSimpleResult("No data.");

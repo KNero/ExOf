@@ -58,8 +58,8 @@ public class Viewer
 			if (Menu.LevelOne.GET.equals(this.command.getLevelOne())) {
 				System.out.println("\n(1)service list\n(2)schedule list\n(3)dynamic setting\n(4)port info\n(9)quit");
 			} else if (Menu.LevelOne.SET.equals(this.command.getLevelOne())) {
-				System.out.println("\n(1)service variable\n(2)scheduler on/off\n" +
-						"(3)add dynamic setting\n(4)update dynamic setting value, description\n(5)remove dynamic setting\n(9)quit");
+				System.out.println("\n(1)service variable\n(2)scheduler on/off\n(3)scheduler cron expression\n" +
+						"(4)add dynamic setting\n(5)update dynamic setting value, description\n(6)remove dynamic setting\n(9)quit");
 			} else {
 				System.out.println("\nNot supported yes.");
 				throw new TerminateException();
@@ -75,8 +75,6 @@ public class Viewer
 				continue;
 			}
 
-			clearView();
-
 			System.out.println("\n----------------------------------------------------------------------------------");
 			try {
 				Executor.execute(this.command);
@@ -85,15 +83,5 @@ public class Viewer
 			}
 			System.out.println("----------------------------------------------------------------------------------\n");
 		}
-	}
-
-	public static void clearView(){
-		//Clears Screen in java
-		try {
-			if (System.getProperty("os.name").contains("Windows"))
-				new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-			else
-				Runtime.getRuntime().exec("clear");
-		} catch (IOException | InterruptedException ex) {}
 	}
 }

@@ -16,8 +16,9 @@ public interface Menu {
 
 		String SET_SERVICE_VARIABLE = "2.1";
 		String SET_SCHEDULER_USE_ON_OFF = "2.2";
-		String ADD_DYNAMIC_SETTING = "2.3";
-		String UPDATE_DYNAMIC_SETTING = "2.4";
-		String REMOVE_DYNAMIC_SETTING = "2.5";
+		String SET_SCHEDULER_CRON = "2.3";
+		String ADD_DYNAMIC_SETTING = "2.4";
+		String UPDATE_DYNAMIC_SETTING = "2.5";
+		String REMOVE_DYNAMIC_SETTING = "2.6";
 	}
 }

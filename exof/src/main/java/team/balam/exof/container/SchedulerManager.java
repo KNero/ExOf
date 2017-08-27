@@ -14,6 +14,7 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.SchedulerInfo;
 
+import java.text.ParseException;
 import java.util.*;
 
 public class SchedulerManager implements Container, Observer
@@ -23,6 +24,7 @@ public class SchedulerManager implements Container, Observer
 	private boolean isAutoReload;
 
 	private Map<String, JobKey> jobKeyMap = new HashMap<>();
+	private Map<String, TriggerKey> triggerKeyMap = new HashMap<>();
 	
 	private static SchedulerManager self = new SchedulerManager();
 	
@@ -75,8 +77,12 @@ public class SchedulerManager implements Container, Observer
 			JobDetail jd = JobBuilder.newJob(SchedulerJob.class).build();
 			jd.getJobDataMap().put("info", _info);
 
+			TriggerKey triggerKey = new TriggerKey(_info.getId());
+			this.triggerKeyMap.put(_info.getId(), triggerKey);
+
 			CronExpression ce = new CronExpression(_info.getCronExpression());
 			PauseAwareCronTrigger t = new PauseAwareCronTrigger(ce);
+			t.setKey(triggerKey);
 
 			this.scheduler.scheduleJob(jd, t);
 			this.jobKeyMap.put(_info.getId(), jd.getKey());
@@ -115,7 +121,6 @@ public class SchedulerManager implements Container, Observer
 							this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
 						}
 					}
-
 				}
 			});
 
@@ -137,20 +142,39 @@ public class SchedulerManager implements Container, Observer
 	public void update(Observable o, Object arg) {
 		if (!this.isAutoReload) return;
 
-		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
-		infoList.forEach(_info -> {
-			JobKey jobkey = this.jobKeyMap.get(_info.getId());
+		String schedulerId = (String) arg;
+
+		SchedulerInfo newInfo = ServiceInfoDao.selectScheduler(schedulerId);
+		if (!newInfo.isNull()) {
+			JobKey jobkey = this.jobKeyMap.get(schedulerId);
 			if (jobkey != null) {
 				try {
 					JobDetail jobDetail = this.scheduler.getJobDetail(jobkey);
-					SchedulerInfo info = (SchedulerInfo) jobDetail.getJobDataMap().get("info");
-					info.setUse(_info.isUse());
+					SchedulerInfo currentInfo = (SchedulerInfo) jobDetail.getJobDataMap().get("info");
+					currentInfo.setUse(newInfo.isUse());
 
-					this.logger.warn("Complete reloading schedulerInfo. [{}]", _info.getServicePath());
+					this.updateCronExpression(schedulerId, newInfo.getCronExpression());
+
+					this.logger.warn("Complete reloading schedulerInfo. [{}]", newInfo.getServicePath());
 				} catch (SchedulerException e) {
-					this.logger.error("Can not update scheduler. [{}]", _info.toString(), e);
+					this.logger.error("Can not update scheduler. [{}]", newInfo.toString(), e);
 				}
 			}
-		});
+		}
+	}
+
+	private void updateCronExpression(String _schedulerId, String _cronExpression) throws SchedulerException {
+		try {
+			TriggerKey newTrigger = new TriggerKey(_schedulerId);
+			this.triggerKeyMap.put(_schedulerId, newTrigger);
+
+			CronExpression newCron = new CronExpression(_cronExpression);
+			PauseAwareCronTrigger trigger = new PauseAwareCronTrigger(newCron);
+			trigger.setKey(newTrigger);
+
+			this.scheduler.rescheduleJob(newTrigger, trigger);
+		} catch (ParseException e) {
+			this.logger.error("Fail to update cron expression. " + _cronExpression, e);
+		}
 	}
 }

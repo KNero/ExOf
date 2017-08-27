@@ -269,6 +269,17 @@ public class ServiceInfoDao {
 		}
 	}
 
+	public static void updateSchedulerCron(String _id, String _cron) {
+		String query = "UPDATE SCHEDULER SET CRON=? WHERE ID=?";
+		Object[] param = new Object[]{_cron, _id};
+
+		try {
+			EnvDbHelper.execute(QueryVo.Type.UPDATE, query, param);
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+	}
+
 	public static void deleteServiceVariable(String _serviceDirectoryPath, String _serviceName, String _key) {
 		String query = "DELETE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
 		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName, _key};

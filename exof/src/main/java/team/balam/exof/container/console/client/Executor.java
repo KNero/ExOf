@@ -35,6 +35,12 @@ public class Executor {
 
 			setter.setSchedulerOnOff(id, onOff);
 		});
+		executorList.put(Menu.Execute.SET_SCHEDULER_CRON, parameter -> {
+			String id = parameter.get(Command.Key.ID);
+			String cron = parameter.get(Command.Key.CRON);
+
+			setter.setSchedulerCron(id, cron);
+		});
 		executorList.put(Menu.Execute.ADD_DYNAMIC_SETTING, parameter -> {
 			String name = parameter.get(Command.Key.NAME);
 			String value = parameter.get(Command.Key.VALUE);

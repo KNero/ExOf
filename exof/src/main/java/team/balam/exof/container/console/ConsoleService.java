@@ -300,7 +300,22 @@ class ConsoleService {
 		String value = (String) _parameter.get(Command.Key.VALUE);
 
 		ServiceInfoDao.updateSchedulerUse(id, value);
-		SchedulerManager.getInstance().update(null, null);
+		SchedulerManager.getInstance().update(null, id);
+
+		return this.getScheduleList(_parameter);
+	}
+
+	public Object setSchedulerCron(Map<String, Object> _parameter) {
+		String id = (String) _parameter.get(Command.Key.ID);
+		String cron = (String) _parameter.get(Command.Key.CRON);
+
+		SchedulerInfo info = ServiceInfoDao.selectScheduler(id);
+		if (info.isNull()) {
+			return Command.makeSimpleResult("ID[" + id + "] is not exists.");
+		}
+
+		ServiceInfoDao.updateSchedulerCron(id, cron);
+		SchedulerManager.getInstance().update(null, id);
 
 		return this.getScheduleList(_parameter);
 	}

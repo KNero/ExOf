@@ -35,6 +35,18 @@ class InfoSetter {
 		}
 	}
 
+	void setSchedulerCron(String _id, String _cron) {
+		Command command = new Command(ServiceList.SET_SCHEDULER_CRON);
+		command.addParameter(Command.Key.ID, _id);
+		command.addParameter(Command.Key.CRON, _cron);
+
+		try {
+			Client.send(command, System.out::println, null);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	void addDynamicSetting(String _name, String _value, String _des) {
 		Command command = new Command(ServiceList.ADD_DYNAMIC_SETTING);
 		command.addParameter(Command.Key.NAME, _name);

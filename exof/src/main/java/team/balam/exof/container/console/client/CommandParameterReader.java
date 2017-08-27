@@ -35,6 +35,10 @@ class CommandParameterReader {
 					this._readSchedulerOnOff();
 					break;
 
+				case Menu.Execute.SET_SCHEDULER_CRON:
+					this._readSchedulerCron();
+					break;
+
 				case Menu.Execute.GET_DYNAMIC_SETTING_LIST:
 					this._readDynamicSettingListParameter();
 					break;
@@ -103,6 +107,26 @@ class CommandParameterReader {
 			throw new TerminateException();
 		} else {
 			throw new TerminateException("There is no menu. (Enter number 1, 2 or 9)");
+		}
+	}
+
+	private void _readSchedulerCron() throws IOException {
+		System.out.print("Enter scheduler ID : ");
+		String id = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(id)) {
+			this.viewerCommand.putParameter(Command.Key.ID, id);
+		} else {
+			throw new TerminateException("scheduler id is empty.");
+		}
+
+		System.out.print("Enter scheduler cron expression : ");
+		String cron = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(cron)) {
+			this.viewerCommand.putParameter(Command.Key.CRON, cron);
+		} else {
+			throw new TerminateException("scheduler cron expression is empty.");
 		}
 	}
 

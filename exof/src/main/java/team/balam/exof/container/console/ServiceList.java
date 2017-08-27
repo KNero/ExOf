@@ -7,6 +7,7 @@ public enum ServiceList {
 	GET_DYNAMIC_SETTING_LIST("getDynamicSettingList"),
 	SET_SERVICE_VARIABLE_VALUE("setServiceVariableValue"),
 	SET_SCHEDULER_ON_OFF("setSchedulerOnOff"),
+	SET_SCHEDULER_CRON("setSchedulerCron"),
 	ADD_DYNAMIC_SETTING("addDynamicSetting"),
 	UPDATE_DYNAMIC_SETTING("updateDynamicSetting"),
 	REMOVE_DYNAMIC_SETTING("removeDynamicSetting"),
