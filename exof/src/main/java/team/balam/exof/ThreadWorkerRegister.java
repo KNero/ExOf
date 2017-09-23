@@ -56,7 +56,7 @@ public class ThreadWorkerRegister
 		{
 			if(worker.isStop() || ! worker.isAlive())
 			{
-				this.logger.error("ThreadWorker[" + worker.getName() +"] is stoppted. Created ThreadWorker.");
+				this.logger.error("ThreadWorker[" + worker.getName() +"] is stopped. Created ThreadWorker.");
 				
 				this.workerList.remove(worker);
 				this.workerList.add(worker.createIfStop());
