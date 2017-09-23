@@ -18,5 +18,7 @@ service.xml 에서 간단한 설정을 통해서 원하는 Service를 주기적�
 CLI를 사용한 서버 정보 검색 및 설정
 
 ## [Wiki](https://github.com/KNero/ExOf/wiki)
+전체 사용 방법에 대한 자세한 설명
 
 ## [Release](https://github.com/KNero/ExOf/releases)
+최신 릴리즈 다운로드
