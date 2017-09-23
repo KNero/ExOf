@@ -22,17 +22,18 @@ public interface EnvKey
 		
 		String AUTORELOAD_SCHEDULER = "autoReload.scheduler";
 		String AUTORELOAD_SERVICE_VARIABLE = "autoReload.serviceVariable";
-		
 		String EXTERNAL = "external";
 	}
 	
 	interface Service
 	{
 		String SERVICES = "services";
-		
+
+		String SERVICE_PACKAGE = "servicePackage";
 		String SERVICE_DIRECTORY = "serviceDirectory";
 		String CLASS = "class";
 		String PATH = "path";
+		String PACKAGE = "package";
 		
 		String SERVICE_VARIABLE = "serviceVariable";
 		String SERVICE_NAME = "serviceName";

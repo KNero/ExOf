@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
+import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Variable;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class ServiceProviderTest {
 
 	private  static boolean isReloadTest;
 
-	@team.balam.exof.module.service.annotation.Service
+	@Service
 	public void testService(String _variable1, List<String> _variable2) {
 		if (isReloadTest) {
 			Assert.assertEquals("test222", _variable1);

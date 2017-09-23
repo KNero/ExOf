@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Service 
-{
+public @interface Service {
 	String name() default "";
+	String schedule() default "";
 }

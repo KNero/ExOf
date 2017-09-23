@@ -20,7 +20,7 @@ public class ServiceDirectory
 	private Method startup;
 	private Method shutdown;
 	
-	private Map<String, Service> serviceMap = new ConcurrentHashMap<>();
+	private Map<String, ServiceWrapper> serviceMap = new ConcurrentHashMap<>();
 	
 	ServiceDirectory(Object _host, String _dirPath)
 	{
@@ -76,14 +76,14 @@ public class ServiceDirectory
 		this.shutdown = shutdown;
 	}
 
-	ServiceImpl register(String _serviceName, Object _host, Method _method, ServiceVariable _variable)
+	ServiceWrapperImpl register(String _serviceName, Object _host, Method _method, ServiceVariable _variable)
 			throws ServiceAlreadyExistsException {
 
 		if (this.serviceMap.containsKey(_serviceName)) {
 			throw new ServiceAlreadyExistsException(this.dirPath + "/" + _serviceName);
 		}
 
-		ServiceImpl service = new ServiceImpl();
+		ServiceWrapperImpl service = new ServiceWrapperImpl();
 		service.setHost(_host);
 		service.setMethod(_method);
 		service.setVariable(_variable);
@@ -93,7 +93,7 @@ public class ServiceDirectory
 		return service;
 	}
 	
-	Service getService(String _serviceName)
+	ServiceWrapper getService(String _serviceName)
 	{
 		return this.serviceMap.get(_serviceName);
 	}
@@ -104,7 +104,7 @@ public class ServiceDirectory
 	}
 
 	void reloadVariable(String _serviceName, ServiceVariable _variable) {
-		ServiceImpl service = (ServiceImpl) this.serviceMap.get(_serviceName);
+		ServiceWrapperImpl service = (ServiceWrapperImpl) this.serviceMap.get(_serviceName);
 		if (service != null) {
 			service.setVariable(_variable);
 		}

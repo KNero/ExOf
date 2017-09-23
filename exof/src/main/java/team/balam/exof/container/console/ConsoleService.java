@@ -15,10 +15,11 @@ import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
-import team.balam.exof.module.service.Service;
-import team.balam.exof.module.service.ServiceImpl;
+import team.balam.exof.module.service.ServiceWrapperImpl;
 import team.balam.exof.module.service.ServiceNotFoundException;
 import team.balam.exof.module.service.ServiceProvider;
+import team.balam.exof.module.service.ServiceWrapper;
+import team.balam.exof.module.service.annotation.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
@@ -87,8 +88,7 @@ class ConsoleService {
 				Method[] methods = directoryClass.getMethods();
 
 				for (Method method : methods) {
-					team.balam.exof.module.service.annotation.Service serviceAnn =
-							method.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
+					Service serviceAnn = method.getAnnotation(Service.class);
 
 					if (serviceAnn != null) {
 						String serviceName = method.getName();
@@ -96,7 +96,7 @@ class ConsoleService {
 							serviceName = serviceAnn.name();
 						}
 
-						ServiceImpl service = (ServiceImpl) ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
+						ServiceWrapperImpl service = (ServiceWrapperImpl) ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
 
 						if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
 							serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
@@ -118,7 +118,7 @@ class ConsoleService {
 		return serviceList;
 	}
 
-	private Map<String, Object> makeServiceVariableMap(Service _service) {
+	private Map<String, Object> makeServiceVariableMap(ServiceWrapper _service) {
 		Map<String, Object> variables = new HashMap<>();
 
 		for (String key : _service.getServiceVariableKeys()) {
@@ -157,12 +157,12 @@ class ConsoleService {
 		List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
 		infoList.forEach(info -> {
 			try {
-				StringBuilder infoStr = new StringBuilder();
-				infoStr.append("ID:").append(info.getId()).append(", service path:").append(info.getServicePath());
-				infoStr.append(", cron:").append(info.getCronExpression()).append(", use:").append(info.isUse() ? "yes" : "no");
-				infoStr.append(", duplicateExecution:").append(info.isDuplicateExecution() ? "yes" : "no");
+				StringBuilder infoString = new StringBuilder();
+				infoString.append("ID:").append(info.getId()).append(", service path:").append(info.getServicePath());
+				infoString.append(", cron:").append(info.getCronExpression()).append(", use:").append(info.isUse() ? "yes" : "no");
+				infoString.append(", duplicateExecution:").append(info.isDuplicateExecution() ? "yes" : "no");
 
-				list.add(infoStr.toString());
+				list.add(infoString.toString());
 			} catch(Exception e) {
 				String error = "Can not get schedule info. ID[" + info.getId() + "]";
 				this.logger.error(error, e);
@@ -273,7 +273,7 @@ class ConsoleService {
 			String[] serviceParam = new String[]{serviceDirPath, serviceName};
 			ServiceProvider.getInstance().update(null, serviceParam);
 
-			Service service = ServiceProvider.lookup(servicePath);
+			ServiceWrapper service = ServiceProvider.lookup(servicePath);
 			return service.getServiceVariable(variableName);
 		} catch (Exception e) {
 			this.logger.error("Service variable SET error.", e);

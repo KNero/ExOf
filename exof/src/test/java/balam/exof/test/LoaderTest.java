@@ -21,7 +21,8 @@ import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
-import team.balam.exof.module.service.Service;
+import team.balam.exof.module.service.ServiceObject;
+import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 
@@ -49,10 +50,10 @@ public class LoaderTest
 	@Test
 	public void test02_scheduleAndServiceDirectory() throws Exception {
 		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectScheduler();
-		Assert.assertEquals(3, schedulerInfos.size());
+		Assert.assertEquals(4, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
-		Assert.assertEquals(2, directoryInfos.size());
+		Assert.assertEquals(3, directoryInfos.size());
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class LoaderTest
 		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
 		ServiceProvider.getInstance().start();
 
-		Service service = ServiceProvider.lookup("/test/schedule");
+		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
 		Assert.assertEquals("a1", service.getServiceVariable("a"));
 		Assert.assertEquals("b2", service.getServiceVariable("b"));
 		Assert.assertEquals("c3", service.getServiceVariable("c"));
@@ -119,6 +120,9 @@ public class LoaderTest
 		Assert.assertEquals("a1", service.getServiceVariable("a"));
 		Assert.assertEquals("b2", service.getServiceVariable("b"));
 		Assert.assertEquals("c3", service.getServiceVariable("c"));
+
+		service = ServiceProvider.lookup("/autoScan/autoSchedule");
+		service.call(new ServiceObject("/autoScan/autoSchedule"));
 	}
 
 	@Test
@@ -131,7 +135,7 @@ public class LoaderTest
 		ConsoleCommandHandler handler = new ConsoleCommandHandler();
 		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
 
-		Service service = ServiceProvider.lookup("/test/schedule");
+		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
 		Assert.assertEquals("a2a2", service.getServiceVariable("a"));
 	}
 
