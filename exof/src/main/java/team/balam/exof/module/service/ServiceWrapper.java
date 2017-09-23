@@ -2,7 +2,7 @@ package team.balam.exof.module.service;
 
 import java.util.Set;
 
-public interface Service
+public interface ServiceWrapper
 {
 	/**
 	 * Can get the object of serviceDirectory set class. (service.xml)<br>

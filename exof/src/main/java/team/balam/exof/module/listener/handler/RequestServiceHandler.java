@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.listener.handler.transform.BadFormatException;
 import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
-import team.balam.exof.module.service.Service;
+import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
 
@@ -60,7 +60,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     		RequestContext.set(RequestContext.SERVICE_OBJECT, serviceObject);
     		
 			String servicePath = serviceObject.getServicePath();
-			Service service = ServiceProvider.lookup(servicePath);
+			ServiceWrapper service = ServiceProvider.lookup(servicePath);
 			
 			long start = System.currentTimeMillis();
 			

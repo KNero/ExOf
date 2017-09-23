@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import team.balam.exof.environment.vo.SchedulerInfo;
-import team.balam.exof.module.service.Service;
+import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
 
@@ -53,7 +53,7 @@ public class SchedulerJob implements Job
 			}
 			
 			ServiceObject so = new ServiceObject(info.getServicePath());
-			Service service = ServiceProvider.lookup(so.getServicePath());
+			ServiceWrapper service = ServiceProvider.lookup(so.getServicePath());
 			
 			service.call(so);
 			

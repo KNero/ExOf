@@ -60,11 +60,11 @@ public class ServiceProvider implements Module, Observer
 					String serviceName = serviceAnn.name();
 					if (serviceName.length() == 0) serviceName = m.getName();
 
-					ServiceImpl service = serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
+					ServiceWrapperImpl service = serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
 
-					_checkInboundAnnotation(m, service);
-					_checkOutboundAnnotation(m, service);
-					_checkMapToVoAnnotation(m, service);
+					this._checkInboundAnnotation(m, service);
+					this._checkOutboundAnnotation(m, service);
+					this._checkMapToVoAnnotation(m, service);
 
 					if (logger.isInfoEnabled()) {
 						logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
@@ -126,28 +126,28 @@ public class ServiceProvider implements Module, Observer
 		}
 	}
 
-	private static void _checkInboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
+	private void _checkInboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
 		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
 		if (inboundAnn != null) {
 			_service.addInbound(inboundAnn.classObject().newInstance());
 		}
 	}
 
-	private static void _checkOutboundAnnotation(Method _method, ServiceImpl _service) throws Exception {
+	private void _checkOutboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
 		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
 		if (outboundAnn != null) {
 			_service.addOutbound(outboundAnn.classObject().newInstance());
 		}
 	}
 
-	private static void _checkMapToVoAnnotation(Method _method, ServiceImpl _service) throws Exception {
+	private void _checkMapToVoAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
 		MapToVo mapToVoAnn =_method.getAnnotation(MapToVo.class);
 		if (mapToVoAnn != null) {
 			_service.setMapToVoConverter(mapToVoAnn.classObject());
 		}
 	}
 
-	public static Service lookup(String _path) throws ServiceNotFoundException {
+	public static ServiceWrapper lookup(String _path) throws ServiceNotFoundException {
 		if (_path == null || _path.length() == 0) throw new IllegalArgumentException("Path is null : " + _path);
 
 		int splitIdx = _path.lastIndexOf("/");
@@ -163,7 +163,7 @@ public class ServiceProvider implements Module, Observer
 			throw new ServiceNotFoundException(_path);
 		}
 
-		Service service = serviceDir.getService(serviceName);
+		ServiceWrapper service = serviceDir.getService(serviceName);
 		if (service == null) throw new ServiceNotFoundException(_path);
 
 		return service;
@@ -208,7 +208,7 @@ public class ServiceProvider implements Module, Observer
 		ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
 		if (!serviceVariable.isNull()) {
 			try {
-				ServiceImpl service = (ServiceImpl) lookup(serviceDirPath + "/" + serviceName);
+				ServiceWrapperImpl service = (ServiceWrapperImpl) lookup(serviceDirPath + "/" + serviceName);
 				service.setVariable(serviceVariable);
 			} catch (ServiceNotFoundException e) {
 				logger.error("Can not reload the ServiceVariable. {}", serviceDirPath + "/" + serviceName);

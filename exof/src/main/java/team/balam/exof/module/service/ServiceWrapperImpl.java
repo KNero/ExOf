@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class ServiceImpl implements Service {
+public class ServiceWrapperImpl implements ServiceWrapper {
 	private Method method;
 	private Object host;
 	private int methodParamCount;
