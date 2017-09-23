@@ -1,14 +1,17 @@
 package team.balam.exof.environment;
 
+import org.reflections.Reflections;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import team.balam.exof.db.ServiceInfoDao;
+import team.balam.exof.module.service.annotation.ServiceDirectory;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Set;
 
 public class ServiceLoader implements Loader
 {
@@ -22,7 +25,6 @@ public class ServiceLoader implements Loader
 		} catch (Exception e) {
 			throw new LoadEnvException("Can not create env db table", e);
 		}
-
 
 		String filePath = _envPath + "/service.xml";
 		if (new File(filePath).exists()) {
@@ -56,6 +58,8 @@ public class ServiceLoader implements Loader
 						}
 
 						this._loadServiceAndScheduler(serviceFile);
+					} else if (this._equalsNodeName(serviceNode, EnvKey.Service.SERVICE_PACKAGE)) {
+						this._scanServicePackage(serviceNode);
 					}
 
 					serviceNode = serviceNode.getNextSibling();
@@ -134,6 +138,21 @@ public class ServiceLoader implements Loader
 			}
 		} catch (Exception e) {
 			throw new LoadEnvException("service.xml", e);
+		}
+	}
+
+	private void _scanServicePackage(Node _servicePackgeNode) throws LoadEnvException {
+		Node attribute = _servicePackgeNode.getAttributes().getNamedItem(EnvKey.Service.PACKAGE);
+		if (attribute != null) {
+			String packgeName = attribute.getNodeValue();
+			Reflections reflections = new Reflections(packgeName);
+
+			Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(ServiceDirectory.class);
+			for (Class<?> serviceDirectory : classSet) {
+				ServiceDirectory annotation = serviceDirectory.getAnnotation(ServiceDirectory.class);
+
+				ServiceInfoDao.insertServiceDirectory(annotation.path(), serviceDirectory.getName());
+			}
 		}
 	}
 }

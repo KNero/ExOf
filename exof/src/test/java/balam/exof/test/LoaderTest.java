@@ -21,6 +21,7 @@ import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
+import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
@@ -119,6 +120,9 @@ public class LoaderTest
 		Assert.assertEquals("a1", service.getServiceVariable("a"));
 		Assert.assertEquals("b2", service.getServiceVariable("b"));
 		Assert.assertEquals("c3", service.getServiceVariable("c"));
+
+		service = ServiceProvider.lookup("/autoScan/autoSchedule");
+		service.call(new ServiceObject("/autoScan/autoSchedule"));
 	}
 
 	@Test
