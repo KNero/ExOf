@@ -2,6 +2,8 @@
 <services>
 	<resource file="./env/other_service.xml"/>
 
+    <servicePackage package="team.balam.exof.test.scan"/>
+
 	<serviceDirectory class="team.balam.exof.test.TestService" path="/test">
 		<serviceVariable serviceName="schedule">
 			<variable name="a" value="a1"/>

@@ -53,8 +53,7 @@ public class ServiceProvider implements Module, Observer
 
 			Method[] method = clazz.getMethods();
 			for (Method m : method) {
-				team.balam.exof.module.service.annotation.Service serviceAnn =
-						m.getAnnotation(team.balam.exof.module.service.annotation.Service.class);
+				Service serviceAnn = m.getAnnotation(Service.class);
 
 				if (serviceAnn != null) {
 					String serviceName = serviceAnn.name();
