@@ -19,7 +19,7 @@
 			<variable name="c" value="c4"/>
 		</serviceVariable>
 	</serviceDirectory>
-	
+
 	<scheduler id="test-schedule-01" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/>
     <scheduler id="test-schedule-02" servicePath="/test/arrayParam" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/>
 </services>

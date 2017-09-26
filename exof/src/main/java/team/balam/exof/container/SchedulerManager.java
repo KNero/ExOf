@@ -100,34 +100,36 @@ public class SchedulerManager implements Container, Observer
 	}
 	
 	public void executeInitTimeAndStart() {
-		boolean isNotStarted = false;
-
-		try {
-			isNotStarted = !this.scheduler.isStarted();
-		} catch (SchedulerException e) {
-		}
-
-		if (isNotStarted) {
-			List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
-			infoList.forEach(info -> {
-				if (this.jobKeyMap.containsKey(info.getId())) {
-					if (info.isUse() && info.isInitExecution()) {
-						ExecutionContext exeCtx = new ExecutionContext(info);
-						SchedulerJob job = new SchedulerJob();
-
-						try {
-							job.execute(exeCtx);
-						} catch (Exception e) {
-							this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
-						}
-					}
-				}
-			});
+		if (this.scheduler != null) {
+			boolean isNotStarted = false;
 
 			try {
-				this.scheduler.start();
+				isNotStarted = !this.scheduler.isStarted();
 			} catch (SchedulerException e) {
-				this.logger.error("Scheduler start error.", e);
+			}
+
+			if (isNotStarted) {
+				List<SchedulerInfo> infoList = ServiceInfoDao.selectScheduler();
+				infoList.forEach(info -> {
+					if (this.jobKeyMap.containsKey(info.getId())) {
+						if (info.isUse() && info.isInitExecution()) {
+							ExecutionContext exeCtx = new ExecutionContext(info);
+							SchedulerJob job = new SchedulerJob();
+
+							try {
+								job.execute(exeCtx);
+							} catch (Exception e) {
+								this.logger.error("Failed to execute scheduler in init time. ServicePath : {}", info.getServicePath(), e);
+							}
+						}
+					}
+				});
+
+				try {
+					this.scheduler.start();
+				} catch (SchedulerException e) {
+					this.logger.error("Scheduler start error.", e);
+				}
 			}
 		}
 	}
