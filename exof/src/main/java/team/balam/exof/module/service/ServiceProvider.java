@@ -1,7 +1,9 @@
 package team.balam.exof.module.service;
 
+import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.module.Module;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
@@ -13,11 +15,9 @@ import team.balam.exof.module.service.annotation.Shutdown;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public class ServiceProvider implements Module, Observer
 {
@@ -39,7 +39,7 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	private void _register(ServiceDirectoryInfo _info) throws Exception {
-		Class<?> clazz = Class.forName(_info.getClassName());
+		Class<?> clazz = ExternalClassLoader.loadClass(_info.getClassName());
 		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn =
 				clazz.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
 
@@ -51,34 +51,33 @@ public class ServiceProvider implements Module, Observer
 			ServiceDirectory serviceDir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
 					_key -> new ServiceDirectory(host, _key));
 
-			Method[] method = clazz.getMethods();
-			for (Method m : method) {
-				Service serviceAnn = m.getAnnotation(Service.class);
 
-				if (serviceAnn != null) {
-					String serviceName = serviceAnn.name();
-					if (serviceName.length() == 0) serviceName = m.getName();
-
-					ServiceWrapperImpl service = serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
-
-					this._checkInboundAnnotation(m, service);
-					this._checkOutboundAnnotation(m, service);
-					this._checkMapToVoAnnotation(m, service);
-
-					if (logger.isInfoEnabled()) {
-						logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
-					}
+			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
+			for (Method m : services) {
+				String serviceName = m.getAnnotation(Service.class).name();
+				if (serviceName.length() == 0) {
+					serviceName = m.getName();
 				}
 
-				Startup startupAnn = m.getAnnotation(Startup.class);
-				if (startupAnn != null) {
-					serviceDir.setStartup(m);
-				}
+				ServiceWrapperImpl service = serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
 
-				Shutdown shutdown = m.getAnnotation(Shutdown.class);
-				if (shutdown != null) {
-					serviceDir.setShutdown(m);
+				this._checkInboundAnnotation(m, service);
+				this._checkOutboundAnnotation(m, service);
+				this._checkMapToVoAnnotation(m, service);
+
+				if (logger.isInfoEnabled()) {
+					logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
 				}
+			}
+
+			Set<Method> startup = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Startup.class));
+			if (!startup.isEmpty()) {
+				serviceDir.setStartup(startup.iterator().next());
+			}
+
+			Set<Method> shutdown = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Shutdown.class));
+			if (!shutdown.isEmpty()) {
+				serviceDir.setShutdown(shutdown.iterator().next());
 			}
 		} else {
 			ServiceInfoDao.deleteServiceDirectory(_info.getPath());
@@ -87,7 +86,7 @@ public class ServiceProvider implements Module, Observer
 	}
 	
 	private static void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception {
-		Field[] fields = _host.getClass().getDeclaredFields();
+		Set<Field> fields = ReflectionUtils.getAllFields(_host.getClass(), ReflectionUtils.withAnnotation(Variable.class));
 		
 		for(Field field : fields) {
 			field.setAccessible(true);

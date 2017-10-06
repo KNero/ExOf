@@ -1,6 +1,7 @@
 package team.balam.exof;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -17,7 +18,7 @@ public class ExternalClassLoader {
 	 * 폴더 안의 모든 jar 를 로딩한다.
 	 * @param _externalPath 로딩할 폴더의 path
 	 */
-	public static void load(String _externalPath) {
+	public static void load(String _externalPath) throws FileNotFoundException {
 		List<URL> urlList = new ArrayList<>();
 
 		File extFile = new File(_externalPath);
@@ -37,6 +38,8 @@ public class ExternalClassLoader {
 
 			URL[] urls = new URL[urlList.size()];
 			external = new URLClassLoader(urlList.toArray(urls));
+		} else {
+			throw new FileNotFoundException(extFile.getAbsolutePath());
 		}
 	}
 
