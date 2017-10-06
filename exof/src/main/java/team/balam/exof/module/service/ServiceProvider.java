@@ -4,20 +4,28 @@ import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.ExternalClassLoader;
-import team.balam.exof.module.Module;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
-import team.balam.exof.module.service.annotation.*;
+import team.balam.exof.module.Module;
+import team.balam.exof.module.service.annotation.Inbound;
+import team.balam.exof.module.service.annotation.MapToVo;
+import team.balam.exof.module.service.annotation.Outbound;
+import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Shutdown;
+import team.balam.exof.module.service.annotation.Startup;
+import team.balam.exof.module.service.annotation.Variable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 public class ServiceProvider implements Module, Observer
 {
