@@ -9,10 +9,8 @@ public class MainLoader implements Loader
 											new MyBatisLoader()};
 	
 	@Override
-	public void load(String _envPath) throws LoadEnvException 
-	{
-		for(Loader loader : this.loaders)
-		{
+	public void load(String _envPath) throws LoadEnvException {
+		for(Loader loader : this.loaders) {
 			loader.load(_envPath);
 		}
 	}
