@@ -28,9 +28,9 @@
 		<dependency>
 			<groupId>team.balam</groupId>
 			<artifactId>SQLite-Helper</artifactId>
-			<version>0.1.1-SNAPSHOT</version>
+			<version>0.2.0-SNAPSHOT</version>
 			<scope>system</scope>
-			<systemPath>/Users/kwonsm/git/ExOf/exof/lib/SQLite-Helper-0.2.0-SNAPSHOT.jar</systemPath>
+			<systemPath>/Users/kwonsm/git/SQLite-Helper/target/SQLite-Helper-0.2.0-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<dependency>
 		    <groupId>org.xerial</groupId>
