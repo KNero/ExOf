@@ -10,9 +10,6 @@ import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.Module;
-import team.balam.exof.module.service.annotation.Inbound;
-import team.balam.exof.module.service.annotation.MapToVo;
-import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Shutdown;
 import team.balam.exof.module.service.annotation.Startup;
@@ -59,7 +56,6 @@ public class ServiceProvider implements Module, Observer
 			ServiceDirectory serviceDir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
 					_key -> new ServiceDirectory(host, _key));
 
-
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
 			for (Method m : services) {
 				String serviceName = m.getAnnotation(Service.class).name();
@@ -67,11 +63,7 @@ public class ServiceProvider implements Module, Observer
 					serviceName = m.getName();
 				}
 
-				ServiceWrapperImpl service = serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
-
-				this._checkInboundAnnotation(m, service);
-				this._checkOutboundAnnotation(m, service);
-				this._checkMapToVoAnnotation(m, service);
+				serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
 
 				if (logger.isInfoEnabled()) {
 					logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
@@ -129,27 +121,6 @@ public class ServiceProvider implements Module, Observer
 					logger.error("This type can not be set. Field type : {}", fieldType);
 				}
 			}
-		}
-	}
-
-	private void _checkInboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
-		if (inboundAnn != null) {
-			_service.addInbound(inboundAnn.classObject().newInstance());
-		}
-	}
-
-	private void _checkOutboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
-		if (outboundAnn != null) {
-			_service.addOutbound(outboundAnn.classObject().newInstance());
-		}
-	}
-
-	private void _checkMapToVoAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		MapToVo mapToVoAnn =_method.getAnnotation(MapToVo.class);
-		if (mapToVoAnn != null) {
-			_service.setMapToVoConverter(mapToVoAnn.classObject());
 		}
 	}
 

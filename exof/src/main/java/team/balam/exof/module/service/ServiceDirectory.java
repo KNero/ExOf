@@ -3,14 +3,16 @@ package team.balam.exof.module.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.environment.vo.ServiceVariable;
+import team.balam.exof.module.service.annotation.Inbound;
+import team.balam.exof.module.service.annotation.MapToVo;
+import team.balam.exof.module.service.annotation.Outbound;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServiceDirectory
+class ServiceDirectory
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -22,14 +24,12 @@ public class ServiceDirectory
 	
 	private Map<String, ServiceWrapper> serviceMap = new ConcurrentHashMap<>();
 	
-	ServiceDirectory(Object _host, String _dirPath)
-	{
+	ServiceDirectory(Object _host, String _dirPath) {
 		this.host = _host;
 		this.dirPath = _dirPath;
 	}
 	
-	void startup()
-	{
+	void startup() {
 		if(this.startup != null)
 		{
 			try
@@ -51,8 +51,7 @@ public class ServiceDirectory
 		}
 	}
 	
-	public void shutdown()
-	{
+	void shutdown() {
 		if(this.shutdown != null)
 		{
 			try
@@ -76,9 +75,7 @@ public class ServiceDirectory
 		this.shutdown = shutdown;
 	}
 
-	ServiceWrapperImpl register(String _serviceName, Object _host, Method _method, ServiceVariable _variable)
-			throws ServiceAlreadyExistsException {
-
+	void register(String _serviceName, Object _host, Method _method, ServiceVariable _variable) throws Exception {
 		if (this.serviceMap.containsKey(_serviceName)) {
 			throw new ServiceAlreadyExistsException(this.dirPath + "/" + _serviceName);
 		}
@@ -88,25 +85,36 @@ public class ServiceDirectory
 		service.setMethod(_method);
 		service.setVariable(_variable);
 
-		this.serviceMap.put(_serviceName, service);
+		this._checkInboundAnnotation(_method, service);
+		this._checkOutboundAnnotation(_method, service);
+		this._checkMapToVoAnnotation(_method, service);
 
-		return service;
+		this.serviceMap.put(_serviceName, service);
+	}
+
+	private void _checkInboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
+		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
+		if (inboundAnn != null) {
+			_service.addInbound(inboundAnn.classObject().newInstance());
+		}
+	}
+
+	private void _checkOutboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
+		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
+		if (outboundAnn != null) {
+			_service.addOutbound(outboundAnn.classObject().newInstance());
+		}
+	}
+
+	private void _checkMapToVoAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
+		MapToVo mapToVoAnn =_method.getAnnotation(MapToVo.class);
+		if (mapToVoAnn != null) {
+			_service.setMapToVoConverter(mapToVoAnn.classObject());
+		}
 	}
 	
 	ServiceWrapper getService(String _serviceName)
 	{
 		return this.serviceMap.get(_serviceName);
-	}
-	
-	Set<String> getServiceNameList()
-	{
-		return this.serviceMap.keySet();
-	}
-
-	void reloadVariable(String _serviceName, ServiceVariable _variable) {
-		ServiceWrapperImpl service = (ServiceWrapperImpl) this.serviceMap.get(_serviceName);
-		if (service != null) {
-			service.setVariable(_variable);
-		}
 	}
 }
