@@ -81,11 +81,11 @@ public class DbSessionFactory
 	public void loadSqlSessionFactory(String _datasource)
 	{
 		MyBatisLoader loader = new MyBatisLoader();
-		String envPath = SystemSetting.getFramework(EnvKey.ENV_PATH);
+		String home = SystemSetting.getFramework(EnvKey.HOME);
 		
 		try
 		{
-			SqlSessionFactory factory = loader.loadSqlSessionFactory(envPath, _datasource);
+			SqlSessionFactory factory = loader.loadSqlSessionFactory(home + "/env", _datasource);
 			this.factoryMap.put(_datasource, factory);
 		}
 		catch(LoadEnvException e)

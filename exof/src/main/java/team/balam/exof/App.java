@@ -1,5 +1,7 @@
 package team.balam.exof;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -32,26 +34,27 @@ public class App
 			}
 			}
 		});
-		
-		String envPath = System.getProperty(EnvKey.ENV_PATH, "./env");
-		SystemSetting.setFramework(EnvKey.ENV_PATH, envPath);
+
+		String homeSetting = System.getProperty(EnvKey.HOME, ".");
+		File home = new File(homeSetting);
+		SystemSetting.setFramework(EnvKey.HOME, home.getAbsolutePath());
 		
 		Logger logger = LoggerFactory.getLogger(App.class);
 		
 		try
 		{
-			Loader mainLoader = new MainLoader();
-			mainLoader.load(envPath);
-		}
-		catch(Exception e) 
-    	{
-    		if(e instanceof LoadEnvException)
-    		{
+			File envFolder = new File(home, "env");
+			if (envFolder.exists()) {
+				Loader mainLoader = new MainLoader();
+				mainLoader.load(envFolder.getAbsolutePath());
+			} else {
+				throw new FileNotFoundException(envFolder.getAbsolutePath());
+			}
+		} catch(Exception e) {
+    		if(e instanceof LoadEnvException) {
     			logger.error("Loader error occurred.", e);
-    		}
-    		else
-    		{
-    			logger.error("Fail to load Custom jar.", e);
+    		} else {
+    			logger.error("Fail to load environment.", e);
     		}
     		
     		e.printStackTrace();
@@ -62,16 +65,13 @@ public class App
         Operator.start();
         
         //main thread에서 worker들을 검사한다.
-        while(! App.isShutdown.get())
-        {
+        while(! App.isShutdown.get()) {
         	ThreadWorkerRegister.getInstance().check();
         	
-        	try 
-        	{
+        	try {
 				Thread.sleep(1000);
 			}
-        	catch(InterruptedException e) 
-        	{
+        	catch(InterruptedException e) {
 			}
         }
 	}
