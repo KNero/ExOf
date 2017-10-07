@@ -51,7 +51,7 @@ public class ServiceProvider implements Module, Observer
 		if (serviceDirAnn != null) {
 			Object host = clazz.newInstance();
 
-			_setServiceVariableByAnnotation(host, _info);
+			this._setServiceVariableByAnnotation(host, _info);
 
 			ServiceDirectory serviceDir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
 					_key -> new ServiceDirectory(host, _key));
@@ -81,11 +81,11 @@ public class ServiceProvider implements Module, Observer
 			}
 		} else {
 			ServiceInfoDao.deleteServiceDirectory(_info.getPath());
-			throw new Exception("This class is not defined ServiceDirectory annotation.");
+			throw new Exception("This class undefined ServiceDirectory annotation.");
 		}
 	}
 	
-	private static void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception {
+	private void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception {
 		Set<Field> fields = ReflectionUtils.getAllFields(_host.getClass(), ReflectionUtils.withAnnotation(Variable.class));
 		
 		for(Field field : fields) {

@@ -5,6 +5,7 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.module.Module;
@@ -69,7 +70,7 @@ public class JettyModule implements Module {
 			throw new Exception("Https must be declared sslContextClass.");
 		}
 
-		SslContextFactoryBuilder sslCtxFactoryBuilder = (SslContextFactoryBuilder) Class.forName(sslCtxClass).newInstance();
+		SslContextFactoryBuilder sslCtxFactoryBuilder = (SslContextFactoryBuilder) ExternalClassLoader.loadClass(sslCtxClass).newInstance();
 		SslContextFactory sslCtxFactory = sslCtxFactoryBuilder.build(this.portInfo);
 
 		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector(sslCtxFactory);

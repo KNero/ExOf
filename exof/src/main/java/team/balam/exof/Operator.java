@@ -32,7 +32,7 @@ public class Operator {
 		if(extraContainerList != null) {
 			extraContainerList.forEach(_containerClass -> {
 				try {
-					Container container = (Container) Class.forName(_containerClass).newInstance();
+					Container container = (Container) ExternalClassLoader.loadClass(_containerClass).newInstance();
 					containerList.add(container);
 				} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
 					logger.error("Container[{}] can not create.", _containerClass, e);
