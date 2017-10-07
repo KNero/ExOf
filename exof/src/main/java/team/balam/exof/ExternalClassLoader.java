@@ -43,6 +43,10 @@ public class ExternalClassLoader {
 		}
 	}
 
+	public static ClassLoader getClassLoader() {
+		return external;
+	}
+
 	public static Class<?> loadClass(String _class) throws ClassNotFoundException {
 		return external.loadClass(_class);
 	}

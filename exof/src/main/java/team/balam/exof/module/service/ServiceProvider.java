@@ -17,19 +17,20 @@ import team.balam.exof.module.service.annotation.Variable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceProvider implements Module, Observer
 {
 	private static Logger logger = LoggerFactory.getLogger(ServiceProvider.class);
 	
-	private Map<String, ServiceDirectory> serviceDirectory = new ConcurrentHashMap<>();
-	private boolean isAutoReload;
+	private Map<String, ServiceDirectory> serviceDirectory;
+	private boolean isReloadServiceVariable;
+	private transient boolean isLoadingClass;
 
 	private static ServiceProvider self = new ServiceProvider();
 	
@@ -53,7 +54,7 @@ public class ServiceProvider implements Module, Observer
 
 			this._setServiceVariableByAnnotation(host, _info);
 
-			ServiceDirectory serviceDir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
+			ServiceDirectory serviceDir = this.serviceDirectory.computeIfAbsent(_info.getPath(),
 					_key -> new ServiceDirectory(host, _key));
 
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
@@ -125,7 +126,18 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	public static ServiceWrapper lookup(String _path) throws ServiceNotFoundException {
-		if (_path == null || _path.length() == 0) throw new IllegalArgumentException("Path is null : " + _path);
+		if (_path == null || _path.length() == 0) {
+			throw new IllegalArgumentException("Path is null : " + _path);
+		}
+
+		Map<String, ServiceDirectory> serviceDirectoryMap = self.serviceDirectory;
+
+		while(self.isLoadingClass) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
 
 		int splitIdx = _path.lastIndexOf("/");
 		if (splitIdx == -1) {
@@ -135,34 +147,51 @@ public class ServiceProvider implements Module, Observer
 		String dirPath = _path.substring(0, splitIdx);
 		String serviceName = _path.substring(splitIdx + 1);
 
-		ServiceDirectory serviceDir = self.serviceDirectory.get(dirPath);
+		ServiceDirectory serviceDir = serviceDirectoryMap.get(dirPath);
 		if (serviceDir == null) {
 			throw new ServiceNotFoundException(_path);
 		}
 
 		ServiceWrapper service = serviceDir.getService(serviceName);
-		if (service == null) throw new ServiceNotFoundException(_path);
+		if (service == null) {
+			throw new ServiceNotFoundException(_path);
+		}
 
 		return service;
 	}
 
-	@Override
-	public void start() throws Exception {
-		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
-		if (isAutoReload != null) {
-			this.isAutoReload = isAutoReload;
+	public void loadServiceDirectory() {
+		this.isLoadingClass = true;
+		this.serviceDirectory = new HashMap<>();
+
+		try {
+			this.stop();
+		} catch (Exception e) {
+			logger.error("Fail to stop ServiceDirectory.", e);
 		}
 
 		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
 		directoryInfoList.forEach(_info -> {
 			try {
 				this._register(_info);
-				
- 				logger.warn("Service Directory is loaded.\n{}", _info.toString());
+
+				logger.warn("Service Directory is loaded.\n{}", _info.toString());
 			} catch(Exception e) {
 				logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
 			}
 		});
+
+		this.isLoadingClass = false;
+	}
+
+	@Override
+	public void start() throws Exception {
+		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
+		if (isAutoReload != null) {
+			this.isReloadServiceVariable = isAutoReload;
+		}
+
+		this.loadServiceDirectory();
 		
 		this.serviceDirectory.values().forEach(ServiceDirectory::startup);
 	}
@@ -175,7 +204,7 @@ public class ServiceProvider implements Module, Observer
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (!this.isAutoReload) {
+		if (!this.isReloadServiceVariable) {
 			return;
 		}
 

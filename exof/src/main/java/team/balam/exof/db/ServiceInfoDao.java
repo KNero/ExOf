@@ -76,11 +76,19 @@ public class ServiceInfoDao {
 	}
 
 	public static void insertServiceDirectory(String _path, String _class) throws LoadEnvException {
-		String query = "INSERT INTO SERVICE_DIRECTORY (PATH, CLASS) VALUES (?, ?)";
-		Object[] param = new Object[]{_path, _class};
+		String selectQuery = "SELECT COUNT(*) AS CNT FROM SERVICE_DIRECTORY WHERE PATH=? AND CLASS=?";
+		Object[] selectParam = new Object[]{_path, _class};
 
 		try {
-			EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
+			List<Map<String, Object>> result = EnvDbHelper.select(selectQuery, selectParam);
+			int count = (Integer) result.get(0).get("cnt");
+
+			if (count == 0) {
+				String query = "INSERT INTO SERVICE_DIRECTORY (PATH, CLASS) VALUES (?, ?)";
+				Object[] param = new Object[]{_path, _class};
+
+				EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
+			}
 		} catch (Exception e) {
 			throw new LoadEnvException("Fail insert to SERVICE_DIRECTORY", e);
 		}
