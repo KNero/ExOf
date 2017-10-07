@@ -158,7 +158,7 @@ public class ServiceInfoDao {
 	}
 
 	public static void deleteServiceDirectory(String _path) {
-		String query = "DELETE * FROM SERVICE_DIRECTORY WHERE PATH=?";
+		String query = "DELETE FROM SERVICE_DIRECTORY WHERE PATH=?";
 		Object[] param = new Object[]{_path};
 
 		try {

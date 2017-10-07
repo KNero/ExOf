@@ -19,6 +19,9 @@ import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
 public abstract class AbstractClient<I, O> implements Client<I, O>
 {
+	public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
+	public static final int DEFAULT_READ_TIMEOUT = 10000;
+
 	protected Channel channel;
 
 	private EventLoopGroup workerGroup;
@@ -38,7 +41,8 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 	{
 		this.channelHandler = _channelHandler;
 		this.workerGroup = _loopGroup;
-		this.connectTimeout = Client.DEFAULT_CONNECT_TIMEOUT;
+		this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+		this.readTimeout = DEFAULT_READ_TIMEOUT;
 	}
 	
 	@Override
