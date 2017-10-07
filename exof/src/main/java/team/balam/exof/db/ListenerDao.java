@@ -92,7 +92,7 @@ public class ListenerDao {
 	}
 
 	public static List<Map<String, Object>> selectAllPortAttribute(int _port) {
-		String query = "SELECT VALUE FROM PORT_ATTRIBUTE WHERE PORT=?";
+		String query = "SELECT KEY, VALUE FROM PORT_ATTRIBUTE WHERE PORT=?";
 		Object[] param = new Object[]{_port};
 
 		try {
@@ -197,6 +197,18 @@ public class ListenerDao {
 		} catch (Exception e) {
 			LOGGER.error("Can not get port info.", e);
 			return Collections.emptyList();
+		}
+	}
+
+	public static void deletePortAttribute(int _number) {
+		String query = "DELETE FROM PORT_ATTRIBUTE WHERE PORT=?";
+		Object[] param = new Object[]{_number};
+
+
+		try {
+			EnvDbHelper.execute(QueryVo.Type.DELETE, query, param);
+		} catch (Exception e) {
+			LOGGER.error("Can not get port info.", e);
 		}
 	}
 }

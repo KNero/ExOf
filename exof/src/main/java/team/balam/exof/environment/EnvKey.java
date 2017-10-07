@@ -68,6 +68,7 @@ public interface EnvKey {
 		
 		String CONSOLE = "console";
 		String ADMIN_CONSOLE = "adminConsole";
+		String DEPLOY = "deploy";
 		String ID = "id";
 		String PASSWORD = "password";
 		

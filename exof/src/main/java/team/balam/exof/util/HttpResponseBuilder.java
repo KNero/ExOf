@@ -47,6 +47,10 @@ public class HttpResponseBuilder
 
 		return createHttpResponse(HttpResponseStatus.BAD_REQUEST, content);
 	}
+
+	public static FullHttpResponse buildNotImplemented(String _msg) {
+		return createHttpResponse(HttpResponseStatus.NOT_IMPLEMENTED, _msg);
+	}
 	
 	private static FullHttpResponse createHttpResponse(HttpResponseStatus _status, Object _content) {
 		String contentStr = null;
