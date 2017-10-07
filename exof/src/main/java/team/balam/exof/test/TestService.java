@@ -1,5 +1,6 @@
 package team.balam.exof.test;
 
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class TestService {
 	}
 
 	@Service
-	public HttpResponse receiveHttp(Object _req) {
+	public HttpResponse receiveHttp(FullHttpRequest _req) {
 		this.logger.info("Receive http data : " + _req.toString());
 
 		return HttpResponseBuilder.buildOkMessage("response");

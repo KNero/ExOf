@@ -38,7 +38,7 @@ class ConsoleService {
 		String id = (String) _param.get("id");
 		String password = (String) _param.get("password");
 
-		PortInfo consolePort = ListenerDao.selectAdminConsolePort();
+		PortInfo consolePort = ListenerDao.selectSpecialPort(EnvKey.Listener.ADMIN_CONSOLE);
 
 		String portId = consolePort.getAttribute(EnvKey.Listener.ID);
 		String portPw = consolePort.getAttribute(EnvKey.Listener.PASSWORD);

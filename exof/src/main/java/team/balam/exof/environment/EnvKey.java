@@ -50,6 +50,7 @@ public interface EnvKey {
 		String LISTENER = "listener";
 		String PORT = "port";
 		String NUMBER = "number";
+		String TYPE = "type";
 		String WORKER_SIZE = "workerSize";
 		String MAX_LENGTH = "maxLength";
 		

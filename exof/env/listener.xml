@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listener>
-	<port console="yes" number="3001"/>
+	<port number="3001" type="console"/>
+    <port number="3002" type="deploy"/>
 	
 	<port number="2000" maxLength="2000" description="for maven build">
+        <sessionHandler class="team.balam.exof.test.TestSessionHandler"/>
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
 		<messageTransform class="team.balam.exof.module.listener.handler.transform.JsonTransform"/>
 	</port>
 
     <port number="2001" workerSize="200" lengthOffset="0" lengthSize="4" maxLength="1000">
-        <sessionHandler class=""/>
+        <sessionHandler class="team.balam.exof.test.TestSessionHandler"/>
         <channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
         <messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>
     </port>

@@ -32,12 +32,12 @@ public class Console implements Container {
 
 	@Override
 	public void start() throws Exception {
-		PortInfo consolePort = ListenerDao.selectConsolePort();
+		PortInfo consolePort = ListenerDao.selectSpecialPort(EnvKey.Listener.CONSOLE);
 		if (!consolePort.isNull()) {
 			this.openConsolePort(consolePort);
 		}
 
-		PortInfo adminPort = ListenerDao.selectAdminConsolePort();
+		PortInfo adminPort = ListenerDao.selectSpecialPort(EnvKey.Listener.ADMIN_CONSOLE);
 		if (!adminPort.isNull()) {
 			this.createWebConsole(adminPort);
 		}

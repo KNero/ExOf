@@ -43,7 +43,7 @@ public class Client
 				InputSource is = new InputSource(input);
 
 				XPath xpath = XPathFactory.newInstance().newXPath();
-				consolePort = Integer.parseInt(xpath.evaluate("//port[@console]/@number", is));
+				consolePort = Integer.parseInt(xpath.evaluate("//port[@type='console']/@number", is));
 			} finally {
 				if (input != null) {
 					input.close();

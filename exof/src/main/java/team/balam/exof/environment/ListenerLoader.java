@@ -30,6 +30,7 @@ public class ListenerLoader implements Loader
 				Node portNode = listenerNode.getFirstChild();
 
 				while(portNode != null) {
+
 					if(this._equalsNodeName(portNode, EnvKey.Listener.PORT)) {
 						int port = this.findNumber(portNode);
 						if (port > 0) {

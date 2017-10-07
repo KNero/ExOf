@@ -88,8 +88,6 @@ public class ClientTest {
 		ServiceProvider.getInstance().start();
 
 		Client.init();
-
-
 	}
 
 	@Test
