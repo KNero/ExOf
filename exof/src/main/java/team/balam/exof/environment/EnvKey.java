@@ -5,17 +5,10 @@ package team.balam.exof.environment;
  * @author kwonsm
  *
  */
-public interface EnvKey 
-{
-	String ENV_PATH = "exof.envPath";
-	
-	interface FileName
-	{
-		String FRAMEWORK = "framework.";
-	}
-	
-	interface Framework
-	{
+public interface EnvKey {
+	String HOME = "exof.home";
+
+	interface Framework {
 		String FRAMEWORK = "framework";
 		String CONTAINER = "container";
 		String SCHEDULER = "scheduler";
@@ -25,8 +18,7 @@ public interface EnvKey
 		String EXTERNAL = "external";
 	}
 	
-	interface Service
-	{
+	interface Service {
 		String SERVICES = "services";
 
 		String SERVICE_PACKAGE = "servicePackage";
@@ -54,11 +46,11 @@ public interface EnvKey
 		String INIT_EXECUTION = "initExecution";
 	}
 	
-	interface Listener
-	{
+	interface Listener {
 		String LISTENER = "listener";
 		String PORT = "port";
 		String NUMBER = "number";
+		String TYPE = "type";
 		String WORKER_SIZE = "workerSize";
 		String MAX_LENGTH = "maxLength";
 		
@@ -76,6 +68,7 @@ public interface EnvKey
 		
 		String CONSOLE = "console";
 		String ADMIN_CONSOLE = "adminConsole";
+		String DEPLOY = "deploy";
 		String ID = "id";
 		String PASSWORD = "password";
 		

@@ -1,30 +1,36 @@
 package team.balam.exof.module.service;
 
+import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import team.balam.exof.module.Module;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
-import team.balam.exof.module.service.annotation.*;
+import team.balam.exof.module.Module;
+import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Shutdown;
+import team.balam.exof.module.service.annotation.Startup;
+import team.balam.exof.module.service.annotation.Variable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 public class ServiceProvider implements Module, Observer
 {
 	private static Logger logger = LoggerFactory.getLogger(ServiceProvider.class);
 	
-	private Map<String, ServiceDirectory> serviceDirectory = new ConcurrentHashMap<>();
-	private boolean isAutoReload;
+	private Map<String, ServiceDirectory> serviceDirectory;
+	private boolean isReloadServiceVariable;
+	private transient boolean isLoadingClass;
 
 	private static ServiceProvider self = new ServiceProvider();
 	
@@ -39,55 +45,49 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	private void _register(ServiceDirectoryInfo _info) throws Exception {
-		Class<?> clazz = Class.forName(_info.getClassName());
+		Class<?> clazz = ExternalClassLoader.loadClass(_info.getClassName());
 		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn =
 				clazz.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
 
 		if (serviceDirAnn != null) {
 			Object host = clazz.newInstance();
 
-			_setServiceVariableByAnnotation(host, _info);
+			this._setServiceVariableByAnnotation(host, _info);
 
-			ServiceDirectory serviceDir = self.serviceDirectory.computeIfAbsent(_info.getPath(),
+			ServiceDirectory serviceDir = this.serviceDirectory.computeIfAbsent(_info.getPath(),
 					_key -> new ServiceDirectory(host, _key));
 
-			Method[] method = clazz.getMethods();
-			for (Method m : method) {
-				Service serviceAnn = m.getAnnotation(Service.class);
-
-				if (serviceAnn != null) {
-					String serviceName = serviceAnn.name();
-					if (serviceName.length() == 0) serviceName = m.getName();
-
-					ServiceWrapperImpl service = serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
-
-					this._checkInboundAnnotation(m, service);
-					this._checkOutboundAnnotation(m, service);
-					this._checkMapToVoAnnotation(m, service);
-
-					if (logger.isInfoEnabled()) {
-						logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
-					}
+			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
+			for (Method m : services) {
+				String serviceName = m.getAnnotation(Service.class).name();
+				if (serviceName.length() == 0) {
+					serviceName = m.getName();
 				}
 
-				Startup startupAnn = m.getAnnotation(Startup.class);
-				if (startupAnn != null) {
-					serviceDir.setStartup(m);
-				}
+				serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
 
-				Shutdown shutdown = m.getAnnotation(Shutdown.class);
-				if (shutdown != null) {
-					serviceDir.setShutdown(m);
+				if (logger.isInfoEnabled()) {
+					logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
 				}
+			}
+
+			Set<Method> startup = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Startup.class));
+			if (!startup.isEmpty()) {
+				serviceDir.setStartup(startup.iterator().next());
+			}
+
+			Set<Method> shutdown = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Shutdown.class));
+			if (!shutdown.isEmpty()) {
+				serviceDir.setShutdown(shutdown.iterator().next());
 			}
 		} else {
 			ServiceInfoDao.deleteServiceDirectory(_info.getPath());
-			throw new Exception("This class is not defined ServiceDirectory annotation.");
+			throw new Exception("This class undefined ServiceDirectory annotation.");
 		}
 	}
 	
-	private static void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception {
-		Field[] fields = _host.getClass().getDeclaredFields();
+	private void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception {
+		Set<Field> fields = ReflectionUtils.getAllFields(_host.getClass(), ReflectionUtils.withAnnotation(Variable.class));
 		
 		for(Field field : fields) {
 			field.setAccessible(true);
@@ -125,29 +125,19 @@ public class ServiceProvider implements Module, Observer
 		}
 	}
 
-	private void _checkInboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
-		if (inboundAnn != null) {
-			_service.addInbound(inboundAnn.classObject().newInstance());
-		}
-	}
-
-	private void _checkOutboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
-		if (outboundAnn != null) {
-			_service.addOutbound(outboundAnn.classObject().newInstance());
-		}
-	}
-
-	private void _checkMapToVoAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		MapToVo mapToVoAnn =_method.getAnnotation(MapToVo.class);
-		if (mapToVoAnn != null) {
-			_service.setMapToVoConverter(mapToVoAnn.classObject());
-		}
-	}
-
 	public static ServiceWrapper lookup(String _path) throws ServiceNotFoundException {
-		if (_path == null || _path.length() == 0) throw new IllegalArgumentException("Path is null : " + _path);
+		if (_path == null || _path.length() == 0) {
+			throw new IllegalArgumentException("Path is null : " + _path);
+		}
+
+		Map<String, ServiceDirectory> serviceDirectoryMap = self.serviceDirectory;
+
+		while(self.isLoadingClass) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
 
 		int splitIdx = _path.lastIndexOf("/");
 		if (splitIdx == -1) {
@@ -157,34 +147,51 @@ public class ServiceProvider implements Module, Observer
 		String dirPath = _path.substring(0, splitIdx);
 		String serviceName = _path.substring(splitIdx + 1);
 
-		ServiceDirectory serviceDir = self.serviceDirectory.get(dirPath);
+		ServiceDirectory serviceDir = serviceDirectoryMap.get(dirPath);
 		if (serviceDir == null) {
 			throw new ServiceNotFoundException(_path);
 		}
 
 		ServiceWrapper service = serviceDir.getService(serviceName);
-		if (service == null) throw new ServiceNotFoundException(_path);
+		if (service == null) {
+			throw new ServiceNotFoundException(_path);
+		}
 
 		return service;
 	}
 
-	@Override
-	public void start() throws Exception {
-		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
-		if (isAutoReload != null) {
-			this.isAutoReload = isAutoReload;
+	public void loadServiceDirectory() {
+		this.isLoadingClass = true;
+		this.serviceDirectory = new HashMap<>();
+
+		try {
+			this.stop();
+		} catch (Exception e) {
+			logger.error("Fail to stop ServiceDirectory.", e);
 		}
 
 		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
 		directoryInfoList.forEach(_info -> {
 			try {
 				this._register(_info);
-				
- 				logger.warn("Service Directory is loaded.\n{}", _info.toString());
+
+				logger.warn("Service Directory is loaded.\n{}", _info.toString());
 			} catch(Exception e) {
 				logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
 			}
 		});
+
+		this.isLoadingClass = false;
+	}
+
+	@Override
+	public void start() throws Exception {
+		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
+		if (isAutoReload != null) {
+			this.isReloadServiceVariable = isAutoReload;
+		}
+
+		this.loadServiceDirectory();
 		
 		this.serviceDirectory.values().forEach(ServiceDirectory::startup);
 	}
@@ -197,7 +204,7 @@ public class ServiceProvider implements Module, Observer
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (!this.isAutoReload) {
+		if (!this.isReloadServiceVariable) {
 			return;
 		}
 

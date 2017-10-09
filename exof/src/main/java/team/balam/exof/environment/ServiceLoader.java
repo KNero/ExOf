@@ -1,10 +1,15 @@
 package team.balam.exof.environment;
 
 import org.reflections.Reflections;
+import org.reflections.scanners.ResourcesScanner;
+import org.reflections.scanners.Scanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import team.balam.exof.Constant;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.vo.NodeImpl;
 import team.balam.exof.module.service.annotation.Service;
@@ -149,21 +154,26 @@ public class ServiceLoader implements Loader
 		Node attribute = _servicePackageNode.getAttributes().getNamedItem(EnvKey.Service.PACKAGE);
 		if (attribute != null) {
 			String packageName = attribute.getNodeValue();
-			Reflections reflections = new Reflections(packageName);
+			Reflections reflections = new Reflections(new ConfigurationBuilder()
+					.addClassLoader(ExternalClassLoader.getClassLoader())
+					.setUrls(ClasspathHelper.forPackage(packageName, ExternalClassLoader.getClassLoader())));
 
 			Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(ServiceDirectory.class);
 			for (Class<?> serviceDirectory : classSet) {
-				ServiceDirectory annotation = serviceDirectory.getAnnotation(ServiceDirectory.class);
+				if (packageName.equals(serviceDirectory.getPackage().getName())) {
+					ServiceDirectory annotation = serviceDirectory.getAnnotation(ServiceDirectory.class);
 
-				if (!annotation.path().isEmpty()) {
-					ServiceInfoDao.insertServiceDirectory(annotation.path(), serviceDirectory.getName());
+					if (!annotation.path().isEmpty()) {
+						ServiceInfoDao.insertServiceDirectory(annotation.path(), serviceDirectory.getName());
 
-					Method[] methods = serviceDirectory.getMethods();
-					for (Method method : methods) {
-						this._insertScheduleFromAutoScan(annotation.path(), method);
+						Method[] methods = serviceDirectory.getMethods();
+						for (Method method : methods) {
+							this._insertScheduleFromAutoScan(annotation.path(), method);
+						}
+					} else {
+						throw new LoadEnvException("servicePackage's service directory must have path in ServiceDirectory annotation. "
+								+ serviceDirectory.getName());
 					}
-				} else {
-					throw new LoadEnvException("servicePackage's service directory must have path in ServiceDirectory annotation.");
 				}
 			}
 		}

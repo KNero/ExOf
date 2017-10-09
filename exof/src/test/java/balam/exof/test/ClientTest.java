@@ -4,8 +4,18 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.Assert;
@@ -15,7 +25,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import team.balam.exof.Constant;
-import team.balam.exof.client.Sender;
+import team.balam.exof.ExternalClassLoader;
+import team.balam.exof.client.DefaultClient;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.container.console.ServiceList;
@@ -25,6 +36,7 @@ import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 import team.balam.util.sqlite.connection.pool.AlreadyExistsConnectionException;
 
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -32,22 +44,36 @@ import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
 public class ClientTest {
-
 	@Test
-	public void testSender() throws Exception {
-		Sender<String, String> client = new Sender<>(_socketChannel ->
+	public void test_sendJson() throws Exception {
+		team.balam.exof.client.Client client = new DefaultClient(_socketChannel ->
 			new ChannelHandler[]{new StringEncoder(),
 					new DelimiterBasedFrameDecoder(2048, Delimiters.nulDelimiter()),
 					new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET))});
 
-		client.setConnectTimeout(5000);
-		client.setReadTimeout(3000);
 		client.connect("localhost", 2000);
 
 		String res = client.sendAndWait("{\"aaa\":\"ababa\", \"servicePath\":\"/test/receive\"}\0");
 		client.close();
 
 		Assert.assertEquals(res, "response");
+	}
+
+	@Test
+	public void test_sendHttp() throws Exception {
+		URI uri = new URI("/test/receiveHttp");
+		HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
+		request.headers().set(HttpHeaderNames.HOST, "localhost");
+		request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+
+		team.balam.exof.client.Client sender = new DefaultClient(_socketChannel ->
+				new ChannelHandler[]{new HttpClientCodec(), new HttpObjectAggregator(1048576)});
+
+		sender.connect("localhost", 2001);
+		FullHttpResponse response = (FullHttpResponse) sender.sendAndWait(request);
+		sender.close();
+
+		Assert.assertEquals("{\"Message\":\"response\"}", response.content().toString(CharsetUtil.UTF_8));
 	}
 
 	@BeforeClass
@@ -57,10 +83,14 @@ public class ClientTest {
 		} catch (AlreadyExistsConnectionException e) {
 		}
 
+		ExternalClassLoader.load("./lib/external");
 		ServiceProvider.getInstance().start();
 
 		Client.init();
+	}
 
+	@Test
+	public void test_addDynamic() throws Exception {
 		Command command = new Command(ServiceList.ADD_DYNAMIC_SETTING);
 		command.addParameter(Command.Key.NAME, "name0");
 		command.addParameter(Command.Key.VALUE, "value0");

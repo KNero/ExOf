@@ -92,7 +92,7 @@ public class ListenerDao {
 	}
 
 	public static List<Map<String, Object>> selectAllPortAttribute(int _port) {
-		String query = "SELECT VALUE FROM PORT_ATTRIBUTE WHERE PORT=?";
+		String query = "SELECT KEY, VALUE FROM PORT_ATTRIBUTE WHERE PORT=?";
 		Object[] param = new Object[]{_port};
 
 		try {
@@ -135,28 +135,20 @@ public class ListenerDao {
 		return Constant.EMPTY_STRING;
 	}
 
-	public static PortInfo selectConsolePort() {
-		return selectSpecialPort(EnvKey.Listener.CONSOLE);
-	}
-
-	public static PortInfo selectAdminConsolePort() {
-		return selectSpecialPort(EnvKey.Listener.ADMIN_CONSOLE);
-	}
-
 	public static PortInfo selectJettyModule() {
 		return selectSpecialPort(EnvKey.Listener.JETTY);
 	}
 
-	private static PortInfo selectSpecialPort(String _key) {
+	public static PortInfo selectSpecialPort(String _value) {
 		String query = "SELECT PORT FROM PORT_ATTRIBUTE WHERE KEY=? AND VALUE=?";
-		Object[] param = new Object[]{_key, Constant.YES};
+		Object[] param = new Object[]{EnvKey.Listener.TYPE, _value};
 
 		try {
 			List<Map<String, Object>> list = EnvDbHelper.select(query, param);
 			if (list.size() == 1) {
 				return new PortInfo((Integer) list.get(0).get("port"));
 			} else if (list.size() > 1) {
-				throw new Exception(_key.toUpperCase() + " port is must one. count > 1");
+				throw new Exception(_value.toUpperCase() + " port is must one. count > 1");
 			}
 		} catch (Exception e) {
 			LOGGER.error("Can not get port.", e);
@@ -172,9 +164,8 @@ public class ListenerDao {
 	 * @return
 	 */
 	public static boolean isSpecialPort(int _number) {
-		String query = "SELECT COUNT(PORT) AS CNT FROM PORT_ATTRIBUTE WHERE PORT=? AND KEY IN (? , ?, ?)";
-		Object[] param = new Object[]{_number,
-				EnvKey.Listener.CONSOLE, EnvKey.Listener.ADMIN_CONSOLE, EnvKey.Listener.JETTY};
+		String query = "SELECT COUNT(PORT) AS CNT FROM PORT_ATTRIBUTE WHERE PORT=? AND KEY IN (?, ?, ?)";
+		Object[] param = new Object[]{_number, EnvKey.Listener.TYPE, EnvKey.Listener.JETTY};
 
 		try {
 			List<Map<String, Object>> list = EnvDbHelper.select(query, param);
@@ -206,6 +197,18 @@ public class ListenerDao {
 		} catch (Exception e) {
 			LOGGER.error("Can not get port info.", e);
 			return Collections.emptyList();
+		}
+	}
+
+	public static void deletePortAttribute(int _number) {
+		String query = "DELETE FROM PORT_ATTRIBUTE WHERE PORT=?";
+		Object[] param = new Object[]{_number};
+
+
+		try {
+			EnvDbHelper.execute(QueryVo.Type.DELETE, query, param);
+		} catch (Exception e) {
+			LOGGER.error("Can not get port info.", e);
 		}
 	}
 }

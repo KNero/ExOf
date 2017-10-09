@@ -10,6 +10,7 @@ import team.balam.exof.module.service.component.InboundExecuteException;
 public class TestInbound implements Inbound
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Override
 	public void execute(ServiceObject _se) throws InboundExecuteException
 	{

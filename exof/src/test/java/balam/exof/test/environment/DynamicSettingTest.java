@@ -1,5 +1,6 @@
-package balam.exof.test;
+package balam.exof.test.environment;
 
+import balam.exof.test.InitTest;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;

@@ -30,6 +30,7 @@ public class ListenerLoader implements Loader
 				Node portNode = listenerNode.getFirstChild();
 
 				while(portNode != null) {
+
 					if(this._equalsNodeName(portNode, EnvKey.Listener.PORT)) {
 						int port = this.findNumber(portNode);
 						if (port > 0) {
@@ -41,15 +42,14 @@ public class ListenerLoader implements Loader
 									String className = this.findAttribute(portChildNode, EnvKey.Listener.CLASS);
 									if (className.isEmpty()) {
 										this.logger.error("Class is empty. {}", portChildNode.getNodeName());
-										continue;
-									}
-
-									if (this._equalsNodeName(portChildNode, EnvKey.Listener.SESSION_HANDLER)) {
-										ListenerDao.insertChildNode(port, EnvKey.Listener.SESSION_HANDLER, EnvKey.Listener.CLASS, className);
-									} else if (this._equalsNodeName(portChildNode, EnvKey.Listener.CHANNEL_HANDLER)) {
-										ListenerDao.insertChildNode(port, EnvKey.Listener.CHANNEL_HANDLER, EnvKey.Listener.CLASS, className);
-									} else if (this._equalsNodeName(portChildNode, EnvKey.Listener.MESSAGE_TRANSFORM)) {
-										ListenerDao.insertChildNode(port, EnvKey.Listener.MESSAGE_TRANSFORM, EnvKey.Listener.CLASS, className);
+									} else {
+										if (this._equalsNodeName(portChildNode, EnvKey.Listener.SESSION_HANDLER)) {
+											ListenerDao.insertChildNode(port, EnvKey.Listener.SESSION_HANDLER, EnvKey.Listener.CLASS, className);
+										} else if (this._equalsNodeName(portChildNode, EnvKey.Listener.CHANNEL_HANDLER)) {
+											ListenerDao.insertChildNode(port, EnvKey.Listener.CHANNEL_HANDLER, EnvKey.Listener.CLASS, className);
+										} else if (this._equalsNodeName(portChildNode, EnvKey.Listener.MESSAGE_TRANSFORM)) {
+											ListenerDao.insertChildNode(port, EnvKey.Listener.MESSAGE_TRANSFORM, EnvKey.Listener.CLASS, className);
+										}
 									}
 								}
 								portChildNode = portChildNode.getNextSibling();

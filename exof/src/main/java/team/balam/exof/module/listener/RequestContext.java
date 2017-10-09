@@ -38,45 +38,39 @@ public class RequestContext
 	{
 		context.remove();
 	}
-	
-	public static void writeResponse(byte[] _msg)
-	{
+
+	public static ChannelFuture writeResponse(Object _res) {
 		ChannelHandlerContext channelContext = get(CHANNEL_CONTEXT);
-		if(channelContext != null)
-		{
-			ByteBuf buf = channelContext.alloc().buffer(_msg.length);
-			buf.writeBytes(_msg);
-			
-			channelContext.writeAndFlush(buf);
-		}
-		else
-		{
-			throw new NullPointerException("Session");
-		}
-	}
-	
-	public static ChannelFuture writeResponse(Object _res)
-	{
-		ChannelHandlerContext channelContext = get(CHANNEL_CONTEXT);
-		if(channelContext != null)
-		{
-			return channelContext.write(_res);
-		}
-		else
-		{
+		if (channelContext != null) {
+			if (_res instanceof byte[]) {
+				byte[] bytes = (byte[]) _res;
+
+				ByteBuf buf = channelContext.alloc().buffer(bytes.length);
+				buf.writeBytes(bytes);
+
+				return channelContext.write(buf);
+			} else {
+				return channelContext.write(_res);
+			}
+		} else {
 			throw new NullPointerException("Session");
 		}
 	}
 
-	public static ChannelFuture writeAndFlushResponse(Object _res)
-	{
+	public static ChannelFuture writeAndFlushResponse(Object _res) {
 		ChannelHandlerContext channelContext = get(CHANNEL_CONTEXT);
-		if(channelContext != null)
-		{
-			return channelContext.writeAndFlush(_res);
-		}
-		else
-		{
+		if (channelContext != null) {
+			if (_res instanceof byte[]) {
+				byte[] bytes = (byte[]) _res;
+
+				ByteBuf buf = channelContext.alloc().buffer(bytes.length);
+				buf.writeBytes(bytes);
+
+				return channelContext.writeAndFlush(buf);
+			} else {
+				return channelContext.writeAndFlush(_res);
+			}
+		} else {
 			throw new NullPointerException("Session");
 		}
 	}

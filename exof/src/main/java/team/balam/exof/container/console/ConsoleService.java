@@ -1,24 +1,26 @@
 package team.balam.exof.container.console;
 
 import io.netty.util.internal.StringUtil;
+import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.db.ListenerDao;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.DynamicSetting;
-import team.balam.exof.environment.vo.DynamicSettingVo;
 import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.vo.DynamicSettingVo;
+import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
-import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.RequestContext;
-import team.balam.exof.module.service.ServiceWrapperImpl;
 import team.balam.exof.module.service.ServiceNotFoundException;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.ServiceWrapper;
+import team.balam.exof.module.service.ServiceWrapperImpl;
 import team.balam.exof.module.service.annotation.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -35,7 +38,7 @@ class ConsoleService {
 		String id = (String) _param.get("id");
 		String password = (String) _param.get("password");
 
-		PortInfo consolePort = ListenerDao.selectAdminConsolePort();
+		PortInfo consolePort = ListenerDao.selectSpecialPort(EnvKey.Listener.ADMIN_CONSOLE);
 
 		String portId = consolePort.getAttribute(EnvKey.Listener.ID);
 		String portPw = consolePort.getAttribute(EnvKey.Listener.PASSWORD);
@@ -84,29 +87,27 @@ class ConsoleService {
 			serviceList.put(directoryInfo.getPath(), serviceMap);
 
 			try {
-				Class directoryClass = Class.forName(directoryInfo.getClassName());
-				Method[] methods = directoryClass.getMethods();
+				Class directoryClass = ExternalClassLoader.loadClass(directoryInfo.getClassName());
+				Set<Method> services = ReflectionUtils.getAllMethods(directoryClass, ReflectionUtils.withAnnotation(Service.class));
 
-				for (Method method : methods) {
+				for (Method method : services) {
+					String serviceName = method.getName();
+
 					Service serviceAnn = method.getAnnotation(Service.class);
-
-					if (serviceAnn != null) {
-						String serviceName = method.getName();
-						if (!serviceAnn.name().isEmpty()) {
-							serviceName = serviceAnn.name();
-						}
-
-						ServiceWrapperImpl service = (ServiceWrapperImpl) ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
-
-						if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
-							serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
-						}
-
-						Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(service);
-
-						serviceMap.put(serviceName, service.getMethod().getName());
-						serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
+					if (!serviceAnn.name().isEmpty()) {
+						serviceName = serviceAnn.name();
 					}
+
+					ServiceWrapperImpl service = (ServiceWrapperImpl) ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
+
+					if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
+						serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
+					}
+
+					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(service);
+
+					serviceMap.put(serviceName, service.getMethod().getName());
+					serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
 				}
 			} catch (ClassNotFoundException e) {
 				this.logger.error("class not found : " + directoryInfo.getClassName(), e);

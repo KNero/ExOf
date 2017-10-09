@@ -14,5 +14,5 @@ public interface SessionEventHandler
 	
 	void closedSession(ChannelHandlerContext _ctx);
 	
-	void exceptionCaught(ChannelHandlerContext ctx, Throwable cause);
+	void exceptionCaught(ChannelHandlerContext _ctx, Throwable _cause);
 }

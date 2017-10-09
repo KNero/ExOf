@@ -1,5 +1,6 @@
-package balam.exof.test;
+package balam.exof.test.environment;
 
+import balam.exof.test.InitTest;
 import io.netty.channel.ChannelHandlerContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;

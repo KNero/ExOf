@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Inbound 
-{
-	Class<? extends team.balam.exof.module.service.component.Inbound> classObject();
+public @interface Inbound {
+	Class<? extends team.balam.exof.module.service.component.Inbound>[] classObject();
 }

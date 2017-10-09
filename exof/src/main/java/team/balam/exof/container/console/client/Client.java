@@ -30,21 +30,29 @@ public class Client
 	
 	public static void init() throws Exception
 	{
-		String envPath = System.getProperty(EnvKey.ENV_PATH, "./env");
-		String filePath = envPath + "/listener.xml";
-		InputStream input = null;
+		String envPath = System.getProperty(EnvKey.HOME, ".");
+		File home = new File(envPath);
+		File env = new File(home, "env");
 
-		try {
-			input = new FileInputStream(new File(filePath));
-			InputSource is = new InputSource(input);
+		if (env.exists()) {
+			File listenerXml = new File(env, "listener.xml");
+			InputStream input = null;
 
-			XPath xpath = XPathFactory.newInstance().newXPath();
-			consolePort = Integer.parseInt(xpath.evaluate("//port[@console]/@number", is));
-		} finally {
-			if (input != null) {
-				input.close();
+			try {
+				input = new FileInputStream(listenerXml);
+				InputSource is = new InputSource(input);
+
+				XPath xpath = XPathFactory.newInstance().newXPath();
+				consolePort = Integer.parseInt(xpath.evaluate("//port[@type='console']/@number", is));
+			} finally {
+				if (input != null) {
+					input.close();
+				}
 			}
+		} else {
+			throw new FileNotFoundException("Not exists env folder. " + env.getAbsolutePath());
 		}
+
 	}
 	
 	public static void send(Command _command, Consumer<Object> _successCallback, Consumer<Object> _failCallback) throws IOException

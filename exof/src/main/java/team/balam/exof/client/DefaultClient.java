@@ -9,16 +9,18 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
-
-public abstract class AbstractClient<I, O> implements Client<I, O>
+public class DefaultClient implements Client
 {
+	protected static final int DEFAULT_CONNECT_TIMEOUT = 3000;
+	protected static final int DEFAULT_READ_TIMEOUT = 10000;
+
 	protected Channel channel;
 
 	private EventLoopGroup workerGroup;
@@ -27,18 +29,19 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 	private int connectTimeout;
 	protected int readTimeout;
 	
-	private ResponseFutureImpl<O> response;
+	private ResponseFutureImpl response;
 	
-	public AbstractClient(ChannelHandlerMaker _channelHandler)
+	public DefaultClient(ChannelHandlerMaker _channelHandler)
 	{
 		this(_channelHandler, new NioEventLoopGroup());
 	}
 	
-	public AbstractClient(ChannelHandlerMaker _channelHandler, NioEventLoopGroup _loopGroup)
+	public DefaultClient(ChannelHandlerMaker _channelHandler, NioEventLoopGroup _loopGroup)
 	{
 		this.channelHandler = _channelHandler;
 		this.workerGroup = _loopGroup;
-		this.connectTimeout = Client.DEFAULT_CONNECT_TIMEOUT;
+		this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+		this.readTimeout = DEFAULT_READ_TIMEOUT;
 	}
 	
 	@Override
@@ -63,7 +66,7 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 		b.handler(new ChannelInitializer<SocketChannel>(){
 			protected void initChannel(SocketChannel _channel) throws Exception 
 			{
-				response = new ResponseFutureImpl<O>();
+				response = new ResponseFutureImpl();
 				_channel.pipeline().addLast(channelHandler.make(_channel)).addLast(response);
 			}
 		});
@@ -80,9 +83,29 @@ public abstract class AbstractClient<I, O> implements Client<I, O>
 			throw new IOException("Can't connect to remote ip[" + _host + "] port[" + _port + "]", e);
 		}
 	}
-	
-	protected ResponseFuture<O> getResponse()
-	{
+
+	@Override
+	public void flush() {
+		this.channel.flush();
+	}
+
+	@Override
+	public void send(Object _data) throws Exception {
+		this.channel.write(_data);
+	}
+
+	@Override
+	public <T> T sendAndWait(Object _data) throws Exception {
+		this.channel.write(_data);
+		this.channel.flush();
+
+		ResponseFuture resFuture = this.getResponse();
+		resFuture.await(this.readTimeout);
+
+		return resFuture.get();
+	}
+
+	public ResponseFuture getResponse() {
 		return this.response;
 	}
 	

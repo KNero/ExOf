@@ -1,12 +1,17 @@
 package team.balam.exof.module.listener;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
@@ -79,7 +84,7 @@ public class ServerPort
 
 		String channelHandler = this.portInfo.getChannelHandler();
 		if (!channelHandler.isEmpty()) {
-			this.channelHandlerArray = (ChannelHandlerArray) Class.forName(channelHandler).newInstance();
+			this.channelHandlerArray = (ChannelHandlerArray) ExternalClassLoader.loadClass(channelHandler).newInstance();
 
 			if (this.channelHandlerArray instanceof ChannelHandlerArray) {
 				((ChannelHandlerArray) this.channelHandlerArray).init(this.portInfo);
@@ -92,7 +97,7 @@ public class ServerPort
 		if (!messageTransformClass.isEmpty()) {
 			@SuppressWarnings("rawtypes")
 			ServiceObjectTransform messageTransform =
-					(ServiceObjectTransform) Class.forName(messageTransformClass).newInstance();
+					(ServiceObjectTransform) ExternalClassLoader.loadClass(messageTransformClass).newInstance();
 			requestHandler.setServiceObjectTransform(messageTransform);
 
 			messageTransform.init(this.portInfo);
@@ -103,7 +108,7 @@ public class ServerPort
 		String sessionHandlerClass = this.portInfo.getSessionHandler();
 		if (!sessionHandlerClass.isEmpty()) {
 			SessionEventHandler sessionHandler =
-					(SessionEventHandler) Class.forName(sessionHandlerClass).newInstance();
+					(SessionEventHandler) ExternalClassLoader.loadClass(sessionHandlerClass).newInstance();
 			requestHandler.setSessionEventHandler(sessionHandler);
 
 			sessionHandler.init(this.portInfo);
