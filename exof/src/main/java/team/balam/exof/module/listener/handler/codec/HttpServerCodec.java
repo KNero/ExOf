@@ -79,17 +79,14 @@ public class HttpServerCodec implements ChannelHandlerArray
 	}
 
 	@Override
-	public ChannelHandler[] make(SocketChannel _socketChannel) 
-	{
-		if(this.sslCtx != null)
-		{
-			return new ChannelHandler[]{this.sslCtx.newHandler(_socketChannel.alloc()), 
-					new io.netty.handler.codec.http.HttpServerCodec(), new HttpObjectAggregator(this.maxLength)};
-		}
-		else
-		{
-			return new ChannelHandler[]{new HttpRequestDecoder(), new HttpObjectAggregator(this.maxLength), new HttpResponseEncoder()};
+	public ChannelHandler[] make(SocketChannel _socketChannel) {
+		if (this.sslCtx != null) {
+			return new ChannelHandler[]{this.sslCtx.newHandler(_socketChannel.alloc()),
+					new io.netty.handler.codec.http.HttpServerCodec(4096, 8192, this.maxLength),
+					new HttpObjectAggregator(this.maxLength)};
+		} else {
+			return new ChannelHandler[]{new io.netty.handler.codec.http.HttpServerCodec(4096, 8192, this.maxLength),
+					new HttpObjectAggregator(this.maxLength)};
 		}
 	}
-
 }
