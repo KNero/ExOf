@@ -11,6 +11,7 @@ import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
+import team.balam.exof.module.service.component.HttpGet;
 import team.balam.exof.util.HttpResponseBuilder;
 
 @ServiceDirectory
@@ -18,7 +19,7 @@ public class AutoDeployService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AutoDeployService.class);
 
 	@Service(name = "service")
-	@Inbound(classObject = RequestFilter.class)
+	@Inbound(classObject = HttpGet.class)
 	public FullHttpResponse reloadService() {
 		String home = SystemSetting.getFramework(EnvKey.HOME);
 		ServiceLoader serviceLoader = new ServiceLoader();
