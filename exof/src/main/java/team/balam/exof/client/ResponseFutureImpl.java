@@ -7,12 +7,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implements ResponseFuture<O>
+public class ResponseFutureImpl extends ChannelInboundHandlerAdapter implements ResponseFuture
 {
 	private BlockingQueue<Object> responseQueue;
 	
-	public ResponseFutureImpl()
-	{
+	ResponseFutureImpl() {
 		this.responseQueue = new LinkedBlockingQueue<>();
 	}
 	
@@ -34,30 +33,22 @@ public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implemen
 			this.responseQueue.add(new Exception(cause));
 		}
 	}
-	
+
 	@Override
-	public void await(long _timeoutMillis)
-	{
+	public void await(long _timeoutMillis) {
 		long start = System.currentTimeMillis();
-		
-		while(true)
-		{
-			if(this.responseQueue.size() > 0)
-			{
+
+		while (true) {
+			if (this.responseQueue.size() > 0) {
 				break;
-			}
-			else if(System.currentTimeMillis() - start >= _timeoutMillis)
-			{
+			} else if (System.currentTimeMillis() - start >= _timeoutMillis) {
 				this.responseQueue.add(new IOException("Read Timeout."));
 				break;
 			}
-			
-			try
-			{
+
+			try {
 				Thread.sleep(1);
-			}
-			catch(InterruptedException e) 
-			{
+			} catch (InterruptedException e) {
 			}
 		}
 	}
@@ -70,21 +61,16 @@ public class ResponseFutureImpl<O> extends ChannelInboundHandlerAdapter implemen
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public O get() throws Exception
-	{
+	public <T> T get() throws Exception {
 		Object res = this.responseQueue.poll();
-		if(res != null)
-		{
-			if(res instanceof Exception)
-			{
-				throw (Exception)res;
-			}
-			else
-			{
-				return (O)res;
+		if (res != null) {
+			if (res instanceof Exception) {
+				throw (Exception) res;
+			} else {
+				return (T) res;
 			}
 		}
-		
+
 		return null;
 	}
 }

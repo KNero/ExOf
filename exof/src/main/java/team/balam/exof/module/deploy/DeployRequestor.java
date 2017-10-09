@@ -16,8 +16,9 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import team.balam.exof.client.Client;
+import team.balam.exof.client.DefaultClient;
 import team.balam.exof.client.ResponseFuture;
-import team.balam.exof.client.Sender;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,12 +28,12 @@ public class DeployRequestor {
 
 	private String host;
 	private int port;
-	private Sender<HttpRequest, FullHttpResponse> sender;
+	private Client sender;
 
 	public DeployRequestor(String _host, int _port) {
 		this.host = _host;
 		this.port = _port;
-		this.sender = new Sender<>(_socketChannel -> new ChannelHandler[]{
+		this.sender = new DefaultClient(_socketChannel -> new ChannelHandler[]{
 				new HttpClientCodec(), new ChunkedWriteHandler(), new HttpObjectAggregator(1048576)
 		});
 	}
@@ -49,8 +50,9 @@ public class DeployRequestor {
 			this.sender.connect(this.host, this.port);
 			this.sender.send(requestEncoder.finalizeRequest());
 			this.sender.send(requestEncoder);
+			this.sender.flush();
 
-			ResponseFuture<FullHttpResponse> responseFuture = this.sender.getResponse();
+			ResponseFuture responseFuture = this.sender.getResponse();
 			responseFuture.await(10000);
 			FullHttpResponse response = responseFuture.get();
 
@@ -62,13 +64,6 @@ public class DeployRequestor {
 		} finally {
 			this._close();
 		}
-
-//		HttpDataFactory httpDataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MAXSIZE);
-//		httpDataFactory.createFileUpload(request, file.getName(), file.getName(),
-//				"application/octet-stream", "utf-8", CharsetUtil.UTF_8, file.length());
-//
-//		HttpPostRequestDecoder requestDecoder = new HttpPostRequestDecoder(httpDataFactory, request);
-
 	}
 
 	public void reloadService() throws FailedDeployException {

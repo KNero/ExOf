@@ -1,10 +1,9 @@
 package team.balam.exof.client;
 
-public interface ResponseFuture<V>
-{
+public interface ResponseFuture {
 	void await(long timeoutMillis);
 	
 	boolean isDone();
 	
-	V get() throws Exception;
+	<T> T get() throws Exception;
 }

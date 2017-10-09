@@ -12,7 +12,6 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
@@ -27,7 +26,7 @@ import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import team.balam.exof.Constant;
 import team.balam.exof.ExternalClassLoader;
-import team.balam.exof.client.Sender;
+import team.balam.exof.client.DefaultClient;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.container.console.ServiceList;
@@ -47,7 +46,7 @@ import java.util.Map;
 public class ClientTest {
 	@Test
 	public void test_sendJson() throws Exception {
-		Sender<String, String> client = new Sender<>(_socketChannel ->
+		team.balam.exof.client.Client client = new DefaultClient(_socketChannel ->
 			new ChannelHandler[]{new StringEncoder(),
 					new DelimiterBasedFrameDecoder(2048, Delimiters.nulDelimiter()),
 					new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET))});
@@ -67,7 +66,7 @@ public class ClientTest {
 		request.headers().set(HttpHeaderNames.HOST, "localhost");
 		request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
 
-		Sender<HttpRequest, HttpResponse> sender = new Sender<>(_socketChannel ->
+		team.balam.exof.client.Client sender = new DefaultClient(_socketChannel ->
 				new ChannelHandler[]{new HttpClientCodec(), new HttpObjectAggregator(1048576)});
 
 		sender.connect("localhost", 2001);
