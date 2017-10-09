@@ -37,7 +37,7 @@ public class TestService {
 	public void receive(Object _req) {
 		this.logger.info("Receive data : " + _req.toString());
 
-		RequestContext.writeResponse("response\0".getBytes());
+		RequestContext.writeAndFlushResponse("response\0".getBytes());
 	}
 
 	@Service
