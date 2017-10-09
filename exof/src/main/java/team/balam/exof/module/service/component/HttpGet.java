@@ -15,7 +15,7 @@ public class HttpGet implements Inbound {
 			FullHttpResponse response = HttpResponseBuilder.buildNotImplemented("Http method is must GET");
 			RequestContext.writeAndFlushResponse(response);
 
-			throw new InboundExecuteException("Bad http method. HTTP method is must GET." + _se);
+			throw new InboundExecuteException("Bad http method. HTTP method is must GET. " + _se.getServicePath());
 		}
 	}
 }

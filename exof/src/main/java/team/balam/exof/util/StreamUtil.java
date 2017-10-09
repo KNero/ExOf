@@ -1,9 +1,14 @@
 package team.balam.exof.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class StreamUtil
 {
@@ -57,5 +62,29 @@ public class StreamUtil
 		}
 		
 		return resultBuf.toByteArray();
+	}
+
+	/**
+	 * source 의 데이터를 target 으로 쓴다.
+	 * @param _source 읽을 스트림
+	 * @param _target 목적지
+	 * @throws IOException
+	 */
+	public static void write(InputStream _source, OutputStream _target) throws IOException {
+		BufferedInputStream in = new BufferedInputStream(_source);
+		BufferedOutputStream out = new BufferedOutputStream(_target);
+		byte[] buf = new byte[4096];
+
+		try {
+			int read;
+			while ((read = in.read(buf)) != -1) {
+				out.write(buf, 0, read);
+			}
+
+			out.flush();
+		} finally {
+			in.close();
+			out.close();
+		}
 	}
 }
