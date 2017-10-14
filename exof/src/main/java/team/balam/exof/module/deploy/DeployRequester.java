@@ -23,14 +23,14 @@ import team.balam.exof.client.ResponseFuture;
 import java.io.File;
 import java.io.IOException;
 
-public class DeployRequestor {
-	private Logger logger = LoggerFactory.getLogger(DeployRequestor.class);
+public class DeployRequester {
+	private Logger logger = LoggerFactory.getLogger(DeployRequester.class);
 
 	private String host;
 	private int port;
 	private Client sender;
 
-	public DeployRequestor(String _host, int _port) {
+	public DeployRequester(String _host, int _port) {
 		this.host = _host;
 		this.port = _port;
 		this.sender = new DefaultClient(_socketChannel -> new ChannelHandler[]{
