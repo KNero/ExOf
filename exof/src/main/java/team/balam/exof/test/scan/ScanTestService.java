@@ -18,8 +18,8 @@ public class ScanTestService {
 	private String c = "C";
 
 	@Service(name = "autoSchedule", schedule = "0/5 * * * * ?")
-	@Inbound(classObject=TestInbound.class)
-	@Outbound(classObject=TestOutbound.class)
+	@Inbound(TestInbound.class)
+	@Outbound(TestOutbound.class)
 	public String schedule() {
 		this.logger.info("Auto Scan Service Variable : " + this.a + " / " + this.b + " / " + this.c);
 

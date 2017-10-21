@@ -164,7 +164,7 @@ public class ListenerDao {
 	 * @return
 	 */
 	public static boolean isSpecialPort(int _number) {
-		String query = "SELECT COUNT(PORT) AS CNT FROM PORT_ATTRIBUTE WHERE PORT=? AND KEY IN (?, ?, ?)";
+		String query = "SELECT COUNT(PORT) AS CNT FROM PORT_ATTRIBUTE WHERE PORT=? AND KEY IN (?, ?)";
 		Object[] param = new Object[]{_number, EnvKey.Listener.TYPE, EnvKey.Listener.JETTY};
 
 		try {

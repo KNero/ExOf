@@ -34,7 +34,7 @@ public class AutoDeployService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AutoDeployService.class);
 
 	@Service(name = "library")
-	@Inbound(classObject = HttpPost.class)
+	@Inbound({IdPasswordChecker.class, HttpPost.class})
 	public FullHttpResponse saveExternalLibrary(FullHttpRequest _request) {
 		HttpDataFactory dataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MAXSIZE);
 		HttpPostRequestDecoder requestDecoder = new HttpPostRequestDecoder(dataFactory, _request);
@@ -56,7 +56,7 @@ public class AutoDeployService {
 	}
 
 	@Service(name = "service")
-	@Inbound(classObject = HttpGet.class)
+	@Inbound({IdPasswordChecker.class, HttpGet.class})
 	public FullHttpResponse reloadService() {
 		String home = SystemSetting.getFramework(EnvKey.HOME);
 		ServiceLoader serviceLoader = new ServiceLoader();

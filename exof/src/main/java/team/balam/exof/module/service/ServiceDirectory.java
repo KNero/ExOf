@@ -95,7 +95,7 @@ class ServiceDirectory
 	private void _checkInboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
 		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
 		if (inboundAnn != null) {
-			for (Class<? extends team.balam.exof.module.service.component.Inbound> clazz : inboundAnn.classObject()) {
+			for (Class<? extends team.balam.exof.module.service.component.Inbound> clazz : inboundAnn.value()) {
 				_service.addInbound(clazz.newInstance());
 			}
 		}
@@ -104,7 +104,7 @@ class ServiceDirectory
 	private void _checkOutboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
 		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
 		if (outboundAnn != null) {
-			for (Class<? extends team.balam.exof.module.service.component.Outbound<?, ?>> clazz : outboundAnn.classObject())
+			for (Class<? extends team.balam.exof.module.service.component.Outbound<?, ?>> clazz : outboundAnn.value())
 			_service.addOutbound(clazz.newInstance());
 		}
 	}
