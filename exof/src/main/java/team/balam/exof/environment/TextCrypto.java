@@ -10,6 +10,10 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+/**
+ * 간단한 텍스트의 암/복호화를 해주는 클래스로
+ * 프레임워크에서 사용되는 설정등에서 사용된다.
+ */
 public class TextCrypto {
 	private Cipher cipher;
 	private Key key;

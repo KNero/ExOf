@@ -1,7 +1,9 @@
-package team.balam.exof.container.console.client;
+package team.balam.exof.container.console.client.executor;
 
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ServiceList;
+import team.balam.exof.container.console.client.Client;
+import team.balam.exof.container.console.client.Menu;
 import team.balam.exof.environment.EnvKey;
 
 import java.io.IOException;
@@ -11,13 +13,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 class InfoGetter
 {
+	InfoGetter(CommandExecutor executor) {
+		executor.putExecutor(Menu.Execute.GET_SERVICE_LIST, this::getServiceList);
+		executor.putExecutor(Menu.Execute.GET_SCHEDULE_LIST, this::getScheduleList);
+		executor.putExecutor(Menu.Execute.GET_DYNAMIC_SETTING_LIST, this::getDynamicSettingList);
+		executor.putExecutor(Menu.Execute.GET_PORT_INFO, this::getPortInfo);
+	}
+
 	@SuppressWarnings("unchecked")
-	void getServiceList(String _servicePath)
+	void getServiceList(Map<String, String> parameter)
 	{
+		String servicePath = parameter.get(Command.Key.SERVICE_PATH);
 		try
 		{
 			Command command = new Command(ServiceList.GET_SERVICE_LIST);
-			command.addParameter(Command.Key.SERVICE_PATH, _servicePath);
+			command.addParameter(Command.Key.SERVICE_PATH, servicePath);
 
 			Client.send(command, _result -> {
 				Map<String, Object> resultMap = (Map<String, Object>) _result;
@@ -60,12 +70,13 @@ class InfoGetter
 	}
 	
 	@SuppressWarnings("unchecked")
-	void getScheduleList(String _schedulerId)
+	void getScheduleList(Map<String, String> parameter)
 	{
+		String schedulerId = parameter.get(Command.Key.NAME);
 		try
 		{
 			Command command = new Command(ServiceList.GET_SCHEDULE_LIST);
-			command.addParameter(Command.Key.NAME, _schedulerId);
+			command.addParameter(Command.Key.NAME, schedulerId);
 
 			Client.send(command, _result -> {
 				List<String> list = (List<String>) _result;
@@ -79,9 +90,10 @@ class InfoGetter
 	}
 
 	@SuppressWarnings("unchecked")
-	void getDynamicSettingList(String _name) {
+	void getDynamicSettingList(Map<String, String> parameter) {
+		String name = parameter.get(Command.Key.NAME);
 		Command command = new Command(ServiceList.GET_DYNAMIC_SETTING_LIST);
-		command.addParameter(Command.Key.NAME, _name);
+		command.addParameter(Command.Key.NAME, name);
 
 		try {
 			Client.send(command, _result -> {
@@ -104,7 +116,7 @@ class InfoGetter
 	}
 
 	@SuppressWarnings("unchecked")
-	void getPortInfo() {
+	void getPortInfo(Map<String, String> parameter) {
 		Command command = new Command(ServiceList.GET_PORT_INFO);
 
 		try {

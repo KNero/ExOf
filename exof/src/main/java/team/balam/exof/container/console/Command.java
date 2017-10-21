@@ -25,6 +25,7 @@ public class Command
 		String ATTRIBUTE = "attribute";
 		String CHILD_ATTRIBUTE = "child_attribute";
 		String CRON = "cron";
+		String TEXT = "text";
 	}
 	
 	public static final String NO_DATA_RESPONSE = makeSimpleResult("No data.");

@@ -55,6 +55,11 @@ class CommandParameterReader {
 				case Menu.Execute.REMOVE_DYNAMIC_SETTING:
 					this._readRemoveDynamicSetting();
 					break;
+
+				case Menu.Execute.ETC_ENCODE_TEXT:
+				case Menu.Execute.ETC_DECODE_TEXT:
+					this._readText();
+					break;
 			}
 		} catch (TerminateException e) {
 			System.out.println(e.getMessage());
@@ -195,6 +200,17 @@ class CommandParameterReader {
 
 		if (!StringUtil.isNullOrEmpty(name)) {
 			this.viewerCommand.putParameter(Command.Key.NAME, name);
+		} else {
+			throw new TerminateException("Name is empty.");
+		}
+	}
+
+	private void _readText() throws IOException {
+		System.out.print("Enter text : ");
+		String text = this.standardReader.readLine().trim();
+
+		if (!StringUtil.isNullOrEmpty(text)) {
+			this.viewerCommand.putParameter(Command.Key.TEXT, text);
 		} else {
 			throw new TerminateException("Name is empty.");
 		}

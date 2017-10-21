@@ -7,7 +7,7 @@ import java.util.Map;
  * Created by kwonsm on 2017. 6. 21..
  * client viewer 에서 사용자의 입력을 객체화 시켜준다
  */
-class ViewerCommand {
+public class ViewerCommand {
 	private String levelOne;
 	private String levelTwo;
 
@@ -16,7 +16,9 @@ class ViewerCommand {
 	boolean setLevelOne(String levelOne) throws TerminateException {
 		if (Menu.QUIT.equals(levelOne)) {
 			throw new TerminateException();
-		} else if (!Menu.LevelOne.GET.equals(levelOne) && !Menu.LevelOne.SET.equals(levelOne)) {
+		} else if (!Menu.LevelOne.GET.equals(levelOne)
+				&& !Menu.LevelOne.SET.equals(levelOne)
+				&& !Menu.LevelOne.ETC.equals(levelOne)) {
 			return false;
 		}
 
@@ -40,7 +42,7 @@ class ViewerCommand {
 		this.parameter.put(_key, _value);
 	}
 
-	Map<String, String> getParameter() {
+	public Map<String, String> getParameter() {
 		return parameter;
 	}
 
