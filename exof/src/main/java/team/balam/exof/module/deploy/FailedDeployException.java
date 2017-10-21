@@ -5,6 +5,10 @@ public class FailedDeployException extends Exception {
 		super(_msg);
 	}
 
+	FailedDeployException(String _msg, Exception e) {
+		super(_msg, e);
+	}
+
 	FailedDeployException(Exception e) {
 		super(e);
 	}

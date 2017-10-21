@@ -17,18 +17,22 @@ import team.balam.exof.module.deploy.DeployRequester;
 import java.io.File;
 import java.nio.charset.Charset;
 
-@FixMethodOrder(value = MethodSorters.NAME_ASCENDING)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DeployRequesterTest {
 	@Test
 	public void test01_sendTestJar() throws Exception {
-		DeployRequester requestor = new DeployRequester("localhost", 3002);
-		requestor.sendExternalLib(new File("./lib/ext2/ext1.jar"));
+		DeployRequester requester = new DeployRequester("localhost", 3002);
+		requester.setId("test");
+		requester.setPassword("P@ssword");
+		requester.sendExternalLib(new File("./lib/ext2/ext1.jar"));
 	}
 
 	@Test
 	public void test02_deployService() throws Exception {
-		DeployRequester requestor = new DeployRequester("localhost", 3002);
-		requestor.reloadService();
+		DeployRequester requester = new DeployRequester("localhost", 3002);
+		requester.setId("test");
+		requester.setPassword("P@ssword");
+		requester.reloadService();
 	}
 
 	@Test
@@ -48,14 +52,18 @@ public class DeployRequesterTest {
 
 	@Test
 	public void test04_sendTestJar() throws Exception {
-		DeployRequester requestor = new DeployRequester("localhost", 3002);
-		requestor.sendExternalLib(new File("./lib/ext1/ext1.jar"));
+		DeployRequester requester = new DeployRequester("localhost", 3002);
+		requester.setId("test");
+		requester.setPassword("P@ssword");
+		requester.sendExternalLib(new File("./lib/ext1/ext1.jar"));
 	}
 
 	@Test
 	public void test05_deployService() throws Exception {
-		DeployRequester requestor = new DeployRequester("localhost", 3002);
-		requestor.reloadService();
+		DeployRequester requester = new DeployRequester("localhost", 3002);
+		requester.setId("test");
+		requester.setPassword("P@ssword");
+		requester.reloadService();
 	}
 
 	@Test

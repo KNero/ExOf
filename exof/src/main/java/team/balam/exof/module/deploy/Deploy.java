@@ -4,6 +4,7 @@ import team.balam.exof.db.ListenerDao;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.LoadEnvException;
+import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.Module;
 
@@ -16,6 +17,12 @@ public class Deploy implements Module {
 			if (port == -1) {
 				throw new NumberFormatException("Deploy port number is empty.");
 			}
+
+			String id = portInfo.getAttribute(EnvKey.Listener.ID);
+			SystemSetting.setFramework(DeployRequester.DEPLOY_ID, id);
+
+			String password = portInfo.getAttribute(EnvKey.Listener.PASSWORD);
+			SystemSetting.setFramework(DeployRequester.DEPLOY_PASSWORD, password);
 
 			ListenerDao.deletePortAttribute(port);
 

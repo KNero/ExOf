@@ -18,8 +18,8 @@ public class TestService {
 	private Logger logger  = LoggerFactory.getLogger(this.getClass());
 	
 	@Service
-	@Inbound(classObject=TestInbound.class)
-	@Outbound(classObject=TestOutbound.class)
+	@Inbound(TestInbound.class)
+	@Outbound(TestOutbound.class)
 	public String schedule(String _a, String _b, String _c) {
 		this.logger.info("Service Variable : " + _a + " / " + _b + " / " + _c);
 		
@@ -32,8 +32,8 @@ public class TestService {
 	}
 
 	@Service
-	@Inbound(classObject=TestInbound.class)
-	@Outbound(classObject=TestOutbound.class)
+	@Inbound(TestInbound.class)
+	@Outbound(TestOutbound.class)
 	public void receive(Object _req) {
 		this.logger.info("Receive data : " + _req.toString());
 

@@ -2,7 +2,6 @@ package team.balam.exof.module.deploy;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -19,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.client.Client;
 import team.balam.exof.client.DefaultClient;
 import team.balam.exof.client.ResponseFuture;
+import team.balam.exof.environment.TextCrypto;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +26,13 @@ import java.io.IOException;
 public class DeployRequester {
 	private Logger logger = LoggerFactory.getLogger(DeployRequester.class);
 
+	public static final String DEPLOY_ID = "deploy_id";
+	public static final String DEPLOY_PASSWORD = "deploy_password";
+
 	private String host;
 	private int port;
+	private String id;
+	private String password;
 	private Client sender;
 
 	public DeployRequester(String _host, int _port) {
@@ -38,10 +43,17 @@ public class DeployRequester {
 		});
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	public void sendExternalLib(File file) throws FailedDeployException {
 		HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/exof/deploy/library");
-		request.headers().set(HttpHeaderNames.HOST, this.host);
-		request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+		this._makeHeader(request);
 
 		try {
 			HttpPostRequestEncoder requestEncoder = new HttpPostRequestEncoder(request, true);
@@ -67,9 +79,8 @@ public class DeployRequester {
 	}
 
 	public void reloadService() throws FailedDeployException {
-		FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/exof/deploy/service");
-		request.headers().set(HttpHeaderNames.HOST, this.host);
-		request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+		HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/exof/deploy/service");
+		this._makeHeader(request);
 
 		try {
 			this.sender.connect(this.host, this.port);
@@ -83,6 +94,22 @@ public class DeployRequester {
 			throw new FailedDeployException(e);
 		} finally {
 			this._close();
+		}
+	}
+
+	private void _makeHeader(HttpRequest request) throws FailedDeployException {
+		request.headers().set(HttpHeaderNames.HOST, this.host);
+		request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+
+		if (this.id != null && this.password != null) {
+			request.headers().set(DEPLOY_ID, this.id);
+
+			try {
+				String encPassword = new TextCrypto().encodeBase64(this.password.getBytes());
+				request.headers().set(DEPLOY_PASSWORD, encPassword);
+			} catch (Exception e) {
+				throw new FailedDeployException("Fail to encode password.", e);
+			}
 		}
 	}
 

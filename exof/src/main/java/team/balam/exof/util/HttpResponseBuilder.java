@@ -51,6 +51,10 @@ public class HttpResponseBuilder
 	public static FullHttpResponse buildNotImplemented(String _msg) {
 		return createHttpResponse(HttpResponseStatus.NOT_IMPLEMENTED, _msg);
 	}
+
+	public static FullHttpResponse buildUnauthorized(String _msg) {
+		return createHttpResponse(HttpResponseStatus.UNAUTHORIZED, _msg);
+	}
 	
 	private static FullHttpResponse createHttpResponse(HttpResponseStatus _status, Object _content) {
 		String contentStr = null;
@@ -75,7 +79,7 @@ public class HttpResponseBuilder
 	}
 	
 	private static FullHttpResponse createHttpResponse(HttpResponseStatus _status, String _content) {
-		FullHttpResponse response = null;
+		FullHttpResponse response;
 
 		if (_content == null) {
 			response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, _status);
