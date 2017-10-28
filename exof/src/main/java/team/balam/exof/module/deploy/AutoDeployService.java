@@ -2,6 +2,7 @@ package team.balam.exof.module.deploy;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
@@ -28,6 +29,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
 
 @ServiceDirectory
 public class AutoDeployService {
@@ -45,7 +49,10 @@ public class AutoDeployService {
 
 			String home = SystemSetting.getFramework(EnvKey.HOME);
 			File external = new File(home + "/lib/external/" + libraryData.getFilename());
-			StreamUtil.write(new FileInputStream(file), new FileOutputStream(external));
+			File backupExternal = new File(external.getAbsolutePath() + ".back");
+
+			StreamUtil.write(new FileInputStream(external), new FileOutputStream(backupExternal)); // backup
+			StreamUtil.write(new FileInputStream(file), new FileOutputStream(external)); // change
 		} catch(IOException e) {
 			String error = "Fail to save library file. " + libraryData.getFilename();
 			LOGGER.error(error, e);
@@ -56,7 +63,7 @@ public class AutoDeployService {
 	}
 
 	@Service(name = "service")
-	@Inbound({IdPasswordChecker.class, HttpGet.class})
+	@Inbound({IdPasswordChecker.class, HttpPost.class})
 	public FullHttpResponse reloadService() {
 		String home = SystemSetting.getFramework(EnvKey.HOME);
 		ServiceLoader serviceLoader = new ServiceLoader();
@@ -77,6 +84,39 @@ public class AutoDeployService {
 		}
 
 		ServiceProvider.getInstance().loadServiceDirectory();
+
+		return HttpResponseBuilder.buildOk("success");
+	}
+
+	@Service(name = "rollback")
+	@Inbound({IdPasswordChecker.class, HttpPost.class})
+	public FullHttpResponse rollbackLibrary(FullHttpRequest _request) {
+		String messageContent = _request.content().toString(Charset.defaultCharset());
+
+		if (messageContent.isEmpty()) {
+			return HttpResponseBuilder.buildBadRequest("library parameter(file name) is empty.");
+		}
+		QueryStringDecoder queryDecoder = new QueryStringDecoder(messageContent);
+		Map<String, List<String>> parameters = queryDecoder.parameters();
+
+		List<String> libName = parameters.get("library");
+		if (libName.isEmpty()) {
+			return HttpResponseBuilder.buildBadRequest("library parameter(file name) is empty.");
+		}
+
+		String jarName = libName.get(0);
+
+		String home = SystemSetting.getFramework(EnvKey.HOME);
+		File external = new File(home + "/lib/external/" + jarName);
+		File backupExternal = new File(external.getAbsolutePath() + ".back");
+
+		try {
+			StreamUtil.write(new FileInputStream(backupExternal), new FileOutputStream(external));
+		} catch(IOException e) {
+			String error = "Fail to rollback library file. " + jarName;
+			LOGGER.error(error, e);
+			return HttpResponseBuilder.buildServerError(error);
+		}
 
 		return HttpResponseBuilder.buildOk("success");
 	}

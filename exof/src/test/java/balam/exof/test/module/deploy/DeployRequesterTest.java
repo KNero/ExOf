@@ -80,4 +80,37 @@ public class DeployRequesterTest {
 
 		Assert.assertEquals("response-1-1", res);
 	}
+
+	//////////// rollback test
+
+	@Test
+	public void test07_rollback() throws Exception {
+		DeployRequester requester = new DeployRequester("localhost", 3002);
+		requester.setId("test");
+		requester.setPassword("P@ssword");
+		requester.rollbackExternalLib("ext1.jar");
+	}
+
+	@Test
+	public void test08_deployService() throws Exception {
+		DeployRequester requester = new DeployRequester("localhost", 3002);
+		requester.setId("test");
+		requester.setPassword("P@ssword");
+		requester.reloadService();
+	}
+
+	@Test
+	public void test09_sendExternalService() throws Exception {
+		Client client = new DefaultClient(_socketChannel ->
+				new ChannelHandler[]{new StringEncoder(),
+						new DelimiterBasedFrameDecoder(2048, Delimiters.nulDelimiter()),
+						new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET))});
+
+		client.connect("localhost", 2000);
+
+		String res = client.sendAndWait("{\"aaa\":\"external_test\", \"servicePath\":\"/test/external/execute\"}\0");
+		client.close();
+
+		Assert.assertEquals("response-2-2", res);
+	}
 }
