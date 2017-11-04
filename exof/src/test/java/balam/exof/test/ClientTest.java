@@ -21,9 +21,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 import team.balam.exof.Constant;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.client.DefaultClient;
@@ -31,19 +29,40 @@ import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
+import team.balam.exof.db.ListenerDao;
+import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
+import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 import team.balam.util.sqlite.connection.pool.AlreadyExistsConnectionException;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RunWith(PowerMockRunner.class)
 public class ClientTest {
+	private static final String TEST_HOME = "./test-workspace/ClientTest";
+	private static final String TEST_DB = TEST_HOME + "/" + Constant.ENV_DB;
+
+	@BeforeClass
+	public static void init() throws Exception {
+		new File(TEST_DB).delete();
+		try {
+			DatabaseLoader.load(Constant.ENV_DB, TEST_DB);
+		} catch (AlreadyExistsConnectionException e) {
+		}
+		ExternalClassLoader.load("./lib/external");
+
+		ServiceInfoDao.initTable();
+		ListenerDao.initTable();
+		new ServiceLoader().load(TEST_HOME);
+		ServiceProvider.getInstance().start();
+	}
+
 	@Test
 	public void test_sendJson() throws Exception {
 		team.balam.exof.client.Client client = new DefaultClient(_socketChannel ->
@@ -73,20 +92,7 @@ public class ClientTest {
 		FullHttpResponse response = (FullHttpResponse) sender.sendAndWait(request);
 		sender.close();
 
-		Assert.assertEquals("{\"Message\":\"response\"}", response.content().toString(CharsetUtil.UTF_8));
-	}
-
-	@BeforeClass
-	public static void init() throws Exception {
-		try {
-			DatabaseLoader.load(Constant.ENV_DB, InitTest.TEST_DB);
-		} catch (AlreadyExistsConnectionException e) {
-		}
-
-		ExternalClassLoader.load("./lib/external");
-		ServiceProvider.getInstance().start();
-
-		Client.init();
+		Assert.assertEquals("response", response.content().toString(CharsetUtil.UTF_8));
 	}
 
 	@Test
@@ -95,6 +101,7 @@ public class ClientTest {
 		command.addParameter(Command.Key.NAME, "name0");
 		command.addParameter(Command.Key.VALUE, "value0");
 		command.addParameter(Command.Key.DESCRIPTION, "des0");
+		Client.init();
 		Client.send(command, System.out::println, null);
 	}
 
@@ -145,7 +152,7 @@ public class ClientTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testConsoleGetScheduleList() throws Exception {
+	public void test_ConsoleGetScheduleList() throws Exception {
 		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
 		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
 			String jsonStr = object.getArgumentAt(0, String.class);

@@ -1,5 +1,7 @@
 package team.balam.exof.container.console.client;
 
+import team.balam.exof.container.console.client.executor.CommandExecutor;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,6 +11,7 @@ public class Viewer
 {
 	private BufferedReader standardReader = null;
 	private ViewerCommand command;
+	private CommandExecutor commandExecutor = new CommandExecutor();
 
 	public void start() throws Exception {
 		System.out.println("   =======             ===");
@@ -38,7 +41,7 @@ public class Viewer
 
 	private void _showLevelOneMenu() throws IOException {
         while (true) {
-	        System.out.println("\n(1)get info   (2)set info   (9)quit");
+	        System.out.println("\n(1)get info   (2)set info   (3)etc   (9)quit");
 
         	this.command = new ViewerCommand();
 	        if (this.command.setLevelOne(this.standardReader.readLine().trim())) {
@@ -60,6 +63,8 @@ public class Viewer
 			} else if (Menu.LevelOne.SET.equals(this.command.getLevelOne())) {
 				System.out.println("\n(1)service variable\n(2)scheduler on/off\n(3)scheduler cron expression\n" +
 						"(4)add dynamic setting\n(5)update dynamic setting value, description\n(6)remove dynamic setting\n(9)quit");
+			} else if (Menu.LevelOne.ETC.equals(this.command.getLevelOne())) {
+				System.out.println("(1)encode text\n(2)decode text\n(9)quit");
 			} else {
 				System.out.println("\nNot supported yes.");
 				throw new TerminateException();
@@ -77,7 +82,7 @@ public class Viewer
 
 			System.out.println("\n----------------------------------------------------------------------------------");
 			try {
-				Executor.execute(this.command);
+				this.commandExecutor.execute(this.command);
 			} catch (NotFoundOperation e) {
 				System.out.println("There is no menu.");
 			}

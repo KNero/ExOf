@@ -24,7 +24,7 @@ case "$1" in
 		if [ $COUNT == 0 ]; then
 			echo "Starting $SERVICE_NAME "
 
-            nohup java -server -Xms256m -Xmx1024m -Dfile.encoding=utf-8 -Dlogback.configurationFile=./env/logback.xml -cp "./lib/*:./lib/external/*:./classes" team.balam.exof.App > /dev/null 2>&1 &
+            nohup java -server -Xms256m -Xmx1024m -Dfile.encoding=utf-8 -Dlogback.configurationFile=./env/logback.xml -cp "./lib/*:./classes" team.balam.exof.App > /dev/null 2>&1 &
 
         	echo $! > $PID_PATH_NAME
         	echo "Process started by PID : $!" 

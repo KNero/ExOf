@@ -6,6 +6,7 @@ public interface Menu {
 	interface LevelOne {
 		String GET = "1";
 		String SET = "2";
+		String ETC = "3";
 	}
 
 	interface Execute {
@@ -20,5 +21,8 @@ public interface Menu {
 		String ADD_DYNAMIC_SETTING = "2.4";
 		String UPDATE_DYNAMIC_SETTING = "2.5";
 		String REMOVE_DYNAMIC_SETTING = "2.6";
+
+		String ETC_ENCODE_TEXT = "3.1";
+		String ETC_DECODE_TEXT = "3.2";
 	}
 }

@@ -1,6 +1,5 @@
 package balam.exof.test.environment;
 
-import balam.exof.test.InitTest;
 import io.netty.channel.ChannelHandlerContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -11,39 +10,41 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 import team.balam.exof.Constant;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.container.console.ServiceList;
+import team.balam.exof.db.ListenerDao;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.FrameworkLoader;
+import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.service.ServiceObject;
-import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.module.service.ServiceProvider;
-import team.balam.util.sqlite.connection.DatabaseLoader;
+import team.balam.exof.module.service.ServiceWrapper;
 
 import java.util.List;
 import java.util.Map;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class LoaderTest
-{
+public class LoaderTest {
 	@BeforeClass
-	public static void init() {
-		try {
-			DatabaseLoader.load(Constant.ENV_DB, InitTest.TEST_DB);
-		} catch (Exception e) {
-		}
+	public static void init() throws Exception {
+		ExternalClassLoader.load("./lib/external");
+
+		ServiceInfoDao.initTable();
+		ListenerDao.initTable();
+		new ServiceLoader().load("./env");
+		new FrameworkLoader().load("./env");
 	}
 
 	@Test
 	public void test01_getFrameworkExternal() throws Exception {
-		new FrameworkLoader().load("./env");
 		Map<String, Object> extMap = SystemSetting.getExternal();
 		Assert.assertEquals("abcde", extMap.get("test"));
 	}
@@ -54,7 +55,7 @@ public class LoaderTest
 		Assert.assertEquals(4, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
-		Assert.assertEquals(3, directoryInfos.size());
+		Assert.assertEquals(4, directoryInfos.size());
 	}
 
 	/**

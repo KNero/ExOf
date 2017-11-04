@@ -28,28 +28,27 @@ public class HttpResponseBuilder
 	}
 
 	public static FullHttpResponse buildOkMessage(String _msg) {
-		Map<String, Object> content = new HashMap<>();
-		content.put("Message", _msg);
+		return createHttpResponse(HttpResponseStatus.OK, _msg);
+	}
 
-		return createHttpResponse(HttpResponseStatus.OK, content);
+	public static FullHttpResponse buildOkJson(Map<String, Object> data) {
+		return createHttpResponse(HttpResponseStatus.OK, data);
 	}
 
 	public static FullHttpResponse buildServerError(String _msg) {
-		Map<String, Object> content = new HashMap<>();
-		content.put("Error", _msg);
-
-		return createHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, content);
+		return createHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, _msg);
 	}
 
 	public static FullHttpResponse buildBadRequest(String _msg) {
-		Map<String, Object> content = new HashMap<>();
-		content.put("Error", _msg);
-
-		return createHttpResponse(HttpResponseStatus.BAD_REQUEST, content);
+		return createHttpResponse(HttpResponseStatus.BAD_REQUEST, _msg);
 	}
 
 	public static FullHttpResponse buildNotImplemented(String _msg) {
 		return createHttpResponse(HttpResponseStatus.NOT_IMPLEMENTED, _msg);
+	}
+
+	public static FullHttpResponse buildUnauthorized(String _msg) {
+		return createHttpResponse(HttpResponseStatus.UNAUTHORIZED, _msg);
 	}
 	
 	private static FullHttpResponse createHttpResponse(HttpResponseStatus _status, Object _content) {
@@ -75,7 +74,7 @@ public class HttpResponseBuilder
 	}
 	
 	private static FullHttpResponse createHttpResponse(HttpResponseStatus _status, String _content) {
-		FullHttpResponse response = null;
+		FullHttpResponse response;
 
 		if (_content == null) {
 			response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, _status);

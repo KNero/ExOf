@@ -135,9 +135,13 @@ public class SchedulerManager implements Container, Observer
 	}
 	
 	@Override
-	public void stop() throws Exception
-	{
-		if(this.scheduler != null) this.scheduler.shutdown();
+	public void stop() throws Exception {
+		if(this.scheduler != null) {
+			this.scheduler.shutdown();
+		}
+
+		this.jobKeyMap = new HashMap<>();
+		this.triggerKeyMap = new HashMap<>();
 	}
 
 	@Override
