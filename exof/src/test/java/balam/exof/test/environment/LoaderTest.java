@@ -33,16 +33,14 @@ import java.util.Map;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoaderTest {
-	private static final String TEST_HOME = "./test-workspace/LoaderTest";
-
 	@BeforeClass
 	public static void init() throws Exception {
 		ExternalClassLoader.load("./lib/external");
 
 		ServiceInfoDao.initTable();
 		ListenerDao.initTable();
-		new ServiceLoader().load(TEST_HOME);
-		new FrameworkLoader().load(TEST_HOME);
+		new ServiceLoader().load("./env");
+		new FrameworkLoader().load("./env");
 	}
 
 	@Test
