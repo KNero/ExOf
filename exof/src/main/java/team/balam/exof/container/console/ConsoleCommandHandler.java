@@ -52,7 +52,7 @@ public class ConsoleCommandHandler extends SimpleChannelInboundHandler<String> {
 			this.logger.info("Command parameter : {}", command.getParameter());
 		}
 		
-		Object response = null;
+		Object response;
 		
 		if (this.filter == null || this.filter.apply(command)) {
 			Method service = ConsoleService.class.getMethod(command.getType(), Map.class);

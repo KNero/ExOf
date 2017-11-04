@@ -1,26 +1,31 @@
 package balam.exof.test.environment;
 
-import balam.exof.test.InitTest;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import team.balam.exof.Constant;
+import team.balam.exof.db.DynamicSettingDao;
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.vo.DynamicSettingVo;
-import team.balam.util.sqlite.connection.DatabaseLoader;
-import team.balam.util.sqlite.connection.pool.AlreadyExistsConnectionException;
 
 import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DynamicSettingTest {
+	private static final String TEST_DB = "./test-workspace/DynamicSettingTest" + Constant.ENV_DB;
+
 	@BeforeClass
 	public static void init() throws Exception {
-		try {
-			DatabaseLoader.load(Constant.ENV_DB, InitTest.TEST_DB);
-		} catch (AlreadyExistsConnectionException e) {
+		DynamicSettingDao.createTable();
+
+		for (int i = 0; i < 10; ++i) {
+			if (i == 5) {
+				DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, null));
+			} else {
+				DynamicSetting.getInstance().put(new DynamicSettingVo("name" + i, "value" + i, "des" + i));
+			}
 		}
 	}
 

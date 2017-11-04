@@ -6,7 +6,7 @@ import team.balam.exof.db.ListenerDao;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 
-class EnvDbLoader implements Loader {
+public class EnvDbLoader implements Loader {
 	@Override
 	public void load(String _envPath) throws LoadEnvException {
 		try {
