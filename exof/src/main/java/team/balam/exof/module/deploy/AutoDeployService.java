@@ -65,6 +65,15 @@ public class AutoDeployService {
 		String home = SystemSetting.getFramework(EnvKey.HOME);
 
 		try {
+			SchedulerManager.getInstance().stop();
+			ServiceProvider.getInstance().loadServiceDirectory();
+			LOGGER.warn("Service and Scheduler is stopped by reload request.");
+		} catch (Exception e) {
+			LOGGER.error("[FATAL] FAIL to stop custom system.", e);
+			return HttpResponseBuilder.buildServerError("Fail to stop custom system.");
+		}
+
+		try {
 			ExternalClassLoader.load(home + "/lib/external");
 		} catch(FileNotFoundException e) {
 			LOGGER.error("Not exists external library folder.", e);
@@ -72,12 +81,12 @@ public class AutoDeployService {
 		}
 
 		try {
-			SchedulerManager.getInstance().stop();
-			ServiceProvider.getInstance().loadServiceDirectory();
 			SchedulerManager.getInstance().start();
 			SchedulerManager.getInstance().executeInitTimeAndStart();
+			LOGGER.warn("Service and Scheduler is started by reload request.");
 		} catch (Exception e) {
-			LOGGER.error("[FATAL] FAIL to reload service and scheduler.", e);
+			LOGGER.error("[FATAL] FAIL to start custom system.", e);
+			return HttpResponseBuilder.buildServerError("Fail to start custom system.");
 		}
 
 		return HttpResponseBuilder.buildOk("success");
@@ -87,10 +96,10 @@ public class AutoDeployService {
 	@Inbound({IdPasswordChecker.class, HttpPost.class})
 	public FullHttpResponse rollbackLibrary(FullHttpRequest _request) {
 		String messageContent = _request.content().toString(Charset.defaultCharset());
-
 		if (messageContent.isEmpty()) {
 			return HttpResponseBuilder.buildBadRequest("library parameter(file name) is empty.");
 		}
+
 		QueryStringDecoder queryDecoder = new QueryStringDecoder(messageContent);
 		Map<String, List<String>> parameters = queryDecoder.parameters();
 
@@ -100,14 +109,15 @@ public class AutoDeployService {
 		}
 
 		String jarName = libName.get(0);
-
 		String home = SystemSetting.getFramework(EnvKey.HOME);
+
 		File external = new File(home + "/lib/external/" + jarName);
 		File backupExternal = new File(external.getAbsolutePath() + ".back");
 
-		try {
-			StreamUtil.write(new FileInputStream(backupExternal), new FileOutputStream(external));
-		} catch(IOException e) {
+		try (FileInputStream source = new FileInputStream(backupExternal);
+			FileOutputStream target = new FileOutputStream(external)) {
+			StreamUtil.write(source, target);
+		} catch (IOException e) {
 			String error = "Fail to rollback library file. " + jarName;
 			LOGGER.error(error, e);
 			return HttpResponseBuilder.buildServerError(error);

@@ -152,7 +152,8 @@ public class ServiceLoader implements Loader
 
 			Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(ServiceDirectory.class);
 			for (Class<?> serviceDirectory : classSet) {
-				if (packageName.equals(serviceDirectory.getPackage().getName())) {
+				Package classPackage = serviceDirectory.getPackage();
+				if (classPackage != null && packageName.equals(classPackage.getName())) {
 					ServiceDirectory annotation = serviceDirectory.getAnnotation(ServiceDirectory.class);
 
 					if (!annotation.path().isEmpty()) {
