@@ -27,23 +27,13 @@ public class App {
 		File home = new File(homeSetting);
 		SystemSetting.setFramework(EnvKey.HOME, home.getAbsolutePath());
 
-		try {
-			ExternalClassLoader.load(home.getAbsolutePath() + "/lib/external");
-		} catch(FileNotFoundException e) {
-			logger.error("Not exists external library folder.", e);
-			return;
-		}
+		ExternalClassLoader.load(home.getAbsolutePath() + "/lib/external");
 
-		Runtime.getRuntime().addShutdownHook(new Thread(){
-			@Override
-			public void run()
-			{
-			if(App.isShutdown.compareAndSet(false, true))
-			{
-				Operator.stop();
-			}
-			}
-		});
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if(App.isShutdown.compareAndSet(false, true)) {
+                Operator.stop();
+            }
+        }));
 
 		_loadEnv(home);
 
