@@ -177,15 +177,27 @@ public class ServiceInfoDao {
 	}
 
 	public static ServiceVariable selectServiceVariable(String _serviceDirectoryPath, String _serviceName) {
-		String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? ORDER BY KEY_ORDER, VALUE_ORDER";
-		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
-
 		try {
-			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
+            if (!"".equals(_serviceName)) {
+                String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? ORDER BY KEY_ORDER, VALUE_ORDER";
+                Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
 
-			if (!selectList.isEmpty()) {
-				return new ServiceVariable(_serviceName, selectList);
-			}
+                List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
+                if (!selectList.isEmpty()) {
+                    return new ServiceVariable(_serviceName, selectList);
+                }
+            } else {
+                String countQuery = "SELECT COUNT(*) AS CNT FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? GROUP BY SERVICE";
+                int serviceCount = (Integer) EnvDbHelper.select(countQuery, _serviceDirectoryPath).get(0).get("cnt");
+                if (serviceCount == 1) {
+                    String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? ORDER BY KEY_ORDER, VALUE_ORDER";
+
+                    List<Map<String, Object>> selectList = EnvDbHelper.select(query, _serviceDirectoryPath);
+                    if (!selectList.isEmpty()) {
+                        return new ServiceVariable(_serviceName, selectList);
+                    }
+                }
+            }
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}

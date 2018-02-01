@@ -20,6 +20,13 @@
 			<variable name="c" value="c4"/>
 		</serviceVariable>
 	</serviceDirectory>
+    <serviceDirectory class="team.balam.exof.test.TestService" path="/one-service">
+        <serviceVariable serviceName="schedule">
+            <variable name="a" value="d1"/>
+            <variable name="b" value="d2"/>
+            <variable name="c" value="d3"/>
+        </serviceVariable>
+    </serviceDirectory>
 
 	<scheduler id="test-schedule-01" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/>
     <scheduler id="test-schedule-02" servicePath="/test/arrayParam" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/>
