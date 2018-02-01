@@ -57,7 +57,7 @@ public class ServiceVariable {
     }
 
     private void put(String _key, String _value) {
-        List<String> valueList = this.variable.computeIfAbsent(_key, _variableKey -> new LinkedList<>());
+        List<String> valueList = this.variable.computeIfAbsent(_key, _variableKey -> new ArrayList<>());
         valueList.add(_value);
     }
 
@@ -104,13 +104,8 @@ public class ServiceVariable {
         return log.toString();
     }
 
-	/**
-	 * synchronized 는 consoleService 에서 serviceVariable 을 교체 할 때 잘 못된 변수가
-	 * service 전달 되는 것을 막기 위함이다.
-	 * @return 복사된 ServiceVariable
-	 */
 	@Override
-    synchronized public ServiceVariable clone() {
+    public ServiceVariable clone() {
 		ServiceVariable variable = new ServiceVariable();
 		for (Map.Entry<String, List<String>> info : this.variable.entrySet()) {
 			for (String value : info.getValue()) {
