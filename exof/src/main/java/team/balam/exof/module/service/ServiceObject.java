@@ -4,10 +4,10 @@ import team.balam.exof.environment.vo.ServiceVariable;
 
 public final class ServiceObject
 {
-	protected Object request;
+	private Object request;
 	private String servicePath;
-	protected ServiceVariable serviceVariables;
-	protected Object[] serviceParameter;
+	private ServiceVariable serviceVariables;
+	private Object[] serviceParameter;
 	
 	private boolean isAutoCloseSession;
 	private boolean isCloseSessionByError;
@@ -58,8 +58,7 @@ public final class ServiceObject
 	}
 
 	/**
-	 * 정상/비정상 종료시 현재 클라이언트 세션을 닫을지 여부 
-	 * @param isAutoCloseSession
+	 * 정상/비정상 종료시 현재 클라이언트 세션을 닫을지 여부
 	 */
 	public void setAutoCloseSession(boolean isAutoCloseSession)
 	{
@@ -73,7 +72,6 @@ public final class ServiceObject
 
 	/**
 	 * 에러가 발생했을 경우 클라이언트 세션을 닫을지 여부
-	 * @param isCloseSessionByError
 	 */
 	public void setCloseSessionByError(boolean isCloseSessionByError)
 	{

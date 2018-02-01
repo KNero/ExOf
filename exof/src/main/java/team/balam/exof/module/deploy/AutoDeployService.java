@@ -23,7 +23,6 @@ import team.balam.exof.util.StreamUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -73,12 +72,7 @@ public class AutoDeployService {
 			return HttpResponseBuilder.buildServerError("Fail to stop custom system.");
 		}
 
-		try {
-			ExternalClassLoader.load(home + "/lib/external");
-		} catch(FileNotFoundException e) {
-			LOGGER.error("Not exists external library folder.", e);
-			return HttpResponseBuilder.buildServerError("Not exists external library folder. " + home + "/lib/external");
-		}
+        ExternalClassLoader.load(home + "/lib/external");
 
 		try {
 			SchedulerManager.getInstance().start();

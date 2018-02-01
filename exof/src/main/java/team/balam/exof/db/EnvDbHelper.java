@@ -15,7 +15,7 @@ class EnvDbHelper {
 
 	}
 
-	static List<Map<String, Object>> select(String query, Object[] param) throws Exception {
+	static List<Map<String, Object>> select(String query, Object... param) throws Exception {
 		QueryVo vo = QueryVoFactory.create(QueryVo.Type.SELECT);
 		vo.setQuery(query);
 		vo.setParam(param);
@@ -33,7 +33,7 @@ class EnvDbHelper {
 		}
 	}
 
-	static void execute(QueryVo.Type _type, String _query, Object[] _param) throws Exception {
+	static void execute(QueryVo.Type _type, String _query, Object... _param) throws Exception {
 		QueryVo vo = QueryVoFactory.create(_type);
 		vo.setQuery(_query);
 		vo.setParam(_param);

@@ -17,12 +17,7 @@ import team.balam.exof.module.service.annotation.Variable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
+import java.util.*;
 
 public class ServiceProvider implements Module, Observer
 {
@@ -44,6 +39,7 @@ public class ServiceProvider implements Module, Observer
 		return self;
 	}
 
+    @SuppressWarnings("unchecked")
 	private void _register(ServiceDirectoryInfo _info) throws Exception {
 		Class<?> clazz = ExternalClassLoader.loadClass(_info.getClassName());
 		team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn =
@@ -85,7 +81,8 @@ public class ServiceProvider implements Module, Observer
 			throw new Exception("This class undefined ServiceDirectory annotation.");
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	private void _setServiceVariableByAnnotation(Object _host, ServiceDirectoryInfo _info) throws Exception {
 		Set<Field> fields = ReflectionUtils.getAllFields(_host.getClass(), ReflectionUtils.withAnnotation(Variable.class));
 		
@@ -185,7 +182,7 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	@Override
-	public void start() throws Exception {
+	public void start() {
 		Boolean isAutoReload = SystemSetting.getFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE);
 		if (isAutoReload != null) {
 			this.isReloadServiceVariable = isAutoReload;
@@ -197,7 +194,7 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	@Override
-	public void stop() throws Exception
+	public void stop()
 	{
 		this.serviceDirectory.values().forEach(ServiceDirectory::shutdown);
 	}
