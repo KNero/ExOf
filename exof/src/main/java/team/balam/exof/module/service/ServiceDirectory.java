@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.service.annotation.Inbound;
-import team.balam.exof.module.service.annotation.MapToVo;
 import team.balam.exof.module.service.annotation.Outbound;
 
 import java.lang.reflect.InvocationTargetException;
@@ -87,7 +86,6 @@ class ServiceDirectory
 
 		this._checkInboundAnnotation(_method, service);
 		this._checkOutboundAnnotation(_method, service);
-		this._checkMapToVoAnnotation(_method, service);
 
 		this.serviceMap.put(_serviceName, service);
 	}
@@ -106,13 +104,6 @@ class ServiceDirectory
 		if (outboundAnn != null) {
 			for (Class<? extends team.balam.exof.module.service.component.Outbound<?, ?>> clazz : outboundAnn.value())
 			_service.addOutbound(clazz.newInstance());
-		}
-	}
-
-	private void _checkMapToVoAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		MapToVo mapToVoAnn =_method.getAnnotation(MapToVo.class);
-		if (mapToVoAnn != null) {
-			_service.setMapToVoConverter(mapToVoAnn.classObject());
 		}
 	}
 	

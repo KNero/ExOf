@@ -3,7 +3,6 @@ package team.balam.exof.module.service;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
-import team.balam.exof.module.service.component.MapToVoConverter;
 import team.balam.exof.module.service.component.Outbound;
 
 import java.lang.reflect.Method;
@@ -20,7 +19,6 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
-	private MapToVoConverter mapToVoConverter;
 	
 	@Override
 	public Object getServiceVariable(String _name) {
@@ -70,21 +68,11 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 		this.outbound.add(_out);
 	}
 
-	void setMapToVoConverter(Class<?> _class) throws Exception {
-		this.mapToVoConverter = new MapToVoConverter();
-		this.mapToVoConverter.init(_class);
-	}
-
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void call(ServiceObject _so) throws Exception {
 		if (this.variable != null) {
 			_so.setServiceVariables(this.variable.clone());
-		}
-
-		if (this.mapToVoConverter != null) {
-			Object vo = this.mapToVoConverter.convert(_so.getRequest());
-			_so.setRequest(vo);
 		}
 
 		for (Inbound in : this.inbound) {
@@ -97,7 +85,6 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 		}
 
 		Object result = this.method.invoke(this.host, methodParameter);
-
 		if (result != null) {
 			for (Outbound outbound : this.outbound) {
 				result = outbound.execute(result);
