@@ -9,7 +9,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
-import team.balam.exof.Constant;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.container.console.Command;
@@ -35,22 +34,22 @@ import java.util.Map;
 public class LoaderTest {
 	@BeforeClass
 	public static void init() throws Exception {
-		ExternalClassLoader.load("./lib/external");
+        ExternalClassLoader.load("./lib/external");
 
-		ServiceInfoDao.initTable();
-		ListenerDao.initTable();
-		new ServiceLoader().load("./env");
-		new FrameworkLoader().load("./env");
-	}
+        ServiceInfoDao.initTable();
+        ListenerDao.initTable();
+        new ServiceLoader().load("./env");
+        new FrameworkLoader().load("./env");
+    }
 
 	@Test
-	public void test01_getFrameworkExternal() throws Exception {
+	public void test01_getFrameworkExternal() {
 		Map<String, Object> extMap = SystemSetting.getExternal();
 		Assert.assertEquals("abcde", extMap.get("test"));
 	}
 
 	@Test
-	public void test02_scheduleAndServiceDirectory() throws Exception {
+	public void test02_scheduleAndServiceDirectory() {
 		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectScheduler();
 		Assert.assertEquals(4, schedulerInfos.size());
 
@@ -81,11 +80,10 @@ public class LoaderTest {
 			 <variable name="c" value="c3"/>
 		 </serviceVariable>
 	 </serviceDirectory>
-	 * @throws Exception
 	 */
 	@Test
 	@SuppressWarnings("unchecked")
-	public void test03_serviceVariable() throws Exception {
+	public void test03_serviceVariable() {
 		ServiceVariable result = ServiceInfoDao.selectServiceVariable("/test", "schedule");
 		Assert.assertEquals("a1", result.getString("a"));
 		Assert.assertEquals("b2", result.getString("b"));
@@ -100,6 +98,12 @@ public class LoaderTest {
 		Assert.assertEquals("a1", result.getString("a"));
 		Assert.assertEquals("b2", result.getString("b"));
 		Assert.assertEquals("c3", result.getString("c"));
+
+		//서비스가 하나일 경우 빈 값을 입력해서 서비스를 가져올 수 있다.
+        result = ServiceInfoDao.selectServiceVariable("/one-service", "");
+        Assert.assertEquals("one-1", result.getString("a"));
+        Assert.assertEquals("one-2", result.getString("b"));
+        Assert.assertEquals("one-", result.getString("c"));
 	}
 
 	@Test
