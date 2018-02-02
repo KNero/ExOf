@@ -36,24 +36,15 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 
     @SuppressWarnings("unchecked")
 	@Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) 
-    {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
     	ServiceObject serviceObject = null;
     	
-    	try 
-    	{
-    		if(this.transform == null)
-    		{
-    			throw new NullPointerException("messageTransform setting is empty.");
-    		}
-    		
+    	try {
     		RequestContext.set(RequestContext.CHANNEL_CONTEXT, ctx);
     		RequestContext.set(RequestContext.ORIGINAL_REQUEST, msg);
     		
     		serviceObject = this.transform.transform(msg);
-    		
-    		if(serviceObject == null)
-    		{
+    		if(serviceObject == null) {
     			throw new NullPointerException("serviceObject is null.");
     		}
     		

@@ -194,9 +194,10 @@ public class ServiceProvider implements Module, Observer
 	}
 
 	@Override
-	public void stop()
-	{
-		this.serviceDirectory.values().forEach(ServiceDirectory::shutdown);
+	public void stop() {
+	    if (this.serviceDirectory != null) {
+            this.serviceDirectory.values().forEach(ServiceDirectory::shutdown);
+        }
 	}
 
 	@Override

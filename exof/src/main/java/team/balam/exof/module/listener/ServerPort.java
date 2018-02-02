@@ -1,11 +1,7 @@
 package team.balam.exof.module.listener;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -66,7 +62,7 @@ public class ServerPort
 			.childHandler(new ChannelInitializer<SocketChannel>()
 			{
 				@Override
-				protected void initChannel(SocketChannel _socketChannel) throws Exception 
+				protected void initChannel(SocketChannel _socketChannel)
 				{
 					_socketChannel.pipeline().addLast(self.channelHandlerArray.make(_socketChannel)).addLast(requestHandler);
 				}
@@ -95,12 +91,11 @@ public class ServerPort
 
 		String messageTransformClass = this.portInfo.getMessageTransform();
 		if (!messageTransformClass.isEmpty()) {
-			@SuppressWarnings("rawtypes")
 			ServiceObjectTransform messageTransform =
 					(ServiceObjectTransform) ExternalClassLoader.loadClass(messageTransformClass).newInstance();
-			requestHandler.setServiceObjectTransform(messageTransform);
+            messageTransform.init(this.portInfo);
 
-			messageTransform.init(this.portInfo);
+			requestHandler.setServiceObjectTransform(messageTransform);
 		} else {
 			throw new ServerPortInitializeException("messageTransform is null. Check listener.xml");
 		}
@@ -117,7 +112,7 @@ public class ServerPort
 		return requestHandler;
 	}
 	
-	public void close() throws Exception
+	public void close()
 	{
 		if (this.channelHandlerArray instanceof ChannelHandlerArray) {
 			((ChannelHandlerArray) this.channelHandlerArray).destroy();
