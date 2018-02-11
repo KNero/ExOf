@@ -1,4 +1,4 @@
-package balam.exof.test;
+package team.balam.exof;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class InitTest {
 	@Test
 	public void test01_init() throws Exception {
 		File dbFile = new File(TEST_DB);
-		dbFile.delete();
+		dbFile.deleteOnExit();
 
 		DatabaseLoader.load(Constant.ENV_DB, TEST_DB);
 	}

@@ -1,4 +1,4 @@
-package balam.exof.test.module.deploy;
+package team.balam.exof.module.deploy;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
@@ -12,7 +12,6 @@ import org.junit.runners.MethodSorters;
 import team.balam.exof.Constant;
 import team.balam.exof.client.Client;
 import team.balam.exof.client.DefaultClient;
-import team.balam.exof.module.deploy.DeployRequester;
 
 import java.io.File;
 import java.nio.charset.Charset;

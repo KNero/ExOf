@@ -1,8 +1,7 @@
-package balam.exof.test.module.listener.handler.transform;
+package team.balam.exof.module.listener.handler.transform;
 
 import org.junit.Assert;
 import org.junit.Test;
-import team.balam.exof.module.listener.handler.transform.AbstractJsonTransform;
 import team.balam.exof.module.service.ServiceObject;
 
 import java.io.IOException;

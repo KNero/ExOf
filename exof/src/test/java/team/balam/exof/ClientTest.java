@@ -1,4 +1,4 @@
-package balam.exof.test;
+package team.balam.exof;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;

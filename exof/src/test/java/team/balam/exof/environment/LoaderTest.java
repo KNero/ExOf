@@ -1,4 +1,4 @@
-package balam.exof.test.environment;
+package team.balam.exof.environment;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -9,23 +9,19 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
-import team.balam.exof.ExternalClassLoader;
+import team.balam.exof.TestInitializer;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ConsoleCommandHandler;
 import team.balam.exof.container.console.ServiceList;
-import team.balam.exof.db.ListenerDao;
 import team.balam.exof.db.ServiceInfoDao;
-import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.FrameworkLoader;
-import team.balam.exof.environment.ServiceLoader;
-import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.ServiceWrapper;
+import team.balam.exof.test.OneService;
 
 import java.util.List;
 import java.util.Map;
@@ -34,12 +30,7 @@ import java.util.Map;
 public class LoaderTest {
 	@BeforeClass
 	public static void init() throws Exception {
-        ExternalClassLoader.load("./lib/external");
-
-        ServiceInfoDao.initTable();
-        ListenerDao.initTable();
-        new ServiceLoader().load("./env");
-        new FrameworkLoader().load("./env");
+		TestInitializer.init();
     }
 
 	@Test
@@ -54,33 +45,9 @@ public class LoaderTest {
 		Assert.assertEquals(4, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
-		Assert.assertEquals(4, directoryInfos.size());
+		Assert.assertEquals(5, directoryInfos.size());
 	}
 
-	/**
-	 * <serviceDirectory class="team.balam.exof.test.TestService" path="/test">
-		 <serviceVariable serviceName="schedule">
-			 <variable name="a" value="a1"/>
-			 <variable name="b" value="b2"/>
-			 <variable name="c" value="c3"/>
-		 </serviceVariable>
-		 <serviceVariable serviceName="arrayParam">
-			 <variable name="a" value="a1"/>
-			 <variable name="b" value="b2"/>
-			 <variable name="c" value="c1"/>
-			 <variable name="c" value="c2"/>
-			 <variable name="c" value="c3"/>
-			 <variable name="c" value="c4"/>
-		 </serviceVariable>
-	 </serviceDirectory>
-	 <serviceDirectory class="team.balam.exof.test.TestService" path="/test2">
-		 <serviceVariable serviceName="schedule">
-			 <variable name="a" value="a1"/>
-			 <variable name="b" value="b2"/>
-			 <variable name="c" value="c3"/>
-		 </serviceVariable>
-	 </serviceDirectory>
-	 */
 	@Test
 	@SuppressWarnings("unchecked")
 	public void test03_serviceVariable() {
@@ -98,37 +65,35 @@ public class LoaderTest {
 		Assert.assertEquals("a1", result.getString("a"));
 		Assert.assertEquals("b2", result.getString("b"));
 		Assert.assertEquals("c3", result.getString("c"));
-
-		//서비스가 하나일 경우 빈 값을 입력해서 서비스를 가져올 수 있다.
-        result = ServiceInfoDao.selectServiceVariable("/one-service", "");
-        Assert.assertEquals("one-1", result.getString("a"));
-        Assert.assertEquals("one-2", result.getString("b"));
-        Assert.assertEquals("one-", result.getString("c"));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void test04_loadService() throws Exception {
-		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
-		ServiceProvider.getInstance().start();
-
-		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
-		Assert.assertEquals("a1", service.getServiceVariable("a"));
-		Assert.assertEquals("b2", service.getServiceVariable("b"));
-		Assert.assertEquals("c3", service.getServiceVariable("c"));
-
-		service = ServiceProvider.lookup("/test/arrayParam");
-		Assert.assertEquals("a1", service.getServiceVariable("a"));
-		Assert.assertEquals("b2", service.getServiceVariable("b"));
-		Assert.assertEquals(4, ((List<String>) service.getServiceVariable("c")).size());
-
-		service = ServiceProvider.lookup("/test2/schedule");
-		Assert.assertEquals("a1", service.getServiceVariable("a"));
-		Assert.assertEquals("b2", service.getServiceVariable("b"));
-		Assert.assertEquals("c3", service.getServiceVariable("c"));
-
-		service = ServiceProvider.lookup("/autoScan/autoSchedule");
-		service.call(new ServiceObject("/autoScan/autoSchedule"));
+//		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
+//
+//		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
+//		Assert.assertEquals("a1", service.getServiceVariable("a"));
+//		Assert.assertEquals("b2", service.getServiceVariable("b"));
+//		Assert.assertEquals("c3", service.getServiceVariable("c"));
+//
+//		service = ServiceProvider.lookup("/test/arrayParam");
+//		Assert.assertEquals("a1", service.getServiceVariable("a"));
+//		Assert.assertEquals("b2", service.getServiceVariable("b"));
+//		Assert.assertEquals(4, ((List<String>) service.getServiceVariable("c")).size());
+//
+//		service = ServiceProvider.lookup("/test2/schedule");
+//		Assert.assertEquals("a1", service.getServiceVariable("a"));
+//		Assert.assertEquals("b2", service.getServiceVariable("b"));
+//		Assert.assertEquals("c3", service.getServiceVariable("c"));
+//
+//		service = ServiceProvider.lookup("/test2/schedule");
+//		Assert.assertEquals("a1", service.getServiceVariable("a"));
+//		Assert.assertEquals("b2", service.getServiceVariable("b"));
+//		Assert.assertEquals("c3", service.getServiceVariable("c"));
+//
+//		service = ServiceProvider.lookup("/autoScan/autoSchedule");
+//		service.call(new ServiceObject("/autoScan/autoSchedule"));
 	}
 
 	@Test
@@ -142,7 +107,7 @@ public class LoaderTest {
 		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
 
 		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
-		Assert.assertEquals("a2a2", service.getServiceVariable("a"));
+//		Assert.assertEquals("a2a2", service.getServiceVariable("a"));
 	}
 
 	@Test
@@ -174,5 +139,20 @@ public class LoaderTest {
 
 		ConsoleCommandHandler handler = new ConsoleCommandHandler();
 		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
+	}
+
+	@Test
+	public void test07_callOneService() throws Exception {
+		ServiceWrapper service = ServiceProvider.lookup("/one-service/testSingleMethod");
+		service.call(new ServiceObject("/one-service/testSingleMethod"));
+		OneService oneService = service.getHost();
+
+		//서비스가 하나일 경우 빈 값을 입력해서 서비스를 가져올 수 있다.
+		Assert.assertEquals("one-1", oneService.a);
+		Assert.assertEquals("one-2", oneService.b);
+		Assert.assertEquals("one-3-1", oneService.c.get(0));
+		Assert.assertEquals("one-3-2", oneService.c.get(1));
+		Assert.assertEquals("one-3-3", oneService.c.get(2));
+		Assert.assertEquals("one-3-4", oneService.c.get(3));
 	}
 }
