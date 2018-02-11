@@ -20,11 +20,14 @@
 			<variable name="c" value="c4"/>
 		</serviceVariable>
 	</serviceDirectory>
-    <serviceDirectory class="team.balam.exof.test.TestService" path="/one-service">
-        <serviceVariable serviceName="schedule">
-            <variable name="a" value="d1"/>
-            <variable name="b" value="d2"/>
-            <variable name="c" value="d3"/>
+    <serviceDirectory class="team.balam.exof.test.OneService" path="/one-service">
+        <serviceVariable serviceName="testSingleMethod">
+            <variable name="a" value="one-1"/>
+            <variable name="b" value="one-2"/>
+            <variable name="c" value="one-3-1"/>
+            <variable name="c" value="one-3-2"/>
+            <variable name="c" value="one-3-3"/>
+            <variable name="c" value="one-3-4"/>
         </serviceVariable>
     </serviceDirectory>
 
