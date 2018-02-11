@@ -25,8 +25,9 @@ public class ExternalClassLoader {
 		List<URL> urlList = new ArrayList<>();
 
 		File extFile = new File(_externalPath);
-		if (extFile.exists()) {
-			for (String file : extFile.list()) {
+		String[] fileList = extFile.list();
+		if (extFile.exists() && fileList != null) {
+			for (String file : fileList) {
 				File jar = new File(extFile, file);
 
 				if (jar.isFile() && file.endsWith(".jar")) {
@@ -43,7 +44,7 @@ public class ExternalClassLoader {
 			URL[] urls = new URL[urlList.size()];
 			external = new URLClassLoader(urlList.toArray(urls));
 		} else {
-            LOG.warn("Not exists EXTERNAL LIBRARY folder. " + extFile.getAbsolutePath());
+            LOG.error("Not exists EXTERNAL LIBRARY folder. " + extFile.getAbsolutePath());
 		}
 	}
 

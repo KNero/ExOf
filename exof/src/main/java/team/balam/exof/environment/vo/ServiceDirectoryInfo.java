@@ -11,12 +11,24 @@ import java.util.Map;
  */
 public class ServiceDirectoryInfo
 {
+	public static final ServiceDirectoryInfo NULL_OBJECT = new ServiceDirectoryInfo();
+	private boolean isNotNull;
+
 	private Map<String, Object> dbColumn;
 
+	private ServiceDirectoryInfo() {
+
+	}
+
 	public ServiceDirectoryInfo(Map<String, Object> dbColumn) {
+		this.isNotNull = true;
 		this.dbColumn = dbColumn;
 	}
-	
+
+	public boolean isNotNull() {
+		return isNotNull;
+	}
+
 	public String getClassName()
 	{
 		return (String) this.dbColumn.get("class");

@@ -1,17 +1,12 @@
 package team.balam.exof.db;
 
-import com.sun.jmx.remote.util.EnvHelp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import team.balam.exof.Constant;
 import team.balam.exof.environment.LoadEnvException;
 import team.balam.exof.environment.vo.SchedulerInfo;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
-import team.balam.util.sqlite.connection.PoolManager;
-import team.balam.util.sqlite.connection.vo.QueryTimeoutException;
 import team.balam.util.sqlite.connection.vo.QueryVo;
-import team.balam.util.sqlite.connection.vo.QueryVoFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,10 +35,10 @@ public class ServiceInfoDao {
 				"PATH TEXT NOT NULL, " +
 				"CLASS TEXT NOT NULL," +
 				"PRIMARY KEY(PATH))";
-		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query);
 
 		query = "DELETE FROM SERVICE_DIRECTORY";
-		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query);
 	}
 
 	private static void initServiceVariableTable() throws Exception {
@@ -54,10 +49,10 @@ public class ServiceInfoDao {
 				"VALUE TEXT, " +
 				"KEY_ORDER NUMBER, " +
 				"VALUE_ORDER NUMBER)";
-		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query);
 
 		query = "DELETE FROM SERVICE_VARIABLE";
-		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query);
 	}
 
 	private static void initScheduleTable() throws Exception {
@@ -69,10 +64,10 @@ public class ServiceInfoDao {
 				"USE TEXT, " +
 				"INIT_EXECUTION TEXT, " +
 				"PRIMARY KEY(ID))";
-		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query);
 
 		query = "DELETE FROM SCHEDULER";
-		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query);
 	}
 
 	public static void insertServiceDirectory(String _path, String _class) throws LoadEnvException {
@@ -148,7 +143,7 @@ public class ServiceInfoDao {
 		String query = "SELECT * FROM SERVICE_DIRECTORY";
 
 		try {
-			List<Map<String, Object>> selectList = EnvDbHelper.select(query, null);
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query);
 
 			if (!selectList.isEmpty()) {
 				List<ServiceDirectoryInfo> resultList = new ArrayList<>();
@@ -165,6 +160,22 @@ public class ServiceInfoDao {
 		return Collections.emptyList();
 	}
 
+	public static ServiceDirectoryInfo selectServiceDirectory(String _dirPath) {
+		String query = "SELECT * FROM SERVICE_DIRECTORY WHERE PATH=?";
+
+		try {
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query, _dirPath);
+
+			if (!selectList.isEmpty()) {
+				return new ServiceDirectoryInfo(selectList.get(0));
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+
+		return ServiceDirectoryInfo.NULL_OBJECT;
+	}
+
 	public static void deleteServiceDirectory(String _path) {
 		String query = "DELETE FROM SERVICE_DIRECTORY WHERE PATH=?";
 		Object[] param = new Object[]{_path};
@@ -176,16 +187,29 @@ public class ServiceInfoDao {
 		}
 	}
 
+
 	public static ServiceVariable selectServiceVariable(String _serviceDirectoryPath, String _serviceName) {
-		String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? ORDER BY KEY_ORDER, VALUE_ORDER";
-		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
-
 		try {
-			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
+            if (!"".equals(_serviceName)) {
+                String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? ORDER BY KEY_ORDER, VALUE_ORDER";
+                Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
 
-			if (!selectList.isEmpty()) {
-				return new ServiceVariable(_serviceName, selectList);
-			}
+                List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
+                if (!selectList.isEmpty()) {
+                    return new ServiceVariable(selectList);
+                }
+            } else {
+                String countQuery = "SELECT SERVICE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? GROUP BY SERVICE";
+                int serviceCount = EnvDbHelper.select(countQuery, _serviceDirectoryPath).size();
+                if (serviceCount == 1) {
+                    String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? ORDER BY KEY_ORDER, VALUE_ORDER";
+
+                    List<Map<String, Object>> selectList = EnvDbHelper.select(query, _serviceDirectoryPath);
+                    if (!selectList.isEmpty()) {
+                        return new ServiceVariable(selectList);
+                    }
+                }
+            }
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
@@ -193,29 +217,29 @@ public class ServiceInfoDao {
 		return ServiceVariable.NULL_OBJECT;
 	}
 
-	public static List<ServiceVariable> selectServiceVariable(String _serviceDirectoryPath) {
-		String query = "SELECT SERVICE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? GROUP BY SERVICE";
-		Object[] param = new Object[]{_serviceDirectoryPath};
-
-		try {
-			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
-
-			if (!selectList.isEmpty()) {
-				List<ServiceVariable> variableList = new ArrayList<>();
-
-				for (Map<String, Object> info : selectList) {
-					ServiceVariable serviceVariable = selectServiceVariable(_serviceDirectoryPath, (String) info.get("service"));
-					variableList.add(serviceVariable);
-				}
-
-				return variableList;
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error occurred execute query.", e);
-		}
-
-		return Collections.emptyList();
-	}
+//	public static List<ServiceVariable> selectServiceVariable(String _serviceDirectoryPath) {
+//		String query = "SELECT SERVICE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? GROUP BY SERVICE";
+//		Object[] param = new Object[]{_serviceDirectoryPath};
+//
+//		try {
+//			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
+//
+//			if (!selectList.isEmpty()) {
+//				List<ServiceVariable> variableList = new ArrayList<>();
+//
+//				for (Map<String, Object> info : selectList) {
+//					ServiceVariable serviceVariable = selectServiceVariable(_serviceDirectoryPath, (String) info.get("service"));
+//					variableList.add(serviceVariable);
+//				}
+//
+//				return variableList;
+//			}
+//		} catch (Exception e) {
+//			LOGGER.error("Error occurred execute query.", e);
+//		}
+//
+//		return Collections.emptyList();
+//	}
 
 	public static void updateServiceVariableValue(String _directoryPath, String _service, String _key, String _value) {
 		String query = "UPDATE SERVICE_VARIABLE SET VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
@@ -249,7 +273,7 @@ public class ServiceInfoDao {
 		String query = "SELECT * FROM SCHEDULER";
 
 		try {
-			List<Map<String, Object>> selectList = EnvDbHelper.select(query, null);
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query);
 
 			if (!selectList.isEmpty()) {
 				List<SchedulerInfo> resultList = new ArrayList<>();

@@ -1,8 +1,7 @@
-package balam.exof.test.environment;
+package team.balam.exof.environment;
 
 import org.junit.Assert;
 import org.junit.Test;
-import team.balam.exof.environment.TextCrypto;
 
 public class TextCryptoTest {
 	@Test

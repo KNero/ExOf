@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Variable
 {
-	String serviceName();
+	String value() default "";
 }

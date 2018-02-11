@@ -7,19 +7,29 @@
 
 	<serviceDirectory class="team.balam.exof.test.TestService" path="/test">
 		<serviceVariable serviceName="schedule">
-			<variable name="a" value="a1"/>
-			<variable name="b" value="b2"/>
-			<variable name="c" value="c3"/>
+			<variable name="scheduleA" value="scheduleA-1"/>
+			<variable name="scheduleB" value="scheduleB-2"/>
+			<variable name="scheduleC" value="scheduleC-3"/>
 		</serviceVariable>
 		<serviceVariable serviceName="arrayParam">
-			<variable name="a" value="a1"/>
-			<variable name="b" value="b2"/>
-			<variable name="c" value="c1"/>
-			<variable name="c" value="c2"/>
-			<variable name="c" value="c3"/>
-			<variable name="c" value="c4"/>
+			<variable name="arrayParamA" value="arrayParamA-1"/>
+			<variable name="arrayParamB" value="arrayParamB-2"/>
+			<variable name="arrayParamC" value="arrayParamC-1"/>
+			<variable name="arrayParamC" value="arrayParamC-2"/>
+			<variable name="arrayParamC" value="arrayParamC-3"/>
+			<variable name="arrayParamC" value="arrayParamC-4"/>
 		</serviceVariable>
 	</serviceDirectory>
+    <serviceDirectory class="team.balam.exof.test.OneService" path="/one-service">
+        <serviceVariable serviceName="testSingleMethod">
+            <variable name="a" value="one-1"/>
+            <variable name="b" value="one-2"/>
+            <variable name="c" value="one-3-1"/>
+            <variable name="c" value="one-3-2"/>
+            <variable name="c" value="one-3-3"/>
+            <variable name="c" value="one-3-4"/>
+        </serviceVariable>
+    </serviceDirectory>
 
 	<scheduler id="test-schedule-01" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/>
     <scheduler id="test-schedule-02" servicePath="/test/arrayParam" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/>

@@ -1,10 +1,7 @@
-package balam.exof.test;
+package team.balam.exof;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import team.balam.exof.ThreadWorker;
-import team.balam.exof.ThreadWorkerRegister;
 
 public class ThreadWorkerTest extends ThreadWorker
 {

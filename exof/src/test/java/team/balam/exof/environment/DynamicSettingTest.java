@@ -1,24 +1,20 @@
-package balam.exof.test.environment;
+package team.balam.exof.environment;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import team.balam.exof.Constant;
-import team.balam.exof.db.DynamicSettingDao;
-import team.balam.exof.environment.DynamicSetting;
+import team.balam.exof.TestInitializer;
 import team.balam.exof.environment.vo.DynamicSettingVo;
 
 import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DynamicSettingTest {
-	private static final String TEST_DB = "./test-workspace/DynamicSettingTest" + Constant.ENV_DB;
-
 	@BeforeClass
 	public static void init() throws Exception {
-		DynamicSettingDao.createTable();
+		TestInitializer.init();
 
 		for (int i = 0; i < 10; ++i) {
 			if (i == 5) {
