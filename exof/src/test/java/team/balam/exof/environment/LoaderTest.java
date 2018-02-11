@@ -9,6 +9,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import team.balam.exof.TestInitializer;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.container.console.Command;
@@ -22,19 +24,27 @@ import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.test.OneService;
+import team.balam.exof.test.TestService;
 
 import java.util.List;
 import java.util.Map;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoaderTest {
+	private static final Logger LOG = LoggerFactory.getLogger(LoaderTest.class);
+
 	@BeforeClass
 	public static void init() throws Exception {
 		TestInitializer.init();
+
+		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
+		new ServiceLoader().load("./env");
+		ServiceProvider.getInstance().start();
     }
 
 	@Test
-	public void test01_getFrameworkExternal() {
+	public void test01_getFrameworkExternal() throws Exception {
+		new FrameworkLoader().load("./env");
 		Map<String, Object> extMap = SystemSetting.getExternal();
 		Assert.assertEquals("abcde", extMap.get("test"));
 	}
@@ -52,62 +62,67 @@ public class LoaderTest {
 	@SuppressWarnings("unchecked")
 	public void test03_serviceVariable() {
 		ServiceVariable result = ServiceInfoDao.selectServiceVariable("/test", "schedule");
-		Assert.assertEquals("a1", result.getString("a"));
-		Assert.assertEquals("b2", result.getString("b"));
-		Assert.assertEquals("c3", result.getString("c"));
+		LOG.info(result.toString());
+		Assert.assertEquals("scheduleA-1", result.getString("scheduleA"));
+		Assert.assertEquals("scheduleB-2", result.getString("scheduleB"));
+		Assert.assertEquals("scheduleC-3", result.getString("scheduleC"));
 
 		result = ServiceInfoDao.selectServiceVariable("/test", "arrayParam");
-		Assert.assertEquals("a1", result.getString("a"));
-		Assert.assertEquals("b2", result.getString("b"));
-		Assert.assertEquals(4, ((List<String>) result.get("c")).size());
+		LOG.info(result.toString());
+		Assert.assertEquals("arrayParamA-1", result.getString("arrayParamA"));
+		Assert.assertEquals("arrayParamB-2", result.getString("arrayParamB"));
+		Assert.assertEquals(4, ((List<String>) result.get("arrayParamC")).size());
 
 		result = ServiceInfoDao.selectServiceVariable("/test2", "schedule");
-		Assert.assertEquals("a1", result.getString("a"));
-		Assert.assertEquals("b2", result.getString("b"));
-		Assert.assertEquals("c3", result.getString("c"));
+		LOG.info(result.toString());
+		Assert.assertEquals("other-scheduleA-a1", result.getString("scheduleA"));
+		Assert.assertEquals("other-scheduleB-b2", result.getString("scheduleB"));
+		Assert.assertEquals("other-scheduleC-c3", result.getString("scheduleC"));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void test04_loadService() throws Exception {
-//		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
-//
-//		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
-//		Assert.assertEquals("a1", service.getServiceVariable("a"));
-//		Assert.assertEquals("b2", service.getServiceVariable("b"));
-//		Assert.assertEquals("c3", service.getServiceVariable("c"));
-//
-//		service = ServiceProvider.lookup("/test/arrayParam");
-//		Assert.assertEquals("a1", service.getServiceVariable("a"));
-//		Assert.assertEquals("b2", service.getServiceVariable("b"));
-//		Assert.assertEquals(4, ((List<String>) service.getServiceVariable("c")).size());
-//
-//		service = ServiceProvider.lookup("/test2/schedule");
-//		Assert.assertEquals("a1", service.getServiceVariable("a"));
-//		Assert.assertEquals("b2", service.getServiceVariable("b"));
-//		Assert.assertEquals("c3", service.getServiceVariable("c"));
-//
-//		service = ServiceProvider.lookup("/test2/schedule");
-//		Assert.assertEquals("a1", service.getServiceVariable("a"));
-//		Assert.assertEquals("b2", service.getServiceVariable("b"));
-//		Assert.assertEquals("c3", service.getServiceVariable("c"));
-//
-//		service = ServiceProvider.lookup("/autoScan/autoSchedule");
-//		service.call(new ServiceObject("/autoScan/autoSchedule"));
+		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
+
+		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
+		TestService host = service.getHost();
+		Assert.assertEquals("scheduleA-1", host.scheduleA);
+		Assert.assertEquals("scheduleB-2", host.scheduleB);
+		Assert.assertEquals("scheduleC-3", host.scheduleC);
+
+		service = ServiceProvider.lookup("/test/arrayParam");
+		host = service.getHost();
+		Assert.assertEquals("arrayParamA-1", host.arrayParamA);
+		Assert.assertEquals("arrayParamB-2", host.arrayParamB);
+		Assert.assertEquals("arrayParamC-1", host.arrayParamC.get(0));
+		Assert.assertEquals("arrayParamC-2", host.arrayParamC.get(1));
+		Assert.assertEquals("arrayParamC-3", host.arrayParamC.get(2));
+		Assert.assertEquals("arrayParamC-4", host.arrayParamC.get(3));
+
+		service = ServiceProvider.lookup("/test2/schedule");
+		host = service.getHost();
+		Assert.assertEquals("other-scheduleA-a1", host.scheduleA);
+		Assert.assertEquals("other-scheduleB-b2", host.scheduleB);
+		Assert.assertEquals("other-scheduleC-c3", host.scheduleC);
+
+		service = ServiceProvider.lookup("/autoScan/autoSchedule");
+		service.call(new ServiceObject("/autoScan/autoSchedule"));
 	}
 
 	@Test
 	public void test05_reloadServiceVariable() throws Exception {
 		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
 		command.addParameter(Command.Key.SERVICE_PATH, "/test/schedule");
-		command.addParameter(Command.Key.VARIABLE_NAME, "a");
+		command.addParameter(Command.Key.VARIABLE_NAME, "scheduleA");
 		command.addParameter(Command.Key.VARIABLE_VALUE, "a2a2");
 
 		ConsoleCommandHandler handler = new ConsoleCommandHandler();
 		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
 
 		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
-//		Assert.assertEquals("a2a2", service.getServiceVariable("a"));
+		TestService host = service.getHost();
+		Assert.assertEquals("a2a2", host.scheduleA);
 	}
 
 	@Test

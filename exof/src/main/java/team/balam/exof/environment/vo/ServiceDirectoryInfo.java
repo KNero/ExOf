@@ -17,10 +17,11 @@ public class ServiceDirectoryInfo
 	private Map<String, Object> dbColumn;
 
 	private ServiceDirectoryInfo() {
-		this.isNotNull = true;
+
 	}
 
 	public ServiceDirectoryInfo(Map<String, Object> dbColumn) {
+		this.isNotNull = true;
 		this.dbColumn = dbColumn;
 	}
 

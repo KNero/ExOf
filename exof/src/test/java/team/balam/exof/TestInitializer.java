@@ -3,9 +3,7 @@ package team.balam.exof;
 import team.balam.exof.db.DynamicSettingDao;
 import team.balam.exof.db.ListenerDao;
 import team.balam.exof.db.ServiceInfoDao;
-import team.balam.exof.environment.FrameworkLoader;
-import team.balam.exof.environment.ServiceLoader;
-import team.balam.exof.module.service.ServiceProvider;
+import team.balam.util.sqlite.connection.DatabaseLoadException;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 
 import java.io.File;
@@ -20,17 +18,16 @@ public class TestInitializer {
 			File dbFile = new File(TEST_DB);
 			dbFile.deleteOnExit();
 
-			DatabaseLoader.load(Constant.ENV_DB, TEST_DB);
+			try {
+				DatabaseLoader.load(Constant.ENV_DB, TEST_DB);
+			} catch (DatabaseLoadException e) {
+				//ignore
+			}
 			ServiceInfoDao.initTable();
 			ListenerDao.initTable();
 			DynamicSettingDao.createTable();
 
 			ExternalClassLoader.load("./lib/external");
-
-			new ServiceLoader().load("./env");
-			new FrameworkLoader().load("./env");
-
-			ServiceProvider.getInstance().start();
 		}
 	}
 }

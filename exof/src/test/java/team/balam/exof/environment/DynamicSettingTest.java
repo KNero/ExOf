@@ -5,9 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import team.balam.exof.InitTest;
 import team.balam.exof.TestInitializer;
-import team.balam.exof.db.DynamicSettingDao;
 import team.balam.exof.environment.vo.DynamicSettingVo;
 
 import java.util.List;

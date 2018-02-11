@@ -34,6 +34,8 @@ import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.module.service.ServiceProvider;
+import team.balam.exof.module.service.ServiceWrapper;
+import team.balam.exof.test.TestService;
 import team.balam.util.sqlite.connection.DatabaseLoader;
 import team.balam.util.sqlite.connection.pool.AlreadyExistsConnectionException;
 
@@ -210,7 +212,7 @@ public class ClientTest {
 
 		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
 		command.addParameter(Command.Key.SERVICE_PATH, "/test/schedule");
-		command.addParameter(Command.Key.VARIABLE_NAME, "a");
+		command.addParameter(Command.Key.VARIABLE_NAME, "scheduleA");
 		command.addParameter(Command.Key.VARIABLE_VALUE, "aaaaa1111");
 
 		Client.send(command, _result -> {

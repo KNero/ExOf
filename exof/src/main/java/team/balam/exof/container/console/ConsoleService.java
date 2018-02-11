@@ -274,7 +274,7 @@ class ConsoleService {
 			String[] serviceParam = new String[]{serviceDirPath, serviceName};
 			ServiceProvider.getInstance().update(null, serviceParam);
 
-			return ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
+			return ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName).get(variableName);
 		} catch (Exception e) {
 			this.logger.error("Service variable SET error.", e);
 			return Command.makeSimpleResult(e.getMessage());

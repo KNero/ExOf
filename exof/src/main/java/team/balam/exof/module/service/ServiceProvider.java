@@ -235,7 +235,7 @@ public class ServiceProvider implements Module, Observer
 				ServiceWrapperImpl service = (ServiceWrapperImpl) lookup(serviceDirPath + "/" + serviceName);
 				this._setServiceVariableByAnnotation(service.getHost(), directoryInfo);
 			} catch (Exception e) {
-				logger.error("Can not reload the ServiceVariable. {}", serviceDirPath + "/" + serviceName);
+				logger.error("Can not reload the ServiceVariable. {}", serviceDirPath + "/" + serviceName, e);
 			}
 		}
 	}
