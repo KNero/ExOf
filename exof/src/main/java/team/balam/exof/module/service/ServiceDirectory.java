@@ -28,36 +28,22 @@ class ServiceDirectory
 	}
 	
 	void startup() {
-		if(this.startup != null)
-		{
-			try
-			{
-				Class<?>[] param = this.startup.getParameterTypes();
-				if(param.length ==1 && param[0].equals(Map.class))
-				{
-					this.startup.invoke(this.host, this.serviceMap);
-				}
-				else
-				{
-					this.startup.invoke(this.host);
-				}
+		if(this.startup != null) {
+			try {
+				this.startup.invoke(this.host);
 			}
-			catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-			{
+			catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				this.logger.error("Can not start the service. ServiceDirectory path : {}", this.dirPath, e);
 			}
 		}
 	}
 	
 	void shutdown() {
-		if(this.shutdown != null)
-		{
-			try
-			{
+		if(this.shutdown != null) {
+			try {
 				this.shutdown.invoke(this.host);
 			}
-			catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-			{
+			catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				this.logger.error("Can not stop the service. ServiceDirectory path : {}", this.dirPath, e);
 			}
 		}
