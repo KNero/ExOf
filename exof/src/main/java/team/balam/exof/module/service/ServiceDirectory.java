@@ -2,7 +2,6 @@ package team.balam.exof.module.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Outbound;
 
@@ -74,7 +73,7 @@ class ServiceDirectory
 		this.shutdown = shutdown;
 	}
 
-	void register(String _serviceName, Object _host, Method _method, ServiceVariable _variable) throws Exception {
+	void register(String _serviceName, Object _host, Method _method) throws Exception {
 		if (this.serviceMap.containsKey(_serviceName)) {
 			throw new ServiceAlreadyExistsException(this.dirPath + "/" + _serviceName);
 		}
@@ -82,7 +81,6 @@ class ServiceDirectory
 		ServiceWrapperImpl service = new ServiceWrapperImpl();
 		service.setHost(_host);
 		service.setMethod(_method);
-		service.setVariable(_variable);
 
 		this._checkInboundAnnotation(_method, service);
 		this._checkOutboundAnnotation(_method, service);

@@ -1,7 +1,5 @@
 package team.balam.exof.module.service;
 
-import java.util.Set;
-
 public interface ServiceWrapper
 {
 	/**
@@ -10,10 +8,8 @@ public interface ServiceWrapper
 	 * @return The object of serviceDirectory set class
 	 */
 	<T> T getHost();
-	
-	Object getServiceVariable(String _name);
-	
-	Set<String> getServiceVariableKeys();
+
+	String getMethodName();
 	
 	void call(ServiceObject _so) throws Exception;
 }

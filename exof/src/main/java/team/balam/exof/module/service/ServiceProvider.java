@@ -60,7 +60,7 @@ public class ServiceProvider implements Module, Observer
 					serviceName = m.getName();
 				}
 
-				serviceDir.register(serviceName, host, m, _info.getVariable(serviceName));
+				serviceDir.register(serviceName, host, m);
 
 				if (logger.isInfoEnabled()) {
 					logger.info("Service is loaded. path[{}] class[{}] name[{}]", _info.getPath() + "/" + serviceName, _info.getClassName(), serviceName);
@@ -91,25 +91,25 @@ public class ServiceProvider implements Module, Observer
 			
 			Variable variableAnn = field.getAnnotation(Variable.class);
 			if(variableAnn != null) {
-				ServiceVariable serviceVariables = _info.getVariable(variableAnn.serviceName());
+				ServiceVariable serviceVariables = _info.getVariable(variableAnn.value());
 				if (serviceVariables == null) {
-					throw new NullPointerException("Service name not found. " + variableAnn.serviceName());
+					throw new NullPointerException("Service name not found. " + variableAnn.value());
 				}
 
 				String value = serviceVariables.getString(field.getName());
 				Class<?> fieldType = field.getType();
 
-				if ("int".equals(fieldType.toGenericString()) || fieldType.equals(Integer.class)) {
+				if ("int".equals(fieldType.getName()) || fieldType.equals(Integer.class)) {
 					field.set(_host, Integer.valueOf(value));
-				} else if ("long".equals(fieldType.toGenericString()) || fieldType.equals(Long.class)) {
+				} else if ("long".equals(fieldType.getName()) || fieldType.equals(Long.class)) {
 					field.set(_host, Long.valueOf(value));
-				} else if ("float".equals(fieldType.toGenericString()) || fieldType.equals(Float.class)) {
+				} else if ("float".equals(fieldType.getName()) || fieldType.equals(Float.class)) {
 					field.set(_host, Float.valueOf(value));
-				} else if ("double".equals(fieldType.toGenericString()) || fieldType.equals(Double.class)) {
+				} else if ("double".equals(fieldType.getName()) || fieldType.equals(Double.class)) {
 					field.set(_host, Double.valueOf(value));
-				} else if ("byte".equals(fieldType.toGenericString()) || fieldType.equals(Byte.class)) {
+				} else if ("byte".equals(fieldType.getName()) || fieldType.equals(Byte.class)) {
 					field.set(_host, Byte.valueOf(value));
-				} else if ("short".equals(fieldType.toGenericString()) || fieldType.equals(Short.class)) {
+				} else if ("short".equals(fieldType.getName()) || fieldType.equals(Short.class)) {
 					field.set(_host, Short.valueOf(value));
 				} else if (fieldType.equals(String.class)) {
 					field.set(_host, value);
@@ -129,12 +129,7 @@ public class ServiceProvider implements Module, Observer
 
 		Map<String, ServiceDirectory> serviceDirectoryMap = self.serviceDirectory;
 
-		while(self.isLoadingClass) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
+		self._waitLoadingService();
 
 		int splitIdx = _path.lastIndexOf("/");
 		if (splitIdx == -1) {
@@ -157,28 +152,53 @@ public class ServiceProvider implements Module, Observer
 		return service;
 	}
 
+	/**
+	 * 현재 서비스 클래스가 로딩 중이라면 완료될 때 까지 기다린다.
+	 * 만약 로딩이 1분 이상 지연된다면 에러로그를 출력한다.
+	 */
+	private void _waitLoadingService() {
+		if (self.isLoadingClass) {
+			long start = System.currentTimeMillis();
+			long sleepTime = 100;
+
+			do {
+				try {
+					Thread.sleep(sleepTime);
+				} catch (InterruptedException e) {
+					// ignore exception
+				}
+
+				long elapsed = System.currentTimeMillis() - start;
+				if (elapsed > 60000) {
+					sleepTime = 1000;
+					logger.error("Loading service class is lazy. {} ms", elapsed);
+				}
+			} while (self.isLoadingClass);
+		}
+	}
+
 	public void loadServiceDirectory() {
 		this.isLoadingClass = true;
 		this.serviceDirectory = new HashMap<>();
 
 		try {
 			this.stop();
+
+			List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
+			directoryInfoList.forEach(_info -> {
+				try {
+					this._register(_info);
+
+					logger.warn("Service Directory is loaded.\n{}", _info.toString());
+				} catch(Exception e) {
+					logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
+				}
+			});
 		} catch (Exception e) {
 			logger.error("Fail to stop ServiceDirectory.", e);
+		} finally {
+			this.isLoadingClass = false;
 		}
-
-		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
-		directoryInfoList.forEach(_info -> {
-			try {
-				this._register(_info);
-
-				logger.warn("Service Directory is loaded.\n{}", _info.toString());
-			} catch(Exception e) {
-				logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
-			}
-		});
-
-		this.isLoadingClass = false;
 	}
 
 	@Override
@@ -209,12 +229,12 @@ public class ServiceProvider implements Module, Observer
 		String serviceDirPath = ((String[]) arg)[0];
 		String serviceName = ((String[]) arg)[1];
 
-		ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
-		if (!serviceVariable.isNull()) {
+		ServiceDirectoryInfo directoryInfo = ServiceInfoDao.selectServiceDirectory(serviceDirPath);
+		if (directoryInfo.isNotNull()) {
 			try {
 				ServiceWrapperImpl service = (ServiceWrapperImpl) lookup(serviceDirPath + "/" + serviceName);
-				service.setVariable(serviceVariable);
-			} catch (ServiceNotFoundException e) {
+				this._setServiceVariableByAnnotation(service.getHost(), directoryInfo);
+			} catch (Exception e) {
 				logger.error("Can not reload the ServiceVariable. {}", serviceDirPath + "/" + serviceName);
 			}
 		}

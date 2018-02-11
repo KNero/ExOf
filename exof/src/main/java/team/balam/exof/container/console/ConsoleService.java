@@ -20,7 +20,6 @@ import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.ServiceNotFoundException;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.ServiceWrapper;
-import team.balam.exof.module.service.ServiceWrapperImpl;
 import team.balam.exof.module.service.annotation.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -98,15 +97,15 @@ class ConsoleService {
 						serviceName = serviceAnn.name();
 					}
 
-					ServiceWrapperImpl service = (ServiceWrapperImpl) ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
+					ServiceWrapper service = ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
 
 					if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
 						serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
 					}
 
-					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(service);
+					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath(), serviceName);
 
-					serviceMap.put(serviceName, service.getMethod().getName());
+					serviceMap.put(serviceName, service.getMethodName());
 					serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
 				}
 			} catch (ClassNotFoundException e) {
@@ -119,11 +118,12 @@ class ConsoleService {
 		return serviceList;
 	}
 
-	private Map<String, Object> makeServiceVariableMap(ServiceWrapper _service) {
+	private Map<String, Object> makeServiceVariableMap(String _serviceDirPath, String _serviceName) {
 		Map<String, Object> variables = new HashMap<>();
+		ServiceVariable variable = ServiceInfoDao.selectServiceVariable(_serviceDirPath, _serviceName);
 
-		for (String key : _service.getServiceVariableKeys()) {
-			variables.put(key, _service.getServiceVariable(key));
+		for (String key : variable.getKeys()) {
+			variables.put(key, variable.get(key).toString());
 		}
 
 		return variables;
@@ -274,8 +274,7 @@ class ConsoleService {
 			String[] serviceParam = new String[]{serviceDirPath, serviceName};
 			ServiceProvider.getInstance().update(null, serviceParam);
 
-			ServiceWrapper service = ServiceProvider.lookup(servicePath);
-			return service.getServiceVariable(variableName);
+			return ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
 		} catch (Exception e) {
 			this.logger.error("Service variable SET error.", e);
 			return Command.makeSimpleResult(e.getMessage());

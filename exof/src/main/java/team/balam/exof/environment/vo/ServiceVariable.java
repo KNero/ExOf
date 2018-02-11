@@ -9,7 +9,6 @@ import java.util.*;
  * Service.xml 에서 serviceVariable 의 variable 을 리스트 형태로 저장한다
  */
 public class ServiceVariable {
-	private String serviceName;
     private Map<String, List<String>> variable = new LinkedHashMap<>();
 	private boolean isNull;
 
@@ -19,9 +18,7 @@ public class ServiceVariable {
 		this.isNull = true;
 	}
 
-	public ServiceVariable(String _serviceName, List<Map<String, Object>> _dbList) {
-		this.serviceName = _serviceName;
-
+	public ServiceVariable(List<Map<String, Object>> _dbList) {
 		for (Map<String, Object> variable : _dbList) {
 			String key = (String) variable.get("key");
 			String value = (String) variable.get("value");
@@ -31,21 +28,8 @@ public class ServiceVariable {
 		}
 	}
 
-	public String getServiceName() {
-		return serviceName;
-	}
-
 	public Set<String> getKeys() {
         return this.variable.keySet();
-    }
-
-	public Set<Object> getValues() {
-        Set<Object> values = new LinkedHashSet<>();
-        for (String key : this.variable.keySet()) {
-            values.add(this.get(key));
-        }
-
-        return values;
     }
 
 	public boolean isNull() {
@@ -54,11 +38,6 @@ public class ServiceVariable {
 
 	public int size() {
         return this.variable.size();
-    }
-
-    private void put(String _key, String _value) {
-        List<String> valueList = this.variable.computeIfAbsent(_key, _variableKey -> new ArrayList<>());
-        valueList.add(_value);
     }
 
     /**
@@ -83,7 +62,7 @@ public class ServiceVariable {
      * serviceVariable 의 값을 가져온다. ServiceProvider 에서 serviceVariable 의 모든 값을 String 으로 만들 때 쓰인다
      * console 및 webConsole monitoring 에서 사용된다
      * @param _key serviceVariable 의 name
-     * @return name에 개수에 상관없이 첫 번째 값을 반환
+     * @return name 개수에 상관없이 첫 번째 값을 반환
      */
     public String getString(String _key) {
         List<String> valueList = this.variable.get(_key);
@@ -102,17 +81,5 @@ public class ServiceVariable {
         }
 
         return log.toString();
-    }
-
-	@Override
-    public ServiceVariable clone() {
-		ServiceVariable variable = new ServiceVariable();
-		for (Map.Entry<String, List<String>> info : this.variable.entrySet()) {
-			for (String value : info.getValue()) {
-				variable.put(info.getKey(), value);
-			}
-		}
-
-		return variable;
     }
 }
