@@ -88,13 +88,10 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     			}
     		}
 		}
-    	finally
-    	{
-    		RequestContext.remove();
+    	finally {
     		ReferenceCountUtil.release(msg);
     		
-    		if(serviceObject != null && serviceObject.isAutoCloseSession())
-    		{
+    		if(serviceObject != null && serviceObject.isAutoCloseSession()) {
     			ctx.close();
     		}
     	}

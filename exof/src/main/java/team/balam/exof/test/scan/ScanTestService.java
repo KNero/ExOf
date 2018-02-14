@@ -17,7 +17,7 @@ public class ScanTestService {
 	private String b = "B";
 	private String c = "C";
 
-	@Service(name = "autoSchedule", schedule = "0/5 * * * * ?")
+	@Service(name = "autoSchedule"/*, schedule = "0/5 * * * * ?"*/)
 	@Inbound(TestInbound.class)
 	@Outbound(TestOutbound.class)
 	public String schedule() {

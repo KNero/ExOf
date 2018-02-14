@@ -10,9 +10,14 @@ import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
 import team.balam.exof.module.service.annotation.Variable;
+import team.balam.exof.module.service.component.http.HttpGet;
+import team.balam.exof.module.service.component.http.HttpPost;
+import team.balam.exof.module.service.component.http.JsonToMap;
+import team.balam.exof.module.service.component.http.QueryStringToMap;
 import team.balam.exof.util.HttpResponseBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 @ServiceDirectory
 public class TestService {
@@ -54,5 +59,33 @@ public class TestService {
 		this.logger.info("Receive http data : " + _req.toString());
 
 		return HttpResponseBuilder.buildOkMessage("response");
+	}
+
+	@Service
+	@Inbound({HttpGet.class, QueryStringToMap.class})
+	public HttpResponse receiveHttpGet(Map<String, Object> param) {
+		this.logger.info("Receive http data : {}", param);
+
+		@SuppressWarnings("unchecked")
+		List<String> list = (List<String>) param.get("list[]");
+		if (!"권1".equals(list.get(0)) || !"권2".equals(list.get(1)) || !"권3".equals(list.get(2)) || !"권4".equals(list.get(3))) {
+			return HttpResponseBuilder.buildServerError("wrong param");
+		}
+
+		if (!"pA".equals(param.get("paramA")) || !"pB".equals(param.get("paramB")) || !"권성민".equals(param.get("name"))) {
+			return HttpResponseBuilder.buildServerError("wrong param");
+		} else {
+			return HttpResponseBuilder.buildOkMessage("response");
+		}
+	}
+
+	@Service
+	@Inbound({HttpPost.class, JsonToMap.class})
+	public HttpResponse receiveHttpPost(Map<String, Object> param) {
+		if ("aaaa".equals(param.get("a")) && "BBB".equals(param.get("b")) && new Integer(123).equals(param.get("number")) && "권성민".equals(param.get("name"))) {
+			return HttpResponseBuilder.buildOkMessage("response");
+		} else {
+			return HttpResponseBuilder.buildServerError("wrong param");
+		}
 	}
 }

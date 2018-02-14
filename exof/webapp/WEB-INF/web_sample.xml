@@ -16,10 +16,10 @@
 	
 	<servlet>
 		<servlet-name>exof.webServlet</servlet-name>
-		<servlet-class>team.balam.exof.web.WebServlet</servlet-class>
+		<servlet-class>team.balam.exof.container.console.WebServlet</servlet-class>
 		<init-param>
 			<param-name>httpServletTransform</param-name>
-			<param-value>team.balam.exof.web.HttpServletTransform</param-value>
+			<param-value>team.balam.exof.container.HttpServletTransform</param-value>
 		</init-param>
 	</servlet>
 	

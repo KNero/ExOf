@@ -33,11 +33,6 @@ public class RequestContext
 		HashMap<String, Object> c =  context.get();
 		return (T)c.get(_key);
 	}
-	
-	public static void remove()
-	{
-		context.remove();
-	}
 
 	public static ChannelFuture writeResponse(Object _res) {
 		ChannelHandlerContext channelContext = get(CHANNEL_CONTEXT);

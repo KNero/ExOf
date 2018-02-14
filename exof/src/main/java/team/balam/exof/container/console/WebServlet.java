@@ -14,6 +14,9 @@ import team.balam.exof.Constant;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.util.StreamUtil;
 
+/**
+ * admin console 로 인해서 남아있는 클래스
+ */
 public class WebServlet extends HttpServlet implements Function<Command, Boolean> {
 	private static final long serialVersionUID = 1L;
 	
@@ -48,8 +51,6 @@ public class WebServlet extends HttpServlet implements Function<Command, Boolean
 		} catch(Exception e) {
 			throw new ServletException(e);
 		} finally {
-			RequestContext.remove();
-			
 			if (bodyIn != null) {
 				bodyIn.close();
 			}

@@ -91,7 +91,7 @@ public class ClientTest {
 				new ChannelHandler[]{new HttpClientCodec(), new HttpObjectAggregator(1048576)});
 
 		sender.connect("localhost", 2001);
-		FullHttpResponse response = (FullHttpResponse) sender.sendAndWait(request);
+		FullHttpResponse response = sender.sendAndWait(request);
 		sender.close();
 
 		Assert.assertEquals("response", response.content().toString(CharsetUtil.UTF_8));
