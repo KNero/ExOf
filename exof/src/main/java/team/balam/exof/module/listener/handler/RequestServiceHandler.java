@@ -19,8 +19,7 @@ import team.balam.exof.module.service.ServiceProvider;
 public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	@SuppressWarnings("rawtypes")
+
 	private ServiceObjectTransform transform;
 	private SessionEventHandler sessionEventHandler;
 	
@@ -49,46 +48,27 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     		}
     		
     		RequestContext.set(RequestContext.SERVICE_OBJECT, serviceObject);
-    		
-			String servicePath = serviceObject.getServicePath();
+
+    		String servicePath = serviceObject.getServicePath();
 			ServiceWrapper service = ServiceProvider.lookup(servicePath);
-			
-			long start = System.currentTimeMillis();
-			
-			try
-			{
-				service.call(serviceObject);
-			}
-			catch(Exception e)
-			{
-				this.logger.error("An error occurred during service execution.", e);
-			}
-			
-			if(this.logger.isInfoEnabled())
-			{
-				long end = System.currentTimeMillis();
-				this.logger.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
-			}
-		} 
-    	catch(BadFormatException bad)
-    	{
+
+		    long start = System.currentTimeMillis();
+
+		    service.call(serviceObject);
+
+		    if(this.logger.isInfoEnabled()) {
+			    long end = System.currentTimeMillis();
+			    this.logger.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
+		    }
+		} catch(BadFormatException bad) {
     		this.logger.error("Session is closed. Because message is bad format.", bad);
-    		
     		ctx.close();
-    	}
-    	catch(Exception e) 
-    	{
+    	} catch(Exception e) {
     		this.logger.error("Can not execute service.", e);
-    		
-    		if(serviceObject != null)
-    		{
-    			if(! serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError())
-    			{
-    				ctx.close();
-    			}
-    		}
-		}
-    	finally {
+
+    		if (serviceObject != null && !serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError())
+		    ctx.close();
+		} finally {
     		ReferenceCountUtil.release(msg);
     		
     		if(serviceObject != null && serviceObject.isAutoCloseSession()) {

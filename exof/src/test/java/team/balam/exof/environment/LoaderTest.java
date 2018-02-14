@@ -52,7 +52,7 @@ public class LoaderTest {
 	@Test
 	public void test02_scheduleAndServiceDirectory() {
 		List<SchedulerInfo> schedulerInfos = ServiceInfoDao.selectScheduler();
-		Assert.assertEquals(4, schedulerInfos.size());
+		Assert.assertEquals(3, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
 		Assert.assertEquals(5, directoryInfos.size());
