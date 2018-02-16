@@ -248,7 +248,7 @@ public class ClientTest {
 		}, _failResult -> Assert.fail());
 	}
 
-	@Test
+//	@Test
 	public void test_clientPoolStress() throws Exception {
 		final ClientPool clientPool = new ClientPool.Builder()
 				.addTarget("localhost", 2000)
