@@ -18,30 +18,21 @@ import java.util.concurrent.TimeoutException;
 
 public class DefaultClient implements Client
 {
-	protected static final int DEFAULT_CONNECT_TIMEOUT = 3000;
-	protected static final int DEFAULT_READ_TIMEOUT = 10000;
+	private static final int DEFAULT_CONNECT_TIMEOUT = 3000;
+	static final int DEFAULT_READ_TIMEOUT = 10000;
 
 	protected Channel channel;
 
-	private EventLoopGroup workerGroup;
+	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	private ChannelHandlerMaker channelHandler;
 	
-	private int connectTimeout;
-	protected int readTimeout;
+	private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+	private int readTimeout = DEFAULT_READ_TIMEOUT;
 	
 	private ResponseFutureImpl response;
-	
-	public DefaultClient(ChannelHandlerMaker _channelHandler)
-	{
-		this(_channelHandler, new NioEventLoopGroup());
-	}
-	
-	public DefaultClient(ChannelHandlerMaker _channelHandler, NioEventLoopGroup _loopGroup)
-	{
+
+	public DefaultClient(ChannelHandlerMaker _channelHandler) {
 		this.channelHandler = _channelHandler;
-		this.workerGroup = _loopGroup;
-		this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
-		this.readTimeout = DEFAULT_READ_TIMEOUT;
 	}
 	
 	@Override
@@ -64,7 +55,7 @@ public class DefaultClient implements Client
 		b.channel(NioSocketChannel.class);
 		b.option(ChannelOption.SO_KEEPALIVE, true);
 		b.handler(new ChannelInitializer<SocketChannel>(){
-			protected void initChannel(SocketChannel _channel) throws Exception 
+			protected void initChannel(SocketChannel _channel)
 			{
 				response = new ResponseFutureImpl();
 				_channel.pipeline().addLast(channelHandler.make(_channel)).addLast(response);
@@ -90,7 +81,7 @@ public class DefaultClient implements Client
 	}
 
 	@Override
-	public void send(Object _data) throws Exception {
+	public void send(Object _data) {
 		this.channel.write(_data);
 	}
 
@@ -99,10 +90,8 @@ public class DefaultClient implements Client
 		this.channel.write(_data);
 		this.channel.flush();
 
-		ResponseFuture resFuture = this.getResponse();
-		resFuture.await(this.readTimeout);
-
-		return resFuture.get();
+		this.response.await(this.readTimeout);
+		return this.response.get();
 	}
 
 	public ResponseFuture getResponse() {
@@ -110,13 +99,10 @@ public class DefaultClient implements Client
 	}
 	
 	@Override
-	public void close() throws IOException 
-	{
-		if(this.channel != null)
-		{
+	public void close() {
+		if(this.channel != null) {
 			this.channel.close();
 		}
-		
 		this.workerGroup.shutdownGracefully();
 	}
 	

@@ -23,7 +23,6 @@ import team.balam.exof.client.ResponseFuture;
 import team.balam.exof.environment.TextCrypto;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 
 public class DeployRequester {
@@ -160,7 +159,7 @@ public class DeployRequester {
 	private void _close() {
 		try {
 			this.sender.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			this.logger.error("Can't close connection.", e);
 		}
 	}

@@ -66,8 +66,9 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     	} catch(Exception e) {
     		this.logger.error("Can not execute service.", e);
 
-    		if (serviceObject != null && !serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError())
-		    ctx.close();
+    		if (serviceObject != null && !serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError()) {
+			    ctx.close();
+		    }
 		} finally {
     		ReferenceCountUtil.release(msg);
     		

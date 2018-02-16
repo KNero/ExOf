@@ -16,6 +16,7 @@ import team.balam.exof.module.service.component.http.JsonToMap;
 import team.balam.exof.module.service.component.http.QueryStringToMap;
 import team.balam.exof.util.HttpResponseBuilder;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -55,10 +56,11 @@ public class TestService {
 	}
 
 	@Service
-	public HttpResponse receiveHttp(FullHttpRequest _req) {
-		this.logger.info("Receive http data : " + _req.toString());
+	@Inbound({HttpGet.class, QueryStringToMap.class})
+	public HttpResponse receiveHttp(Map<String, Object> _request) {
+		this.logger.info("response : " + _request.get("message").toString());
 
-		return HttpResponseBuilder.buildOkMessage("response");
+		return HttpResponseBuilder.buildOkMessage(_request.get("message").toString());
 	}
 
 	@Service
