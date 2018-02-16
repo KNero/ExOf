@@ -1,12 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="EUC-KR">
-<title>ExOf Web</title>
+    <meta charset="UTF-8">
+    <title>ExOf Web</title>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script >
+        function get() {
+            var data = {};
+            data.list = ['권1', '권2', '권3', '권4'];
+            data.paramA = 'pA';
+            data.paramB = 'pB';
+            data.name = '권성민';
+
+            $.ajax({
+                method : "GET",
+                url : "/api/test/receiveHttpGet4Jetty",
+                data : data,
+                success : function(_res) {
+                    alert(_res);
+                },
+                error : function(data) {
+                    console.log(data);
+                    alert("Fail!");
+                }
+            });
+        }
+
+        function post() {
+            var data = {};
+            data.a = 'aaaa';
+            data.b = 'BBB';
+            data.number = 123;
+            data.name = '권성민';
+
+            $.ajax({
+                method : "POST",
+                url : "/api/test/receiveHttpPost4Jetty",
+                data : JSON.stringify(data),
+                //dataType : 'json',
+                success : function(_res) {
+                    alert(_res);
+                },
+                error : function(data) {
+                    console.log(data);
+                    alert("Fail!");
+                }
+            });
+        }
+    </script>
 </head>
 <body>
-	<div align="center" style="font:80px verdana;padding-top:50px;">
-		Hello ExOf Web
-	</div>
+<div align="center" style="font:80px verdana;padding-top:50px;">Hello ExOf Web</div>
+<div align="center">
+    <button onclick="get()">GET</button>
+    <button onclick="post()">POST</button>
+</div>
 </body>
 </html>

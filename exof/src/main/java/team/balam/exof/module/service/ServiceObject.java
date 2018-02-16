@@ -8,6 +8,10 @@ public final class ServiceObject
 	
 	private boolean isAutoCloseSession;
 	private boolean isCloseSessionByError;
+
+	public ServiceObject() {
+
+	}
 	
 	public ServiceObject(String _path)
 	{
@@ -52,16 +56,14 @@ public final class ServiceObject
 		this.isAutoCloseSession = isAutoCloseSession;
 	}
 
-	public boolean isCloseSessionByError()
-	{
+	public boolean isCloseSessionByError() {
 		return isCloseSessionByError;
 	}
 
 	/**
 	 * 에러가 발생했을 경우 클라이언트 세션을 닫을지 여부
 	 */
-	public void setCloseSessionByError(boolean isCloseSessionByError)
-	{
+	public void setCloseSessionByError(boolean isCloseSessionByError) {
 		this.isCloseSessionByError = isCloseSessionByError;
 	}
 

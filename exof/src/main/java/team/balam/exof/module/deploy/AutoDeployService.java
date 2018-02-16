@@ -17,7 +17,7 @@ import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
-import team.balam.exof.module.service.component.HttpPost;
+import team.balam.exof.module.service.component.http.HttpPost;
 import team.balam.exof.util.HttpResponseBuilder;
 import team.balam.exof.util.StreamUtil;
 
