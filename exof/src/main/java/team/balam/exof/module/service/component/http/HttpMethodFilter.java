@@ -9,6 +9,10 @@ import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.InboundExecuteException;
 import team.balam.exof.util.HttpResponseBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
  * Created by smkwon on 2018-02-01.
  */
@@ -21,13 +25,31 @@ public class HttpMethodFilter implements Inbound {
 
     @Override
     public void execute(ServiceObject _se) throws InboundExecuteException {
-        HttpRequest request = (HttpRequest) _se.getRequest();
-        if (!this.method.equals(request.method())) {
-            FullHttpResponse response = HttpResponseBuilder.buildNotImplemented("Http method is must " + this.method.name());
-            RequestContext.writeAndFlushResponse(response);
+    	if (_se.getRequest() instanceof HttpRequest) {
+		    HttpRequest request = (HttpRequest) _se.getRequest();
+		    if (!this.method.equals(request.method())) {
+			    FullHttpResponse response = HttpResponseBuilder.buildNotImplemented("Http method is must " + this.method.name());
+			    RequestContext.writeAndFlushResponse(response);
 
-            throw new InboundExecuteException("Bad http method. HTTP method is must " + this.method.name() + ". request path: "
-                    + _se.getServicePath());
-        }
+			    throw this.throwException(_se.getServicePath());
+		    }
+	    } else if (_se.getRequest() instanceof HttpServletRequest) {
+    		HttpServletRequest request = (HttpServletRequest) _se.getRequest();
+    		if (!this.method.name().equals(request.getMethod())) {
+    			HttpServletResponse response = RequestContext.get(RequestContext.HTTP_SERVLET_RES);
+    			try {
+				    response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Http method is must " + this.method.name());
+			    } catch (IOException e) {
+    				throw new InboundExecuteException("Fail to send response.", e);
+			    }
+
+			    throw this.throwException(_se.getServicePath());
+		    }
+	    }
+    }
+
+    private InboundExecuteException throwException(String _servicePath) {
+    	return new InboundExecuteException("Bad http method. HTTP method is must " + this.method.name()
+			    + ". request path: " + _servicePath);
     }
 }

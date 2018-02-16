@@ -9,6 +9,9 @@ import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.InboundExecuteException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,13 +23,19 @@ import java.util.Map;
  */
 public class QueryStringToMap implements Inbound {
 	private static final Logger LOG = LoggerFactory.getLogger(QueryStringToMap.class);
+	protected String charset = Charset.defaultCharset().name();
 
 	@Override
 	public void execute(ServiceObject _se) throws InboundExecuteException {
 		if (_se.getRequest() instanceof HttpRequest) {
 			_setParameter(_se, ((HttpRequest) _se.getRequest()).uri());
 		} else if (_se.getRequest() instanceof HttpServletRequest) {
-			_setParameter(_se, ((HttpServletRequest) _se.getRequest()).getQueryString());
+			String queryString = "?" + ((HttpServletRequest) _se.getRequest()).getQueryString();
+			try {
+				_setParameter(_se, URLDecoder.decode(queryString, this.charset));
+			} catch (UnsupportedEncodingException e) {
+				LOG.error("Encoding is unsupported. " + this.charset, e);
+			}
 		} else {
 			throw new InboundExecuteException("Request is not type that can process. " + _se.getRequest());
 		}

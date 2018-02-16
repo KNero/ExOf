@@ -1,6 +1,5 @@
 package team.balam.exof.test;
 
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,9 @@ import team.balam.exof.module.service.component.http.JsonToMap;
 import team.balam.exof.module.service.component.http.QueryStringToMap;
 import team.balam.exof.util.HttpResponseBuilder;
 
-import java.nio.charset.Charset;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -88,6 +89,40 @@ public class TestService {
 			return HttpResponseBuilder.buildOkMessage("response");
 		} else {
 			return HttpResponseBuilder.buildServerError("wrong param");
+		}
+	}
+
+	@Service
+	@Inbound({HttpGet.class, QueryStringToMap.class})
+	public void receiveHttpGet4Jetty(Map<String, Object> param) throws IOException {
+		HttpServletResponse response = RequestContext.get(RequestContext.HTTP_SERVLET_RES);
+
+		@SuppressWarnings("unchecked")
+		List<String> list = (List<String>) param.get("list[]");
+		if (!"권1".equals(list.get(0)) || !"권2".equals(list.get(1)) || !"권3".equals(list.get(2)) || !"권4".equals(list.get(3))) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+
+		if (!"pA".equals(param.get("paramA")) || !"pB".equals(param.get("paramB")) || !"권성민".equals(param.get("name"))) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		} else {
+			Writer writer = response.getWriter();
+			writer.write("success");
+			writer.flush();
+		}
+	}
+
+	@Service
+	@Inbound({HttpPost.class, JsonToMap.class})
+	public void receiveHttpPost4Jetty(Map<String, Object> param) throws IOException {
+		HttpServletResponse response = RequestContext.get(RequestContext.HTTP_SERVLET_RES);
+
+		if ("aaaa".equals(param.get("a")) && "BBB".equals(param.get("b")) && new Integer(123).equals(param.get("number")) && "권성민".equals(param.get("name"))) {
+			Writer writer = response.getWriter();
+			writer.write("success");
+			writer.flush();
+		} else {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

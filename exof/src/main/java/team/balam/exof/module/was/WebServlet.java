@@ -1,5 +1,6 @@
 package team.balam.exof.module.was;
 
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.module.listener.RequestContext;
@@ -19,10 +20,12 @@ public class WebServlet extends HttpServlet {
 	@Override
 	public void init() {
 		String servicePathExtractorClassName = this.getInitParameter("servicePathExtractor");
-		try {
-			this.servicePathExtractor = (ServicePathExtractor) Class.forName(servicePathExtractorClassName).newInstance();
-		} catch (Exception e) {
-			LOG.error("Can't create servicePathExtractor instance.", e);
+		if (!StringUtil.isNullOrEmpty(servicePathExtractorClassName)) {
+			try {
+				this.servicePathExtractor = (ServicePathExtractor) Class.forName(servicePathExtractorClassName).newInstance();
+			} catch (Exception e) {
+				LOG.error("Can't create servicePathExtractor instance.", e);
+			}
 		}
 	}
 

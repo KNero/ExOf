@@ -8,16 +8,20 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.InboundExecuteException;
+import team.balam.exof.util.StreamUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 public abstract class JsonToObject implements Inbound {
 	private static final Logger LOG = LoggerFactory.getLogger(JsonToObject.class);
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	private Class<?> objectType;
+	protected String charset = Charset.defaultCharset().name();
 
 	protected JsonToObject(Class<?> _objectType) {
 		this.objectType = _objectType;
@@ -51,24 +55,19 @@ public abstract class JsonToObject implements Inbound {
 
 	private void _parseAndSetJettyRequest(ServiceObject _se) throws InboundExecuteException {
 		HttpServletRequest request = (HttpServletRequest) _se.getRequest();
-		InputStream bodyIn = null;
+		String json = null;
 
 		try {
-			bodyIn = request.getInputStream();
-			Object result = JSON_MAPPER.readValue(bodyIn, this.objectType);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			StreamUtil.write(request.getInputStream(), out);
+
+			json = URLDecoder.decode(out.toString(this.charset), this.charset);
+			Object result = JSON_MAPPER.readValue(json, this.objectType);
 			_se.setServiceParameter(new Object[]{result});
 
-			LOG.info("json transform result : {}", result.toString());
+			LOG.info("json transform result : {}", json);
 		} catch (IOException e) {
-			throw new InboundExecuteException("Can't parse json body. ", e);
-		} finally {
-			if (bodyIn != null) {
-				try {
-					bodyIn.close();
-				} catch (IOException e) {
-					LOG.error(e.getMessage(), e);
-				}
-			}
+			throw new InboundExecuteException("Can't parse json body. receive data: " + json, e);
 		}
 	}
 }
