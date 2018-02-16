@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
-	<!-- <resource file="/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/> -->
+	<!-- 
+	service 설정 파일을 분리할 수 있다.
+	<resource file="/Users/kwonsm/git/ExOf/exof/env/test_service.xml"/>
+	
+	설정파일을 통해서 서비스를 등록하지 않고 어노테이션을 통해서 등록할 경우 패키지를 등록해야 한다.
 	<servicePackage package="team.balam.exof.test.scan"/>
 
 	<serviceDirectory class="team.balam.exof.test.TestService" path="/test">
@@ -11,5 +15,5 @@
 		</serviceVariable>
 	</serviceDirectory>
 	
-	<scheduler id="" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="yes" initExecution="no"/>
+	<scheduler id="" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/> -->
 </services>

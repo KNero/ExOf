@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <listener>
-	<port number="3001" type="console"/>
+	<!-- <port number="3001" type="console"/> -->
 	<!-- <port number="3002" type="deploy" id="test" password="S0p8q/ylzIXELzui1jrVlA=="/> --> <!--P@ssword-->
 	
-	<port number="2000" maxLength="2000" description="for maven build">
+	<!-- <port number="2000" maxLength="2000" description="for maven build">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
 		<messageTransform class="team.balam.exof.module.listener.handler.transform.SimpleJsonTransform"/>
 	</port>
 	
-	<!-- <port number="2000" workerSize="200" lengthOffset="0" lengthSize="4" maxLength="1000">
+	<port number="2000" workerSize="200" lengthOffset="0" lengthSize="4" maxLength="1000">
 		<sessionHandler class=""/>
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
         <messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>
