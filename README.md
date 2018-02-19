@@ -40,6 +40,7 @@ CLI를 사용한 서버 정보 검색 및 설정
 <dependency>
     <groupId>team.balam</groupId>
     <artifactId>exof</artifactId>
-    <version>1.3.1</version>
+    <version>release version</version>
 </dependency>
 ```
+[***release version***](https://github.com/KNero/ExOf/releases)
