@@ -22,3 +22,25 @@ CLI를 사용한 서버 정보 검색 및 설정
 
 ## [Release](https://github.com/KNero/ExOf/releases)
 최신 릴리즈 다운로드
+
+# Maven
+```xml
+<repositories>
+    <repository>
+        <id>KNero-mvn-repo</id>
+        <url>https://raw.github.com/KNero/exof/mvn-repo</url>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+        </snapshots>
+    </repository>
+</repositories>
+```
+```xml
+<dependency>
+    <groupId>team.balam</groupId>
+    <artifactId>exof</artifactId>
+    <version>release version</version>
+</dependency>
+```
+[***release version***](https://github.com/KNero/ExOf/releases)
