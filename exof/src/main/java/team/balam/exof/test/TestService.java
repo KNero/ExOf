@@ -64,7 +64,7 @@ public class TestService {
 		return HttpResponseBuilder.buildOkMessage(_request.get("message").toString());
 	}
 
-	@Service
+	@Service("http-get")
 	@Inbound({HttpGet.class, QueryStringToMap.class})
 	public HttpResponse receiveHttpGet(Map<String, Object> param) {
 		this.logger.info("Receive http data : {}", param);
@@ -82,7 +82,7 @@ public class TestService {
 		}
 	}
 
-	@Service
+	@Service("http-post")
 	@Inbound({HttpPost.class, JsonToMap.class})
 	public HttpResponse receiveHttpPost(Map<String, Object> param) {
 		if ("aaaa".equals(param.get("a")) && "BBB".equals(param.get("b")) && new Integer(123).equals(param.get("number")) && "권성민".equals(param.get("name"))) {

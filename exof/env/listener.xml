@@ -9,7 +9,7 @@
 		<messageTransform class="team.balam.exof.module.listener.handler.transform.SimpleJsonTransform"/>
 	</port>
 
-    <port number="2001" workerSize="4" lengthOffset="0" lengthSize="4" maxLength="1000">
+    <port number="2001" workerSize="4" maxLength="1000">
         <sessionHandler class="team.balam.exof.test.TestSessionHandler"/>
         <channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
         <messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>

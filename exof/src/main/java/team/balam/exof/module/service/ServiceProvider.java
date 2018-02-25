@@ -55,10 +55,7 @@ public class ServiceProvider implements Module, Observer
 
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
 			for (Method m : services) {
-				String serviceName = m.getAnnotation(Service.class).name();
-				if (serviceName.length() == 0) {
-					serviceName = m.getName();
-				}
+				String serviceName = this._getServiceName(m);
 
 				serviceDir.register(serviceName, host, m);
 
@@ -80,6 +77,21 @@ public class ServiceProvider implements Module, Observer
 			ServiceInfoDao.deleteServiceDirectory(_info.getPath());
 			throw new Exception("This class undefined ServiceDirectory annotation.");
 		}
+	}
+
+	private String _getServiceName(Method _method) {
+		String serviceName = _method.getName();
+		Service serviceAnnotation = _method.getAnnotation(Service.class);
+
+		if (!serviceAnnotation.value().isEmpty()) {
+			serviceName = serviceAnnotation.value();
+		}
+
+		if (!serviceAnnotation.name().isEmpty()) {
+			serviceName = serviceAnnotation.name();
+		}
+
+		return serviceName;
 	}
 
 	@SuppressWarnings("unchecked")
