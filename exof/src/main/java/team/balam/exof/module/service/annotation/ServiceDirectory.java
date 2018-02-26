@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ServiceDirectory {
 	String value() default "";
+	String path() default "";
 }
