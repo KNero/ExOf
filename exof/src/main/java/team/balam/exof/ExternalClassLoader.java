@@ -44,15 +44,23 @@ public class ExternalClassLoader {
 			URL[] urls = new URL[urlList.size()];
 			external = new URLClassLoader(urlList.toArray(urls));
 		} else {
-            LOG.error("Not exists EXTERNAL LIBRARY folder. " + extFile.getAbsolutePath());
+            LOG.error("Not exists EXTERNAL LIBRARY folder. {}", extFile.getAbsolutePath());
 		}
 	}
 
 	public static ClassLoader getClassLoader() {
-		return external;
+		if (external != null) {
+			return external;
+		} else {
+			return ClassLoader.getSystemClassLoader();
+		}
 	}
 
 	public static Class<?> loadClass(String _class) throws ClassNotFoundException {
-		return external.loadClass(_class);
+		if (external != null) {
+			return external.loadClass(_class);
+		} else {
+			return ClassLoader.getSystemClassLoader().loadClass(_class);
+		}
 	}
 }
