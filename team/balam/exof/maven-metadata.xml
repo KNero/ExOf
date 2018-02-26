@@ -3,11 +3,12 @@
   <groupId>team.balam</groupId>
   <artifactId>exof</artifactId>
   <versioning>
-    <release>1.3.1</release>
+    <release>1.3.2</release>
     <versions>
       <version>1.3.0</version>
       <version>1.3.1</version>
+      <version>1.3.2</version>
     </versions>
-    <lastUpdated>20180225080005</lastUpdated>
+    <lastUpdated>20180226153925</lastUpdated>
   </versioning>
 </metadata>
