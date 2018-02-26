@@ -40,7 +40,19 @@ CLI를 사용한 서버 정보 검색 및 설정
 <dependency>
     <groupId>team.balam</groupId>
     <artifactId>exof</artifactId>
-    <version>release version</version>
+    <version>1.3.1</version>
 </dependency>
 ```
-[***release version***](https://github.com/KNero/ExOf/releases)
+# Gradle
+```gradle
+repositories {
+    maven {
+        url "https://raw.github.com/KNero/exof/mvn-repo"
+    }
+}
+```
+```gradle
+dependencies {
+    compile group: 'team.balam', name: 'exof', version: '1.3.1'
+}
+```
