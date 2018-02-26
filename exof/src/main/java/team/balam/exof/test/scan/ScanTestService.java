@@ -9,7 +9,7 @@ import team.balam.exof.module.service.annotation.ServiceDirectory;
 import team.balam.exof.test.TestInbound;
 import team.balam.exof.test.TestOutbound;
 
-@ServiceDirectory(path = "/autoScan")
+@ServiceDirectory("/autoScan")
 public class ScanTestService {
 	private Logger logger  = LoggerFactory.getLogger(this.getClass());
 

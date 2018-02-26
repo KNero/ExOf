@@ -156,12 +156,12 @@ public class ServiceLoader implements Loader
 				if (classPackage != null && packageName.equals(classPackage.getName())) {
 					ServiceDirectory annotation = serviceDirectory.getAnnotation(ServiceDirectory.class);
 
-					if (!annotation.path().isEmpty()) {
-						ServiceInfoDao.insertServiceDirectory(annotation.path(), serviceDirectory.getName());
+					if (!annotation.value().isEmpty()) {
+						ServiceInfoDao.insertServiceDirectory(annotation.value(), serviceDirectory.getName());
 
 						Method[] methods = serviceDirectory.getMethods();
 						for (Method method : methods) {
-							this._insertScheduleFromAutoScan(annotation.path(), method);
+							this._insertScheduleFromAutoScan(annotation.value(), method);
 						}
 					} else {
 						throw new LoadEnvException("servicePackage's service directory must have path in ServiceDirectory annotation. "
