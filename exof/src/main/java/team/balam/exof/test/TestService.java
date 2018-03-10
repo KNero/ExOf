@@ -95,7 +95,7 @@ public class TestService {
 	@Service
 	@Inbound({HttpGet.class, QueryStringToMap.class})
 	public void receiveHttpGet4Jetty(Map<String, Object> param) throws IOException {
-		HttpServletResponse response = RequestContext.get(RequestContext.HTTP_SERVLET_RES);
+		HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
 
 		@SuppressWarnings("unchecked")
 		List<String> list = (List<String>) param.get("list[]");
@@ -115,7 +115,7 @@ public class TestService {
 	@Service
 	@Inbound({HttpPost.class, JsonToMap.class})
 	public void receiveHttpPost4Jetty(Map<String, Object> param) throws IOException {
-		HttpServletResponse response = RequestContext.get(RequestContext.HTTP_SERVLET_RES);
+		HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
 
 		if ("aaaa".equals(param.get("a")) && "BBB".equals(param.get("b")) && new Integer(123).equals(param.get("number")) && "권성민".equals(param.get("name"))) {
 			Writer writer = response.getWriter();

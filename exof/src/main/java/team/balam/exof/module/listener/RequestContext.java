@@ -8,62 +8,58 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class RequestContext 
 {
-	public static final String CHANNEL_CONTEXT = "c_c";
-	public static final String SERVICE_OBJECT = "s_o";
-	public static final String ORIGINAL_REQUEST = "o_r";
-	
-	public static final String HTTP_SERVLET_REQ = "h_s_q";
-	public static final String HTTP_SERVLET_RES = "h_s_s";
+	public enum Key {
+		CHANNEL_CONTEXT, SERVICE_OBJECT, ORIGINAL_REQUEST, HTTP_SERVLET_REQ, HTTP_SERVLET_RES
+	}
 	
 	private static ThreadLocal<HashMap<String, Object>> context = new ThreadLocal<HashMap<String, Object>>();
 	
-	public static void set(String _key, Object _obj) {
+	public static void set(Key key, Object obj) {
 		HashMap<String, Object> c = context.get();
 		if (c == null) {
 			c = new HashMap<>();
 			context.set(c);
 		}
 
-		c.put(_key, _obj);
+		c.put(key.name(), obj);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> T get(String _key)
-	{
+	public static <T> T get(Key key) {
 		HashMap<String, Object> c =  context.get();
-		return (T)c.get(_key);
+		return (T)c.get(key.name());
 	}
 
-	public static ChannelFuture writeResponse(Object _res) {
-		ChannelHandlerContext channelContext = get(CHANNEL_CONTEXT);
+	public static ChannelFuture writeResponse(Object res) {
+		ChannelHandlerContext channelContext = get(Key.CHANNEL_CONTEXT);
 		if (channelContext != null) {
-			if (_res instanceof byte[]) {
-				byte[] bytes = (byte[]) _res;
+			if (res instanceof byte[]) {
+				byte[] bytes = (byte[]) res;
 
 				ByteBuf buf = channelContext.alloc().buffer(bytes.length);
 				buf.writeBytes(bytes);
 
 				return channelContext.write(buf);
 			} else {
-				return channelContext.write(_res);
+				return channelContext.write(res);
 			}
 		} else {
 			throw new NullPointerException("Session");
 		}
 	}
 
-	public static ChannelFuture writeAndFlushResponse(Object _res) {
-		ChannelHandlerContext channelContext = get(CHANNEL_CONTEXT);
+	public static ChannelFuture writeAndFlushResponse(Object res) {
+		ChannelHandlerContext channelContext = get(Key.CHANNEL_CONTEXT);
 		if (channelContext != null) {
-			if (_res instanceof byte[]) {
-				byte[] bytes = (byte[]) _res;
+			if (res instanceof byte[]) {
+				byte[] bytes = (byte[]) res;
 
 				ByteBuf buf = channelContext.alloc().buffer(bytes.length);
 				buf.writeBytes(bytes);
 
 				return channelContext.writeAndFlush(buf);
 			} else {
-				return channelContext.writeAndFlush(_res);
+				return channelContext.writeAndFlush(res);
 			}
 		} else {
 			throw new NullPointerException("Session");

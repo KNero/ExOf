@@ -44,7 +44,7 @@ class ConsoleService {
 		
 		if (portId != null && portId.equals(id)) {
 			if (portPw != null && portPw.equals(password)) {
-				HttpServletRequest httpReq = RequestContext.get(RequestContext.HTTP_SERVLET_REQ);
+				HttpServletRequest httpReq = RequestContext.get(RequestContext.Key.HTTP_SERVLET_REQ);
 				httpReq.getSession().setAttribute(WebServlet.LOGIN_SUCCESS, Constant.YES);
 
 				return "main.html";

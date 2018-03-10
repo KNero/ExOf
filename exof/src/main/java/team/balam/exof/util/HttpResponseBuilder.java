@@ -86,7 +86,7 @@ public class HttpResponseBuilder
 			response.headers().set(HttpHeaderNames.CONTENT_LENGTH, contentBuf.length);
 		}
 
-		FullHttpRequest request = RequestContext.get(RequestContext.ORIGINAL_REQUEST);
+		FullHttpRequest request = RequestContext.get(RequestContext.Key.ORIGINAL_REQUEST);
 		if (HttpUtil.isKeepAlive(request)) {
 			response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
 		}

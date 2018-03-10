@@ -31,8 +31,8 @@ public class WebServlet extends HttpServlet implements Function<Command, Boolean
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		RequestContext.set(RequestContext.HTTP_SERVLET_REQ, req);
-		RequestContext.set(RequestContext.HTTP_SERVLET_RES, resp);
+		RequestContext.set(RequestContext.Key.HTTP_SERVLET_REQ, req);
+		RequestContext.set(RequestContext.Key.HTTP_SERVLET_RES, resp);
 		resp.setContentType("text/plain; charset=utf-8");
 		
 		InputStream bodyIn = null;
@@ -62,7 +62,7 @@ public class WebServlet extends HttpServlet implements Function<Command, Boolean
 		if (ServiceList.LOGIN_ADMIN_CONSOLE.value().equals(t.getType())) {
 			return true;
 		} else {
-			HttpServletRequest httpReq = RequestContext.get(RequestContext.HTTP_SERVLET_REQ);
+			HttpServletRequest httpReq = RequestContext.get(RequestContext.Key.HTTP_SERVLET_REQ);
 			if (Constant.YES.equals(httpReq.getSession().getAttribute(WebServlet.LOGIN_SUCCESS))) {
 				return true;
 			}

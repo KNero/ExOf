@@ -39,15 +39,15 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     	ServiceObject serviceObject = null;
     	
     	try {
-    		RequestContext.set(RequestContext.CHANNEL_CONTEXT, ctx);
-    		RequestContext.set(RequestContext.ORIGINAL_REQUEST, msg);
+    		RequestContext.set(RequestContext.Key.CHANNEL_CONTEXT, ctx);
+    		RequestContext.set(RequestContext.Key.ORIGINAL_REQUEST, msg);
     		
     		serviceObject = this.transform.transform(msg);
     		if(serviceObject == null) {
     			throw new NullPointerException("serviceObject is null.");
     		}
     		
-    		RequestContext.set(RequestContext.SERVICE_OBJECT, serviceObject);
+    		RequestContext.set(RequestContext.Key.SERVICE_OBJECT, serviceObject);
 
     		String servicePath = serviceObject.getServicePath();
 			ServiceWrapper service = ServiceProvider.lookup(servicePath);
