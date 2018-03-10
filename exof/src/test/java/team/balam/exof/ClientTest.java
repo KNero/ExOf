@@ -105,7 +105,7 @@ public class ClientTest {
 		request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
 
 		ClientPool clientPool = new ClientPool.Builder()
-				.addTarget("192.168.0.16", 2001)
+				.addTarget("127.0.0.1", 2001)
 				.setMaxPoolSize(2)
 				.setReadTimeout(5000)
 				.setAcquireTimeout(100000)

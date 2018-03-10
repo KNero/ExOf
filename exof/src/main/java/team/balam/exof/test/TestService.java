@@ -25,13 +25,13 @@ import java.util.Map;
 public class TestService {
 	private Logger logger  = LoggerFactory.getLogger(this.getClass());
 
-	@Variable("schedule") public String scheduleA;
-	@Variable("schedule") public String scheduleB;
-	@Variable("schedule") public String scheduleC;
+	@Variable public String scheduleA;
+	@Variable public String scheduleB;
+	@Variable public String scheduleC;
 
-	@Variable("arrayParam") public String arrayParamA;
-	@Variable("arrayParam") public String arrayParamB;
-	@Variable("arrayParam") public List<String> arrayParamC;
+	@Variable public String arrayParamA;
+	@Variable public String arrayParamB;
+	@Variable public List<String> arrayParamC;
 	
 	@Service
 	@Inbound(TestInbound.class)

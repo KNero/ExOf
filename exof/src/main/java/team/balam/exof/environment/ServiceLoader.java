@@ -25,99 +25,89 @@ public class ServiceLoader implements Loader
 	private int scheduleCount;
 
 	@Override
-	public void load(String _envPath) throws LoadEnvException 
+	public void load(String envPath) throws LoadEnvException
 	{
-		String filePath = _envPath + "/service.xml";
+		String filePath = envPath + "/service.xml";
 		if (new File(filePath).exists()) {
-			this._loadServiceAndScheduler(filePath);
+			this.loadServiceAndScheduler(filePath);
 		} else {
 			throw new LoadEnvException("Service file is not exists. " + filePath);
 		}
 	}
 
-	private void _loadServiceAndScheduler(String _filePath) throws LoadEnvException {
+	private void loadServiceAndScheduler(String filePath) throws LoadEnvException {
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document doc = builder.parse(new File(_filePath));
+			Document doc = builder.parse(new File(filePath));
 
 			Node servicesNode = doc.getFirstChild();
-			if (this._equalsNodeName(servicesNode, EnvKey.Service.SERVICES)) {
+			if (this.equalsNodeName(servicesNode, EnvKey.Service.SERVICES)) {
 				Node serviceNode = servicesNode.getFirstChild();
 
 				while (serviceNode != null) {
-					if (this._equalsNodeName(serviceNode, EnvKey.Service.SERVICE_DIRECTORY)) {
-						this._insertServiceInfo(serviceNode);
-					} else if (this._equalsNodeName(serviceNode, EnvKey.Service.SCHEDULER)) {
-						String[] pathArr = _filePath.split("/");
+					if (this.equalsNodeName(serviceNode, EnvKey.Service.SERVICE_DIRECTORY)) {
+						this.insertServiceInfo(serviceNode);
+					} else if (this.equalsNodeName(serviceNode, EnvKey.Service.SCHEDULER)) {
+						String[] pathArr = filePath.split("/");
 						String fileName = pathArr[pathArr.length - 1];
 
-						this._insertSchedulerInfo(fileName, serviceNode);
-					} else if (this._equalsNodeName(serviceNode, EnvKey.Service.RESOURCE)) {
+						this.insertSchedulerInfo(fileName, serviceNode);
+					} else if (this.equalsNodeName(serviceNode, EnvKey.Service.RESOURCE)) {
 						String serviceFile = serviceNode.getAttributes().getNamedItem(EnvKey.Service.FILE).getNodeValue();
 						if (!new File(serviceFile).exists()) {
 							throw new FileNotFoundException("input file path : [" + serviceFile + "]");
 						}
 
-						this._loadServiceAndScheduler(serviceFile);
-					} else if (this._equalsNodeName(serviceNode, EnvKey.Service.SERVICE_PACKAGE)) {
-						this._scanServicePackage(serviceNode);
+						this.loadServiceAndScheduler(serviceFile);
+					} else if (this.equalsNodeName(serviceNode, EnvKey.Service.SERVICE_PACKAGE)) {
+						this.scanServicePackage(serviceNode);
 					}
 
 					serviceNode = serviceNode.getNextSibling();
 				}
 			}
 		} catch (Exception e) {
-			throw new LoadEnvException(_filePath, e);
+			throw new LoadEnvException(filePath, e);
 		}
 	}
 	
-	private boolean _equalsNodeName(Node _node, String _name)
+	private boolean equalsNodeName(Node node, String name)
 	{
-		return _node != null && _name.equals(_node.getNodeName());
+		return node != null && name.equals(node.getNodeName());
 	}
 	
-	private void _insertServiceInfo(Node _node) throws LoadEnvException {
-		NamedNodeMap attr = _node.getAttributes();
+	private void insertServiceInfo(Node node) throws LoadEnvException {
+		NamedNodeMap attr = node.getAttributes();
 		String path = attr.getNamedItem(EnvKey.Service.PATH).getNodeValue();
 		String className = attr.getNamedItem(EnvKey.Service.CLASS).getNodeValue();
 
 		ServiceInfoDao.insertServiceDirectory(path, className);
-		
-		Node serviceVariableNode = _node.getFirstChild();
-		while(serviceVariableNode != null) {
-			if(this._equalsNodeName(serviceVariableNode, EnvKey.Service.SERVICE_VARIABLE)) {
-				this._loadServiceVariable(path, serviceVariableNode);
+
+		Node variableNode = node.getFirstChild();
+		while(variableNode != null) {
+			if(this.equalsNodeName(variableNode, EnvKey.Service.VARIABLE)) {
+				this.loadServiceVariable(path, variableNode);
 			}
 			
-			serviceVariableNode = serviceVariableNode.getNextSibling();
+			variableNode = variableNode.getNextSibling();
 		}
 	}
 
-	private void _loadServiceVariable(String _directoryPath, Node _serviceVariableNode) throws LoadEnvException {
-		NamedNodeMap serviceVariableAttribute = _serviceVariableNode.getAttributes();
-		String serviceName = serviceVariableAttribute.getNamedItem(EnvKey.Service.SERVICE_NAME).getNodeValue();
+	private void loadServiceVariable(String directoryPath, Node variableNode) throws LoadEnvException {
+		NamedNodeMap variableAttr = variableNode.getAttributes();
+		String name = variableAttr.getNamedItem(EnvKey.Service.NAME).getNodeValue();
+		String value = variableAttr.getNamedItem(EnvKey.Service.VALUE).getNodeValue();
 
-		Node variableNode = _serviceVariableNode.getFirstChild();
-		while(variableNode != null) {
-			if(this._equalsNodeName(variableNode, EnvKey.Service.VARIABLE)) {
-				NamedNodeMap variAttr = variableNode.getAttributes();
-				String name = variAttr.getNamedItem(EnvKey.Service.NAME).getNodeValue();
-				String value = variAttr.getNamedItem(EnvKey.Service.VALUE).getNodeValue();
-
-				ServiceInfoDao.insertServiceVariable(_directoryPath, serviceName, name, value);
-			}
-
-			variableNode = variableNode.getNextSibling();
-		}
+		ServiceInfoDao.insertServiceVariable(directoryPath, name, value);
 	}
 	
 	/**
 	 * xml의 정보를 통해 스케쥴러를 생성한다.
-	 * @param _fileName 스케쥴러 자동 아이디 생성을 위해서 prefix로 사용된다.
-	 * @param _node 스케쥴러 정보를 갖고있는 xml node
+	 * @param fileName 스케쥴러 자동 아이디 생성을 위해서 prefix 로 사용된다.
+	 * @param node 스케쥴러 정보를 갖고있는 xml node
 	 */
-	private void _insertSchedulerInfo(String _fileName, Node _node) throws LoadEnvException {
-		NamedNodeMap attr = _node.getAttributes();
+	private void insertSchedulerInfo(String fileName, Node node) throws LoadEnvException {
+		NamedNodeMap attr = node.getAttributes();
 
 		String servicePath = attr.getNamedItem(EnvKey.Service.SERVICE_PATH).getNodeValue();
 		String cron = attr.getNamedItem(EnvKey.Service.CRON).getNodeValue();
@@ -130,7 +120,7 @@ public class ServiceLoader implements Loader
 		if (idAttr != null && idAttr.getNodeValue().trim().length() > 0) {
 			id = idAttr.getNodeValue();
 		} else {
-			id = _fileName + "-scheduler-" + this.scheduleCount++;
+			id = fileName + "-scheduler-" + this.scheduleCount++;
 		}
 
 		try {
@@ -142,8 +132,8 @@ public class ServiceLoader implements Loader
 		}
 	}
 
-	private void _scanServicePackage(Node _servicePackageNode) throws LoadEnvException {
-		Node attribute = _servicePackageNode.getAttributes().getNamedItem(EnvKey.Service.PACKAGE);
+	private void scanServicePackage(Node servicePackageNode) throws LoadEnvException {
+		Node attribute = servicePackageNode.getAttributes().getNamedItem(EnvKey.Service.PACKAGE);
 		if (attribute != null) {
 			String packageName = attribute.getNodeValue();
 			Reflections reflections = new Reflections(new ConfigurationBuilder()
@@ -162,7 +152,7 @@ public class ServiceLoader implements Loader
 
 						Method[] methods = serviceDirectory.getMethods();
 						for (Method method : methods) {
-							this._insertScheduleFromAutoScan(dirPath, method);
+							this.insertScheduleFromAutoScan(dirPath, method);
 						}
 					} else {
 						throw new LoadEnvException("servicePackage's service directory must have path in ServiceDirectory annotation. "
@@ -173,22 +163,22 @@ public class ServiceLoader implements Loader
 		}
 	}
 
-	private void _insertScheduleFromAutoScan(String _serviceDirectoryPath, Method _method) throws LoadEnvException {
-		Service annotation = _method.getAnnotation(Service.class);
+	private void insertScheduleFromAutoScan(String serviceDirectoryPath, Method method) throws LoadEnvException {
+		Service annotation = method.getAnnotation(Service.class);
 		if (annotation != null && !annotation.schedule().isEmpty()) {
-			String serviceName = _method.getName();
+			String serviceName = method.getName();
 			if (!annotation.name().isEmpty()) {
 				serviceName = annotation.name();
 			}
 
 			NodeImpl scheduleNode = new NodeImpl();
-			scheduleNode.addAttribute(EnvKey.Service.SERVICE_PATH, _serviceDirectoryPath + "/" + serviceName);
+			scheduleNode.addAttribute(EnvKey.Service.SERVICE_PATH, serviceDirectoryPath + "/" + serviceName);
 			scheduleNode.addAttribute(EnvKey.Service.CRON, annotation.schedule());
 			scheduleNode.addAttribute(EnvKey.Service.DUPLICATE_EXECUTION, Constant.NO);
 			scheduleNode.addAttribute(EnvKey.Service.USE, Constant.YES);
 			scheduleNode.addAttribute(EnvKey.Service.INIT_EXECUTION, Constant.NO);
 
-			this._insertSchedulerInfo(_serviceDirectoryPath, scheduleNode);
+			this.insertSchedulerInfo(serviceDirectoryPath, scheduleNode);
 		}
 	}
 }

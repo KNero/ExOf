@@ -61,19 +61,19 @@ public class LoaderTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void test03_serviceVariable() {
-		ServiceVariable result = ServiceInfoDao.selectServiceVariable("/test", "schedule");
+		ServiceVariable result = ServiceInfoDao.selectServiceVariable("/test");
 		LOG.info(result.toString());
 		Assert.assertEquals("scheduleA-1", result.getString("scheduleA"));
 		Assert.assertEquals("scheduleB-2", result.getString("scheduleB"));
 		Assert.assertEquals("scheduleC-3", result.getString("scheduleC"));
 
-		result = ServiceInfoDao.selectServiceVariable("/test", "arrayParam");
+		result = ServiceInfoDao.selectServiceVariable("/test");
 		LOG.info(result.toString());
 		Assert.assertEquals("arrayParamA-1", result.getString("arrayParamA"));
 		Assert.assertEquals("arrayParamB-2", result.getString("arrayParamB"));
 		Assert.assertEquals(4, ((List<String>) result.get("arrayParamC")).size());
 
-		result = ServiceInfoDao.selectServiceVariable("/test2", "schedule");
+		result = ServiceInfoDao.selectServiceVariable("/test2");
 		LOG.info(result.toString());
 		Assert.assertEquals("other-scheduleA-a1", result.getString("scheduleA"));
 		Assert.assertEquals("other-scheduleB-b2", result.getString("scheduleB"));

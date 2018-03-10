@@ -90,20 +90,14 @@ class ConsoleService {
 				Set<Method> services = ReflectionUtils.getAllMethods(directoryClass, ReflectionUtils.withAnnotation(Service.class));
 
 				for (Method method : services) {
-					String serviceName = method.getName();
-
-					Service serviceAnn = method.getAnnotation(Service.class);
-					if (!serviceAnn.name().isEmpty()) {
-						serviceName = serviceAnn.name();
-					}
-
+					String serviceName = this.getServiceName(method);
 					ServiceWrapper service = ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
 
 					if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
 						serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
 					}
 
-					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath(), serviceName);
+					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath());
 
 					serviceMap.put(serviceName, service.getMethodName());
 					serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
@@ -118,9 +112,24 @@ class ConsoleService {
 		return serviceList;
 	}
 
-	private Map<String, Object> makeServiceVariableMap(String _serviceDirPath, String _serviceName) {
+	private String getServiceName(Method _method) {
+		String serviceName = _method.getName();
+		Service serviceAnnotation = _method.getAnnotation(Service.class);
+
+		if (!serviceAnnotation.value().isEmpty()) {
+			serviceName = serviceAnnotation.value();
+		}
+
+		if (!serviceAnnotation.name().isEmpty()) {
+			serviceName = serviceAnnotation.name();
+		}
+
+		return serviceName;
+	}
+
+	private Map<String, Object> makeServiceVariableMap(String serviceDirPath) {
 		Map<String, Object> variables = new HashMap<>();
-		ServiceVariable variable = ServiceInfoDao.selectServiceVariable(_serviceDirPath, _serviceName);
+		ServiceVariable variable = ServiceInfoDao.selectServiceVariable(serviceDirPath);
 
 		for (String key : variable.getKeys()) {
 			variables.put(key, variable.get(key).toString());
@@ -255,26 +264,26 @@ class ConsoleService {
 			String serviceName = pathArray[pathArray.length - 1];
 			String serviceDirPath = this._getServiceDirectoryPath(servicePath);
 
-			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
-			if (serviceVariable.get(variableName) == null) {
+			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath);
+			if (serviceVariable == ServiceVariable.NULL_OBJECT || serviceVariable.get(variableName) == null) {
 				return Command.makeSimpleResult("Variable is not exist.");
 			}
 
 			if (serviceVariable.get(variableName) instanceof String) {
-				ServiceInfoDao.updateServiceVariableValue(serviceDirPath, serviceName, variableName, variableValue);
+				ServiceInfoDao.updateServiceVariableValue(serviceDirPath, variableName, variableValue);
 			} else {
-				ServiceInfoDao.deleteServiceVariable(serviceDirPath, serviceName, variableName);
+				ServiceInfoDao.deleteServiceVariable(serviceDirPath, variableName);
 
 				String[] values = variableValue.split(",");
 				for(String value : values) {
-					ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
+					ServiceInfoDao.insertServiceVariable(serviceDirPath, variableName, value.trim());
 				}
 			}
 
 			String[] serviceParam = new String[]{serviceDirPath, serviceName};
 			ServiceProvider.getInstance().update(null, serviceParam);
 
-			return ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName).get(variableName);
+			return ServiceInfoDao.selectServiceVariable(serviceDirPath).get(variableName);
 		} catch (Exception e) {
 			this.logger.error("Service variable SET error.", e);
 			return Command.makeSimpleResult(e.getMessage());
