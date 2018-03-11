@@ -3,14 +3,13 @@ package team.balam.exof.client.component;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import team.balam.exof.environment.vo.PortInfo;
-import team.balam.exof.module.listener.handler.ChannelHandlerArray;
+import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
-public class HttpClientCodec implements ChannelHandlerArray{
+public class HttpClientCodec implements ChannelHandlerMaker {
 	private int maxContentLength;
 
-	public HttpClientCodec(int _maxContentLength) {
-		this.maxContentLength = _maxContentLength;
+	public HttpClientCodec(int maxContentLength) {
+		this.maxContentLength = maxContentLength;
 	}
 
 	public HttpClientCodec() {
@@ -18,19 +17,9 @@ public class HttpClientCodec implements ChannelHandlerArray{
 	}
 
 	@Override
-	public void init(PortInfo _info) {
-
-	}
-
-	@Override
-	public ChannelHandler[] make(SocketChannel _socketChannel) {
+	public ChannelHandler[] make(SocketChannel socketChannel) {
 		return new ChannelHandler[]{
 				new io.netty.handler.codec.http.HttpClientCodec(),
 				new HttpObjectAggregator(this.maxContentLength)};
-	}
-
-	@Override
-	public void destroy() {
-
 	}
 }

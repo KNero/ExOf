@@ -30,27 +30,28 @@ public class Operator {
 		
 		List<String> extraContainerList = SystemSetting.getFramework(EnvKey.Framework.CONTAINER);
 		if(extraContainerList != null) {
-			extraContainerList.forEach(_containerClass -> {
+			extraContainerList.forEach(containerClass -> {
 				try {
-					Container container = (Container) ExternalClassLoader.loadClass(_containerClass).newInstance();
+					Container container = (Container) ExternalClassLoader.loadClass(containerClass).newInstance();
 					containerList.add(container);
 				} catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-					logger.error("Container[{}] can not create.", _containerClass, e);
+					logger.error("Container[{}] can not create.", containerClass, e);
 				}
 			});
 		}
 	}
 	
 	public static void start() {
-		containerList.forEach(_container -> {
+		containerList.forEach(container -> {
 			try {
-				_container.start();
+				container.start();
+				logger.info("Container[{}] is started.", container.getName());
 			} catch (Exception e) {
 				if (e instanceof InitializeFatalException) {
-					logger.error("Init fatal error occurred by starting container[{}].", _container.getName(), e);
+					logger.error("Init fatal error occurred by starting container[{}].", container.getName(), e);
 					System.exit(0);
 				} else {
-					logger.error("Container[{}] can not start.", _container.getName(), e);
+					logger.error("Container[{}] can not start.", container.getName(), e);
 				}
 			}
 		});
