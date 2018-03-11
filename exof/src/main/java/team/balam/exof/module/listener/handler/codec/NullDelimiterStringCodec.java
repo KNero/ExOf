@@ -19,26 +19,18 @@ public class NullDelimiterStringCodec implements ChannelHandlerArray
 	private int maxLength;
 	
 	@Override
-	public void init(PortInfo _info) 
+	public void init(PortInfo info)
 	{
-		this.maxLength = _info.getAttributeToInt(EnvKey.Listener.MAX_LENGTH, 1024 * 8);
+		this.maxLength = info.getAttributeToInt(EnvKey.Listener.MAX_LENGTH, 1024 * 8);
 	}
 	
 	@Override
-	public void destroy() 
+	public ChannelHandler[] make(SocketChannel socketChannel)
 	{
-		
-	}
-	
-	@Override
-	public ChannelHandler[] make(SocketChannel _socketChannel) 
-	{
-		ChannelHandler[] pipe = new ChannelHandler[]{
+		return new ChannelHandler[]{
 				new DelimiterBasedFrameDecoder(this.maxLength, Delimiters.nulDelimiter()),
 				new StringDecoder(Charset.forName(Constant.NETWORK_CHARSET)),
 				new StringEncoder(Charset.forName(Constant.NETWORK_CHARSET))
 		};
-		
-		return pipe;
 	}
 }

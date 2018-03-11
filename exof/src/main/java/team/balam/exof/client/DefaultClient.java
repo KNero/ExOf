@@ -9,7 +9,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.LoggerFactory;
+import team.balam.exof.module.listener.ServerPort;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
+import team.balam.exof.module.listener.handler.ChannelInitializerException;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -57,8 +60,12 @@ public class DefaultClient implements Client
 		b.handler(new ChannelInitializer<SocketChannel>(){
 			protected void initChannel(SocketChannel _channel)
 			{
-				response = new ResponseFutureImpl();
-				_channel.pipeline().addLast(channelHandler.make(_channel)).addLast(response);
+				try {
+					response = new ResponseFutureImpl();
+					_channel.pipeline().addLast(channelHandler.make(_channel)).addLast(response);
+				} catch (ChannelInitializerException e) {
+					LoggerFactory.getLogger(DefaultClient.class).error("Fail to create channel pipeline", e);
+				}
 			}
 		});
 

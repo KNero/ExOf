@@ -5,5 +5,5 @@ import io.netty.channel.socket.SocketChannel;
 
 public interface ChannelHandlerMaker 
 {
-	ChannelHandler[] make(SocketChannel _socketChannel);
+	ChannelHandler[] make(SocketChannel socketChannel) throws ChannelInitializerException;
 }

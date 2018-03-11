@@ -1,17 +1,23 @@
 package team.balam.exof.module.listener;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.slf4j.LoggerFactory;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
+import team.balam.exof.module.listener.handler.ChannelInitializerException;
 import team.balam.exof.module.listener.handler.RequestServiceHandler;
 import team.balam.exof.module.listener.handler.SessionEventHandler;
 import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
@@ -62,9 +68,13 @@ public class ServerPort
 			.childHandler(new ChannelInitializer<SocketChannel>()
 			{
 				@Override
-				protected void initChannel(SocketChannel _socketChannel)
+				protected void initChannel(SocketChannel socketChannel)
 				{
-					_socketChannel.pipeline().addLast(self.channelHandlerArray.make(_socketChannel)).addLast(requestHandler);
+					try {
+						socketChannel.pipeline().addLast(self.channelHandlerArray.make(socketChannel)).addLast(requestHandler);
+					} catch (ChannelInitializerException e) {
+						LoggerFactory.getLogger(ServerPort.class).error("Fail to create channel pipeline", e);
+					}
 				}
 			})
 			.childOption(ChannelOption.SO_KEEPALIVE, true)
