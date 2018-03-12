@@ -6,6 +6,8 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -23,8 +25,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-public class ServiceLoader implements Loader
-{
+public class ServiceLoader implements Loader {
 	private int scheduleCount;
 
 	@Override
@@ -49,7 +50,7 @@ public class ServiceLoader implements Loader
 
 				while (serviceNode != null) {
 					if (this.equalsNodeName(serviceNode, EnvKey.Service.SERVICE_DIRECTORY)) {
-						this.insertServiceInfo(serviceNode);
+						this.insertServiceDirectoryInfo(serviceNode);
 					} else if (this.equalsNodeName(serviceNode, EnvKey.Service.SCHEDULER)) {
 						String[] pathArr = filePath.split("/");
 						String fileName = pathArr[pathArr.length - 1];
@@ -79,12 +80,14 @@ public class ServiceLoader implements Loader
 		return node != null && name.equals(node.getNodeName());
 	}
 	
-	private void insertServiceInfo(Node node) throws LoadEnvException {
+	private void insertServiceDirectoryInfo(Node node) throws LoadEnvException {
 		NamedNodeMap attr = node.getAttributes();
 		String path = attr.getNamedItem(EnvKey.Service.PATH).getNodeValue();
 		String className = attr.getNamedItem(EnvKey.Service.CLASS).getNodeValue();
 
-		ServiceInfoDao.insertServiceDirectory(path, className);
+		if (!className.isEmpty()) {
+			ServiceInfoDao.insertServiceDirectory(path, className);
+		}
 
 		Node variableNode = node.getFirstChild();
 		while(variableNode != null) {
@@ -158,8 +161,8 @@ public class ServiceLoader implements Loader
 						this.insertScheduleFromAutoScan(dirPath, method);
 					}
 				} else {
-					throw new LoadEnvException("servicePackage's service directory must have path in ServiceDirectory annotation. "
-							+ serviceDirectory.getName());
+					Logger logger = LoggerFactory.getLogger(ServiceLoader.class);
+					logger.info("Skip loading service directory because path is empty. [{}]", serviceDirectory.getName());
 				}
 			}
 		}
