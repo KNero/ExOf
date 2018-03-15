@@ -55,7 +55,7 @@ public class LoaderTest {
 		Assert.assertEquals(3, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
-		Assert.assertEquals(5, directoryInfos.size());
+		Assert.assertEquals(6, directoryInfos.size());
 	}
 
 	@Test
@@ -111,22 +111,7 @@ public class LoaderTest {
 	}
 
 	@Test
-	public void test05_reloadServiceVariable() throws Exception {
-		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
-		command.addParameter(Command.Key.SERVICE_PATH, "/test/schedule");
-		command.addParameter(Command.Key.VARIABLE_NAME, "scheduleA");
-		command.addParameter(Command.Key.VARIABLE_VALUE, "a2a2");
-
-		ConsoleCommandHandler handler = new ConsoleCommandHandler();
-		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
-
-		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
-		TestService host = service.getHost();
-		Assert.assertEquals("a2a2", host.scheduleA);
-	}
-
-	@Test
-	public void test06_reloadSchedulerOnOff() throws Exception {
+	public void test05_reloadSchedulerOnOff() throws Exception {
 		ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
 		Mockito.when(ctx.writeAndFlush(Mockito.any())).thenAnswer(object -> {
 			String jsonStr = object.getArgumentAt(0, String.class);
@@ -157,7 +142,7 @@ public class LoaderTest {
 	}
 
 	@Test
-	public void test07_callOneService() throws Exception {
+	public void test06_callOneService() throws Exception {
 		ServiceWrapper service = ServiceProvider.lookup("/one-service/testSingleMethod");
 		service.call(new ServiceObject("/one-service/testSingleMethod"));
 		OneService oneService = service.getHost();
@@ -169,5 +154,39 @@ public class LoaderTest {
 		Assert.assertEquals("one-3-2", oneService.c.get(1));
 		Assert.assertEquals("one-3-3", oneService.c.get(2));
 		Assert.assertEquals("one-3-4", oneService.c.get(3));
+	}
+
+	@Test
+	public void test07_reloadServiceVariable() throws Exception {
+		Command command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
+		command.addParameter(Command.Key.SERVICE_PATH, "/test/schedule");
+		command.addParameter(Command.Key.VARIABLE_NAME, "scheduleA");
+		command.addParameter(Command.Key.VARIABLE_VALUE, "a2a2");
+
+		ConsoleCommandHandler handler = new ConsoleCommandHandler();
+		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
+
+		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
+		TestService host = service.getHost();
+		Assert.assertEquals("a2a2", host.scheduleA);
+
+		command = new Command(ServiceList.SET_SERVICE_VARIABLE_VALUE);
+		command.addParameter(Command.Key.SERVICE_PATH, "/one-service/testSingleMethod");
+		command.addParameter(Command.Key.VARIABLE_NAME, "a");
+		command.addParameter(Command.Key.VARIABLE_VALUE, "two-1");
+
+		handler = new ConsoleCommandHandler();
+		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
+
+		service = ServiceProvider.lookup("/one-service/testSingleMethod");
+		OneService host1 = service.getHost();
+		Assert.assertEquals("two-1", host1.a);
+	}
+
+	@Test
+	public void test08_loadServiceMemberVariable() throws Exception {
+		ServiceWrapper serviceWrapper = ServiceProvider.lookup("/one-service/testSingleMethod");
+		OneService oneService = serviceWrapper.getHost();
+		Assert.assertNotNull(oneService.service);
 	}
 }

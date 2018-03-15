@@ -26,11 +26,12 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 public class ServiceLoader implements Loader {
+	private Logger logger = LoggerFactory.getLogger(ServiceLoader.class);
+
 	private int scheduleCount;
 
 	@Override
-	public void load(String envPath) throws LoadEnvException
-	{
+	public void load(String envPath) throws LoadEnvException {
 		String filePath = envPath + "/service.xml";
 		if (new File(filePath).exists()) {
 			this.loadServiceAndScheduler(filePath);
@@ -144,7 +145,7 @@ public class ServiceLoader implements Loader {
 			String packageName = attribute.getNodeValue();
 			Reflections reflections = new Reflections(new ConfigurationBuilder()
 					.addClassLoader(ExternalClassLoader.getClassLoader())
-					.setUrls(ClasspathHelper.forClassLoader(ExternalClassLoader.getClassLoader()))
+					.setUrls(ClasspathHelper.forPackage(packageName, ExternalClassLoader.getClassLoader()))
 					.setScanners(new SubTypesScanner(), new TypeAnnotationsScanner())
 					.filterInputsBy(new FilterBuilder().includePackage(packageName)));
 
@@ -161,8 +162,7 @@ public class ServiceLoader implements Loader {
 						this.insertScheduleFromAutoScan(dirPath, method);
 					}
 				} else {
-					Logger logger = LoggerFactory.getLogger(ServiceLoader.class);
-					logger.info("Skip loading service directory because path is empty. [{}]", serviceDirectory.getName());
+					this.logger.info("Skip loading service directory because path is empty. [{}]", serviceDirectory.getName());
 				}
 			}
 		}

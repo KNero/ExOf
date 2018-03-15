@@ -8,28 +8,30 @@ import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
-import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.Module;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Shutdown;
 import team.balam.exof.module.service.annotation.Startup;
-import team.balam.exof.module.service.annotation.Variable;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
 
 public class ServiceProvider implements Module, Observer
 {
 	private static Logger logger = LoggerFactory.getLogger(ServiceProvider.class);
-	
+
 	private Map<String, ServiceDirectory> serviceDirectory;
 	private boolean isReloadServiceVariable;
-	private boolean isLoadingClass;
+	private volatile boolean isLoadingClass;
 
 	private static ServiceProvider self = new ServiceProvider();
 	
-	private ServiceProvider() 
+	private ServiceProvider()
 	{
 		
 	}
@@ -47,16 +49,13 @@ public class ServiceProvider implements Module, Observer
 
 		if (serviceDirAnn != null) {
 			Object host = clazz.newInstance();
-
-			this.setServiceVariableByAnnotation(host, info);
-
 			ServiceDirectory serviceDir = this.serviceDirectory.computeIfAbsent(info.getPath(), key -> new ServiceDirectory(host, key));
 
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
 			for (Method m : services) {
 				String serviceName = this._getServiceName(m);
 
-				serviceDir.register(serviceName, host, m);
+				serviceDir.register(serviceName, m);
 
 				if (logger.isInfoEnabled()) {
 					logger.info("Service is loaded. path[{}] class[{}] name[{}]",
@@ -92,46 +91,6 @@ public class ServiceProvider implements Module, Observer
 		}
 
 		return serviceName;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void setServiceVariableByAnnotation(Object host, ServiceDirectoryInfo dirInfo) throws Exception {
-		Set<Field> fields = ReflectionUtils.getAllFields(host.getClass(), ReflectionUtils.withAnnotation(Variable.class));
-		
-		for(Field field : fields) {
-			field.setAccessible(true);
-			
-			Variable variableAnn = field.getAnnotation(Variable.class);
-			if(variableAnn != null) {
-				ServiceVariable serviceVariables = dirInfo.getVariable();
-				if (serviceVariables == ServiceVariable.NULL_OBJECT) {
-					return;
-				}
-
-				String value = serviceVariables.getString(field.getName());
-				Class<?> fieldType = field.getType();
-
-				if ("int".equals(fieldType.getName()) || fieldType.equals(Integer.class)) {
-					field.set(host, Integer.valueOf(value));
-				} else if ("long".equals(fieldType.getName()) || fieldType.equals(Long.class)) {
-					field.set(host, Long.valueOf(value));
-				} else if ("float".equals(fieldType.getName()) || fieldType.equals(Float.class)) {
-					field.set(host, Float.valueOf(value));
-				} else if ("double".equals(fieldType.getName()) || fieldType.equals(Double.class)) {
-					field.set(host, Double.valueOf(value));
-				} else if ("byte".equals(fieldType.getName()) || fieldType.equals(Byte.class)) {
-					field.set(host, Byte.valueOf(value));
-				} else if ("short".equals(fieldType.getName()) || fieldType.equals(Short.class)) {
-					field.set(host, Short.valueOf(value));
-				} else if (fieldType.equals(String.class)) {
-					field.set(host, value);
-				} else if (fieldType.equals(List.class)) {
-					field.set(host, serviceVariables.get(field.getName()));
-				} else {
-					logger.error("This type can not be set. Field type : {}", fieldType);
-				}
-			}
-		}
 	}
 
 	public static ServiceWrapper lookup(String _path) throws ServiceNotFoundException {
@@ -239,16 +198,9 @@ public class ServiceProvider implements Module, Observer
 		}
 
 		String serviceDirPath = ((String[]) arg)[0];
-		String serviceName = ((String[]) arg)[1];
-
-		ServiceDirectoryInfo directoryInfo = ServiceInfoDao.selectServiceDirectory(serviceDirPath);
-		if (directoryInfo.isNotNull()) {
-			try {
-				ServiceWrapperImpl service = (ServiceWrapperImpl) lookup(serviceDirPath + "/" + serviceName);
-				this.setServiceVariableByAnnotation(service.getHost(), directoryInfo);
-			} catch (Exception e) {
-				logger.error("Can not reload the ServiceVariable. {}", serviceDirPath + "/" + serviceName, e);
-			}
+		ServiceDirectory directory = this.serviceDirectory.get(serviceDirPath);
+		if (directory != null) {
+			directory.loadServiceVariable();
 		}
 	}
 }
