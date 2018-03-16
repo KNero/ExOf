@@ -10,6 +10,6 @@ public interface ServiceWrapper
 	<T> T getHost();
 
 	String getMethodName();
-	
-	void call(ServiceObject _so) throws Exception;
+
+	<T> T call(ServiceObject so) throws Exception;
 }

@@ -37,35 +37,35 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 		this.host = host;
 	}
 
-	void addInbound(Inbound _in) {
-		this.inbound.add(_in);
+	void addInbound(Inbound in) {
+		this.inbound.add(in);
 	}
 
-	void addOutbound(Outbound<?, ?> _out) {
-		this.outbound.add(_out);
+	void addOutbound(Outbound<?, ?> out) {
+		this.outbound.add(out);
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public void call(ServiceObject _so) throws Exception {
+	public <T> T call(ServiceObject so) throws Exception {
 		for (Inbound in : this.inbound) {
-			in.execute(_so);
+			in.execute(so);
 		}
 
 		Object[] methodParameter = null;
 		if (this.methodParamCount > 0) {
-			methodParameter = _so.getServiceParameter();
+			methodParameter = so.getServiceParameter();
 		}
 
 		Object result = this.method.invoke(this.host, methodParameter);
 		if (result != null) {
-			for (Outbound outbound : this.outbound) {
-				result = outbound.execute(result);
+			for (Outbound out : this.outbound) {
+				result = out.execute(result);
 			}
 
-			if (result != null) {
-				RequestContext.writeAndFlushResponse(result);
-			}
+			return (T) result;
 		}
+
+		return null;
 	}
 }

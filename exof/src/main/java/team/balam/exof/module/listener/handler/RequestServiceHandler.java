@@ -8,6 +8,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.misc.Request;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.listener.handler.transform.BadFormatException;
 import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
@@ -36,12 +37,11 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     @SuppressWarnings("unchecked")
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+	    RequestContext.set(RequestContext.Key.CHANNEL_CONTEXT, ctx);
+	    RequestContext.set(RequestContext.Key.ORIGINAL_REQUEST, msg);
+
     	ServiceObject serviceObject = null;
-    	
     	try {
-    		RequestContext.set(RequestContext.Key.CHANNEL_CONTEXT, ctx);
-    		RequestContext.set(RequestContext.Key.ORIGINAL_REQUEST, msg);
-    		
     		serviceObject = this.transform.transform(msg);
     		if(serviceObject == null) {
     			throw new NullPointerException("serviceObject is null.");
@@ -54,7 +54,10 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 
 		    long start = System.currentTimeMillis();
 
-		    service.call(serviceObject);
+		    Object response = service.call(serviceObject);
+		    if (response != null) {
+			    RequestContext.writeAndFlushResponse(response);
+		    }
 
 		    if(this.logger.isInfoEnabled()) {
 			    long end = System.currentTimeMillis();
