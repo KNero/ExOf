@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services>
 	<!-- <serviceDirectory class="team.balam.exof.test.TestService" path="/test2">
-		<serviceVariable serviceName="schedule">
-			<variable name="scheduleA" value="a1"/>
-			<variable name="scheduleB" value="b2"/>
-			<variable name="scheduleC" value="c3"/>
-		</serviceVariable>
+		<variable name="scheduleA" value="a1"/>
+		<variable name="scheduleB" value="b2"/>
+		<variable name="scheduleC" value="c3"/>
 	</serviceDirectory>
 	
 	<scheduler id="" servicePath="/test2/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="yes" initExecution="no"/> -->
