@@ -6,6 +6,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public class RequestContext 
 {
 	public enum Key {
@@ -27,7 +30,15 @@ public class RequestContext
 	@SuppressWarnings("unchecked")
 	public static <T> T get(Key key) {
 		HashMap<String, Object> c =  context.get();
-		return (T)c.get(key.name());
+		return (T) c.get(key.name());
+	}
+
+	public static HttpServletRequest getServletRequest() {
+		return get(Key.HTTP_SERVLET_REQ);
+	}
+
+	public static HttpServletResponse getServletResponse() {
+		return get(Key.HTTP_SERVLET_RES);
 	}
 
 	public static ChannelFuture writeResponse(Object res) {
@@ -44,7 +55,7 @@ public class RequestContext
 				return channelContext.write(res);
 			}
 		} else {
-			throw new NullPointerException("Session");
+			throw new NullPointerException("netty session is null.");
 		}
 	}
 
@@ -62,7 +73,7 @@ public class RequestContext
 				return channelContext.writeAndFlush(res);
 			}
 		} else {
-			throw new NullPointerException("Session");
+			throw new NullPointerException("netty session is null.");
 		}
 	}
 }
