@@ -1,6 +1,5 @@
 package team.balam.exof.module.service;
 
-import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.Outbound;
 
@@ -12,6 +11,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 	private Method method;
 	private Object host;
 	private int methodParamCount;
+	private boolean isInternal;
 	
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
@@ -24,6 +24,15 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 	void setMethod(Method method) {
 		this.method = method;
 		this.methodParamCount = this.method.getParameterCount();
+	}
+
+	void setInternal(boolean internal) {
+		isInternal = internal;
+	}
+
+	@Override
+	public boolean isInternal() {
+		return this.isInternal;
 	}
 
 	@SuppressWarnings("unchecked")

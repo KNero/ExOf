@@ -10,7 +10,6 @@ import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Variable;
-import team.balam.exof.test.OneService;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -163,35 +162,37 @@ class ServiceDirectory {
 		if (this.serviceMap.containsKey(serviceName)) {
 			throw new ServiceAlreadyExistsException(this.dirPath + "/" + serviceName);
 		}
+		Service annotation = method.getAnnotation(Service.class);
 
 		ServiceWrapperImpl service = new ServiceWrapperImpl();
 		service.setHost(this.host);
 		service.setMethod(method);
+		service.setInternal(annotation.internal());
 
-		this._checkInboundAnnotation(method, service);
-		this._checkOutboundAnnotation(method, service);
+		this.checkInboundAnnotation(method, service);
+		this.checkOutboundAnnotation(method, service);
 
 		this.serviceMap.put(serviceName, service);
 	}
 
-	private void _checkInboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		Inbound inboundAnn = _method.getAnnotation(Inbound.class);
+	private void checkInboundAnnotation(Method method, ServiceWrapperImpl service) throws Exception {
+		Inbound inboundAnn = method.getAnnotation(Inbound.class);
 		if (inboundAnn != null) {
 			for (Class<? extends team.balam.exof.module.service.component.Inbound> clazz : inboundAnn.value()) {
-				_service.addInbound(clazz.newInstance());
+				service.addInbound(clazz.newInstance());
 			}
 		}
 	}
 
-	private void _checkOutboundAnnotation(Method _method, ServiceWrapperImpl _service) throws Exception {
-		Outbound outboundAnn = _method.getAnnotation(Outbound.class);
+	private void checkOutboundAnnotation(Method method, ServiceWrapperImpl service) throws Exception {
+		Outbound outboundAnn = method.getAnnotation(Outbound.class);
 		if (outboundAnn != null) {
 			for (Class<? extends team.balam.exof.module.service.component.Outbound<?, ?>> clazz : outboundAnn.value())
-			_service.addOutbound(clazz.newInstance());
+			service.addOutbound(clazz.newInstance());
 		}
 	}
 	
-	ServiceWrapper getService(String _serviceName) {
-		return this.serviceMap.get(_serviceName);
+	ServiceWrapper getService(String serviceName) {
+		return this.serviceMap.get(serviceName);
 	}
 }

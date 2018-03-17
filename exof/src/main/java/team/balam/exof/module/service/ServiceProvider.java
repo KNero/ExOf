@@ -53,7 +53,7 @@ public class ServiceProvider implements Module, Observer
 
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
 			for (Method m : services) {
-				String serviceName = this._getServiceName(m);
+				String serviceName = this.getServiceName(m);
 
 				serviceDir.register(serviceName, m);
 
@@ -78,9 +78,9 @@ public class ServiceProvider implements Module, Observer
 		}
 	}
 
-	private String _getServiceName(Method _method) {
-		String serviceName = _method.getName();
-		Service serviceAnnotation = _method.getAnnotation(Service.class);
+	private String getServiceName(Method method) {
+		String serviceName = method.getName();
+		Service serviceAnnotation = method.getAnnotation(Service.class);
 
 		if (!serviceAnnotation.value().isEmpty()) {
 			serviceName = serviceAnnotation.value();
@@ -93,31 +93,31 @@ public class ServiceProvider implements Module, Observer
 		return serviceName;
 	}
 
-	public static ServiceWrapper lookup(String _path) throws ServiceNotFoundException {
-		if (_path == null || _path.length() == 0) {
-			throw new IllegalArgumentException("Path is null : " + _path);
+	public static ServiceWrapper lookup(String path) throws ServiceNotFoundException {
+		if (path == null || path.length() == 0) {
+			throw new IllegalArgumentException("Path is null : " + path);
 		}
 
 		Map<String, ServiceDirectory> serviceDirectoryMap = self.serviceDirectory;
 
-		self._waitLoadingService();
+		self.waitLoadingService();
 
-		int splitIdx = _path.lastIndexOf("/");
+		int splitIdx = path.lastIndexOf("/");
 		if (splitIdx == -1) {
-			throw new ServiceNotFoundException(_path);
+			throw new ServiceNotFoundException(path);
 		}
 
-		String dirPath = _path.substring(0, splitIdx);
-		String serviceName = _path.substring(splitIdx + 1);
+		String dirPath = path.substring(0, splitIdx);
+		String serviceName = path.substring(splitIdx + 1);
 
 		ServiceDirectory serviceDir = serviceDirectoryMap.get(dirPath);
 		if (serviceDir == null) {
-			throw new ServiceNotFoundException(_path);
+			throw new ServiceNotFoundException(path);
 		}
 
 		ServiceWrapper service = serviceDir.getService(serviceName);
 		if (service == null) {
-			throw new ServiceNotFoundException(_path);
+			throw new ServiceNotFoundException(path);
 		}
 
 		return service;
@@ -127,7 +127,7 @@ public class ServiceProvider implements Module, Observer
 	 * 현재 서비스 클래스가 로딩 중이라면 완료될 때 까지 기다린다.
 	 * 만약 로딩이 1분 이상 지연된다면 에러로그를 출력한다.
 	 */
-	private void _waitLoadingService() {
+	private void waitLoadingService() {
 		if (self.isLoadingClass) {
 			long start = System.currentTimeMillis();
 			long sleepTime = 100;
@@ -156,13 +156,13 @@ public class ServiceProvider implements Module, Observer
 			this.stop();
 
 			List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
-			directoryInfoList.forEach(_info -> {
+			directoryInfoList.forEach(info -> {
 				try {
-					this.register(_info);
+					this.register(info);
 
-					logger.warn("Service Directory is loaded.\n{}", _info.toString());
+					logger.warn("Service Directory is loaded.\n{}", info.toString());
 				} catch(Exception e) {
-					logger.error("Can not register the service. Class : {}", _info.getClassName(), e);
+					logger.error("Can not register the service. Class : {}", info.getClassName(), e);
 				}
 			});
 		} catch (Exception e) {

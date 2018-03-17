@@ -4,29 +4,25 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import sun.misc.Request;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.listener.handler.transform.BadFormatException;
 import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
-import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
+import team.balam.exof.module.service.ServiceWrapper;
 
 @Sharable
-public class RequestServiceHandler extends ChannelInboundHandlerAdapter
-{
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+public class RequestServiceHandler extends ChannelInboundHandlerAdapter {
+	private static final Logger LOG = LoggerFactory.getLogger(RequestServiceHandler.class);
 
 	private ServiceObjectTransform transform;
 	private SessionEventHandler sessionEventHandler;
 	
-	public void setServiceObjectTransform(ServiceObjectTransform<?> _transform)
+	public void setServiceObjectTransform(ServiceObjectTransform<?> transform)
 	{
-		this.transform = _transform;
+		this.transform = transform;
 	}
 	
     public void setSessionEventHandler(SessionEventHandler sessionEventHandler)
@@ -37,10 +33,8 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     @SuppressWarnings("unchecked")
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-	    RequestContext.set(RequestContext.Key.CHANNEL_CONTEXT, ctx);
-	    RequestContext.set(RequestContext.Key.ORIGINAL_REQUEST, msg);
-
     	ServiceObject serviceObject = null;
+
     	try {
     		serviceObject = this.transform.transform(msg);
     		if(serviceObject == null) {
@@ -48,27 +42,15 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     		}
     		
     		RequestContext.set(RequestContext.Key.SERVICE_OBJECT, serviceObject);
+		    RequestContext.set(RequestContext.Key.CHANNEL_CONTEXT, ctx);
+		    RequestContext.set(RequestContext.Key.ORIGINAL_REQUEST, msg);
 
-    		String servicePath = serviceObject.getServicePath();
-			ServiceWrapper service = ServiceProvider.lookup(servicePath);
-
-		    long start = System.currentTimeMillis();
-
-		    Object response = service.call(serviceObject);
-		    if (response != null) {
-			    RequestContext.writeAndFlushResponse(response);
-		    }
-
-		    if(this.logger.isInfoEnabled()) {
-			    long end = System.currentTimeMillis();
-			    this.logger.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
-		    }
+			callService(serviceObject);
 		} catch(BadFormatException bad) {
-    		this.logger.error("Session is closed. Because message is bad format.", bad);
+    		LOG.error("Session is closed. Because message is bad format.", bad);
     		ctx.close();
     	} catch(Exception e) {
-    		this.logger.error("Can not execute service.", e);
-
+    		LOG.error("Can not execute service.", e);
     		if (serviceObject != null && !serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError()) {
 			    ctx.close();
 		    }
@@ -81,6 +63,26 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     	}
     }
 
+    private static void callService(ServiceObject serviceObject) throws Exception {
+	    String servicePath = serviceObject.getServicePath();
+	    ServiceWrapper service = ServiceProvider.lookup(servicePath);
+	    if (service.isInternal()) {
+			throw new CallInternalServiceException(serviceObject.getServicePath());
+	    }
+
+	    long start = System.currentTimeMillis();
+	    Object response = service.call(serviceObject);
+
+	    if(LOG.isInfoEnabled()) {
+		    long end = System.currentTimeMillis();
+		    LOG.info("Service[{}] is completed. Elapsed : {} ms", serviceObject.getServicePath(), end - start);
+	    }
+
+	    if (response != null) {
+		    RequestContext.writeAndFlushResponse(response);
+	    }
+    }
+
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) 
     {
@@ -90,7 +92,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) 
     {
-        this.logger.error("An error has occurred in the handler.", cause);
+        LOG.error("An error has occurred in the handler.", cause);
         
         ctx.close();
         
@@ -102,19 +104,21 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter
 	{
 		super.channelRegistered(ctx);
 		
-		 if(this.sessionEventHandler != null) this.sessionEventHandler.openedSession(ctx);
+		if(this.sessionEventHandler != null) {
+			this.sessionEventHandler.openedSession(ctx);
+		}
 	}
 
 	@Override
-	public void channelUnregistered(ChannelHandlerContext ctx) throws Exception
-	{
+	public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
 		super.channelUnregistered(ctx);
 		
-		if(this.logger.isInfoEnabled())
-		{
-			this.logger.info("Session is closed. {}", ctx.channel().toString());
+		if(LOG.isInfoEnabled()) {
+			LOG.info("Session is closed. {}", ctx.channel().toString());
 		}
 		
-		if(this.sessionEventHandler != null) this.sessionEventHandler.closedSession(ctx);
+		if(this.sessionEventHandler != null) {
+			this.sessionEventHandler.closedSession(ctx);
+		}
 	}
 }
