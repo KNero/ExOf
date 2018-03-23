@@ -138,7 +138,7 @@ class ConsoleService {
 		return variables;
 	}
 
-	private Object getScheduleList(Map<String, Object> param) {
+	public Object getScheduleList(Map<String, Object> param) {
 		List<String> resultList = new ArrayList<>();
 		List<String> list = this.getScheduleList();
 
