@@ -39,8 +39,8 @@ public class ServiceDirectoryInfo
 		return (String) this.dbColumn.get("path");
 	}
 	
-	public ServiceVariable getVariable(String _serviceName) {
-		return ServiceInfoDao.selectServiceVariable(this.getPath(), _serviceName);
+	public ServiceVariable getVariable() {
+		return ServiceInfoDao.selectServiceVariable(this.getPath());
 	}
 	
 	@Override

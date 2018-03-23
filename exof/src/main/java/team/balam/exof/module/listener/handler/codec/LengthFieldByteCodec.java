@@ -8,8 +8,7 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
 
-public class LengthFieldByteCodec implements ChannelHandlerArray
-{
+public class LengthFieldByteCodec implements ChannelHandlerArray {
 	private int maxLength;
 	
 	protected int lengthFieldOffset;
@@ -17,45 +16,33 @@ public class LengthFieldByteCodec implements ChannelHandlerArray
 	protected int lengthAdjustment;
 	protected int initialBytesToStrip;
 	
-	public LengthFieldByteCodec()
-	{
+	public LengthFieldByteCodec() {
 		this.lengthFieldOffset = 0;
 		this.lengthFieldLength = 4;
 		this.lengthAdjustment = 0;
 		this.initialBytesToStrip = 0;
 	}
 	
-	public LengthFieldByteCodec(int _lengthFieldOffset, int _lengthFieldLength, int _lengthAdjustment, int _initialBytesToStrip)
-	{
-		this.lengthFieldOffset = _lengthFieldOffset;
-		this.lengthFieldLength = _lengthFieldLength;
-		this.lengthAdjustment = _lengthAdjustment;
-		this.initialBytesToStrip = _initialBytesToStrip;
+	public LengthFieldByteCodec(int lengthFieldOffset, int lengthFieldLength, int lengthAdjustment, int initialBytesToStrip) {
+		this.lengthFieldOffset = lengthFieldOffset;
+		this.lengthFieldLength = lengthFieldLength;
+		this.lengthAdjustment = lengthAdjustment;
+		this.initialBytesToStrip = initialBytesToStrip;
 	}
 	
 	@Override
-	public void init(PortInfo _info)
-	{
-		this.maxLength = _info.getAttributeToInt(EnvKey.Listener.MAX_LENGTH, 1024 * 8);
-		this.lengthFieldOffset = _info.getAttributeToInt(EnvKey.Listener.LENGTH_OFFSET, 0);
-		this.lengthFieldLength = _info.getAttributeToInt(EnvKey.Listener.LENGTH_SIZE, 0);
+	public void init(PortInfo info) {
+		this.maxLength = info.getAttributeToInt(EnvKey.Listener.MAX_LENGTH, 1024 * 8);
+		this.lengthFieldOffset = info.getAttributeToInt(EnvKey.Listener.LENGTH_OFFSET, 0);
+		this.lengthFieldLength = info.getAttributeToInt(EnvKey.Listener.LENGTH_SIZE, 0);
 	}
 	
 	@Override
-	public void destroy() 
-	{
-		
-	}
-	
-	@Override
-	public ChannelHandler[] make(SocketChannel _socketChannel)
-	{
-		ChannelHandler[] pipe = new ChannelHandler[]{
+	public ChannelHandler[] make(SocketChannel socketChannel) {
+		return new ChannelHandler[]{
 				new LengthFieldBasedFrameDecoder(this.maxLength, 
 						this.lengthFieldOffset, this.lengthFieldLength, this.lengthAdjustment, this.initialBytesToStrip),
 				new ByteArrayDecoder()
 		};
-		
-		return pipe;
 	}
 }

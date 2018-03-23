@@ -50,8 +50,8 @@ public class WebServlet extends HttpServlet {
 	}
 
 	private void _execute(HttpServletRequest req, HttpServletResponse resp) {
-		RequestContext.set(RequestContext.HTTP_SERVLET_REQ, req);
-		RequestContext.set(RequestContext.HTTP_SERVLET_RES, resp);
+		RequestContext.set(RequestContext.Key.HTTP_SERVLET_REQ, req);
+		RequestContext.set(RequestContext.Key.HTTP_SERVLET_RES, resp);
 
 		String servicePath = req.getPathInfo();
 		if (this.servicePathExtractor != null) {
@@ -61,7 +61,7 @@ public class WebServlet extends HttpServlet {
 		ServiceObject serviceObject = new ServiceObject(servicePath);
 		serviceObject.setRequest(req);
 
-		RequestContext.set(RequestContext.SERVICE_OBJECT, serviceObject);
+		RequestContext.set(RequestContext.Key.SERVICE_OBJECT, serviceObject);
 
 		try {
 			ServiceWrapper service = ServiceProvider.lookup(servicePath);

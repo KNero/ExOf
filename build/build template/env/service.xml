@@ -8,11 +8,9 @@
 	<servicePackage package="team.balam.exof.test.scan"/>
 
 	<serviceDirectory class="team.balam.exof.test.TestService" path="/test">
-		<serviceVariable serviceName="schedule">
-			<variable name="scheduleA" value="a1"/>
-			<variable name="scheduleB" value="b2"/>
-			<variable name="scheduleC" value="c3"/>
-		</serviceVariable>
+		<variable name="scheduleA" value="a1"/>
+		<variable name="scheduleB" value="b2"/>
+		<variable name="scheduleC" value="c3"/>
 	</serviceDirectory>
 	
 	<scheduler id="" servicePath="/test/schedule" cron="0/5 * * * * ?" duplicateExecution="no" use="no" initExecution="no"/> -->

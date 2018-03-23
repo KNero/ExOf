@@ -36,7 +36,7 @@ public class HttpMethodFilter implements Inbound {
 	    } else if (_se.getRequest() instanceof HttpServletRequest) {
     		HttpServletRequest request = (HttpServletRequest) _se.getRequest();
     		if (!this.method.name().equals(request.getMethod())) {
-    			HttpServletResponse response = RequestContext.get(RequestContext.HTTP_SERVLET_RES);
+    			HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
     			try {
 				    response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Http method is must " + this.method.name());
 			    } catch (IOException e) {

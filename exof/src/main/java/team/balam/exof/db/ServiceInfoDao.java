@@ -44,7 +44,6 @@ public class ServiceInfoDao {
 	private static void initServiceVariableTable() throws Exception {
 		String query = "CREATE TABLE IF NOT EXISTS SERVICE_VARIABLE (" +
 				"SERVICE_DIRECTORY_PATH TEXT NOT NULL, " +
-				"SERVICE TEXT, " +
 				"KEY TEXT, " +
 				"VALUE TEXT, " +
 				"KEY_ORDER NUMBER, " +
@@ -89,12 +88,12 @@ public class ServiceInfoDao {
 		}
 	}
 
-	public static void insertServiceVariable(String _directoryPath, String _service, String _key, String _value) throws LoadEnvException {
-		int maxKeyOrder = selectServiceVariableMaxKeyOrder(_directoryPath, _service);
-		int maxValueOrder = selectServiceVariableMaxValueOrder(_directoryPath, _service, _key);
+	public static void insertServiceVariable(String directoryPath, String key, String value) throws LoadEnvException {
+		int maxKeyOrder = selectServiceVariableMaxKeyOrder(directoryPath);
+		int maxValueOrder = selectServiceVariableMaxValueOrder(directoryPath, key);
 
-		String query = "INSERT INTO SERVICE_VARIABLE (SERVICE_DIRECTORY_PATH, SERVICE, KEY, VALUE, KEY_ORDER, VALUE_ORDER) VALUES (?, ?, ?, ?, ?, ?)";
-		Object[] param = new Object[]{_directoryPath, _service, _key, _value, maxKeyOrder, maxValueOrder};
+		String query = "INSERT INTO SERVICE_VARIABLE (SERVICE_DIRECTORY_PATH, KEY, VALUE, KEY_ORDER, VALUE_ORDER) VALUES (?, ?, ?, ?, ?)";
+		Object[] param = new Object[]{directoryPath, key, value, maxKeyOrder, maxValueOrder};
 
 		try {
 			EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
@@ -103,9 +102,9 @@ public class ServiceInfoDao {
 		}
 	}
 
-	private static int selectServiceVariableMaxKeyOrder(String _directoryPath, String _service) throws LoadEnvException {
-		String query = "SELECT COUNT(*) AS CNT FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=?";
-		Object[] param = new Object[]{_directoryPath, _service};
+	private static int selectServiceVariableMaxKeyOrder(String directoryPath) throws LoadEnvException {
+		String query = "SELECT COUNT(*) AS CNT FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=?";
+		Object[] param = new Object[]{directoryPath};
 
 		try {
 			List<Map<String, Object>> result = EnvDbHelper.select(query, param);
@@ -115,9 +114,9 @@ public class ServiceInfoDao {
 		}
 	}
 
-	private static int selectServiceVariableMaxValueOrder(String _directoryPath, String _service, String _key) throws LoadEnvException {
-		String query = "SELECT COUNT(*) AS CNT FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
-		Object[] param = new Object[]{_directoryPath, _service, _key};
+	private static int selectServiceVariableMaxValueOrder(String directoryPath, String key) throws LoadEnvException {
+		String query = "SELECT COUNT(*) AS CNT FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND KEY=?";
+		Object[] param = new Object[]{directoryPath, key};
 
 		try {
 			List<Map<String, Object>> result = EnvDbHelper.select(query, param);
@@ -188,28 +187,14 @@ public class ServiceInfoDao {
 	}
 
 
-	public static ServiceVariable selectServiceVariable(String _serviceDirectoryPath, String _serviceName) {
+	public static ServiceVariable selectServiceVariable(String serviceDirectoryPath) {
 		try {
-            if (!"".equals(_serviceName)) {
-                String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? ORDER BY KEY_ORDER, VALUE_ORDER";
-                Object[] param = new Object[]{_serviceDirectoryPath, _serviceName};
+			String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? ORDER BY KEY_ORDER, VALUE_ORDER";
 
-                List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
-                if (!selectList.isEmpty()) {
-                    return new ServiceVariable(selectList);
-                }
-            } else {
-                String countQuery = "SELECT SERVICE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? GROUP BY SERVICE";
-                int serviceCount = EnvDbHelper.select(countQuery, _serviceDirectoryPath).size();
-                if (serviceCount == 1) {
-                    String query = "SELECT KEY, VALUE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? ORDER BY KEY_ORDER, VALUE_ORDER";
-
-                    List<Map<String, Object>> selectList = EnvDbHelper.select(query, _serviceDirectoryPath);
-                    if (!selectList.isEmpty()) {
-                        return new ServiceVariable(selectList);
-                    }
-                }
-            }
+			List<Map<String, Object>> selectList = EnvDbHelper.select(query, serviceDirectoryPath);
+			if (!selectList.isEmpty()) {
+				return new ServiceVariable(selectList);
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
@@ -217,33 +202,9 @@ public class ServiceInfoDao {
 		return ServiceVariable.NULL_OBJECT;
 	}
 
-//	public static List<ServiceVariable> selectServiceVariable(String _serviceDirectoryPath) {
-//		String query = "SELECT SERVICE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? GROUP BY SERVICE";
-//		Object[] param = new Object[]{_serviceDirectoryPath};
-//
-//		try {
-//			List<Map<String, Object>> selectList = EnvDbHelper.select(query, param);
-//
-//			if (!selectList.isEmpty()) {
-//				List<ServiceVariable> variableList = new ArrayList<>();
-//
-//				for (Map<String, Object> info : selectList) {
-//					ServiceVariable serviceVariable = selectServiceVariable(_serviceDirectoryPath, (String) info.get("service"));
-//					variableList.add(serviceVariable);
-//				}
-//
-//				return variableList;
-//			}
-//		} catch (Exception e) {
-//			LOGGER.error("Error occurred execute query.", e);
-//		}
-//
-//		return Collections.emptyList();
-//	}
-
-	public static void updateServiceVariableValue(String _directoryPath, String _service, String _key, String _value) {
-		String query = "UPDATE SERVICE_VARIABLE SET VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
-		Object[] param = new Object[]{_value, _directoryPath, _service, _key};
+	public static void updateServiceVariableValue(String directoryPath, String key, String value) {
+		String query = "UPDATE SERVICE_VARIABLE SET VALUE=? WHERE SERVICE_DIRECTORY_PATH=? AND KEY=?";
+		Object[] param = new Object[]{value, directoryPath, key};
 
 		try {
 			EnvDbHelper.execute(QueryVo.Type.UPDATE, query, param);
@@ -312,9 +273,9 @@ public class ServiceInfoDao {
 		}
 	}
 
-	public static void deleteServiceVariable(String _serviceDirectoryPath, String _serviceName, String _key) {
-		String query = "DELETE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND SERVICE=? AND KEY=?";
-		Object[] param = new Object[]{_serviceDirectoryPath, _serviceName, _key};
+	public static void deleteServiceVariable(String serviceDirectoryPath, String key) {
+		String query = "DELETE FROM SERVICE_VARIABLE WHERE SERVICE_DIRECTORY_PATH=? AND KEY=?";
+		Object[] param = new Object[]{serviceDirectoryPath, key};
 
 		try {
 			EnvDbHelper.execute(QueryVo.Type.DELETE, query, param);

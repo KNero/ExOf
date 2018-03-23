@@ -33,9 +33,9 @@ import java.util.Set;
 class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public String loginAdminConsole(Map<String, Object> _param) {
-		String id = (String) _param.get("id");
-		String password = (String) _param.get("password");
+	public String loginAdminConsole(Map<String, Object> param) {
+		String id = (String) param.get("id");
+		String password = (String) param.get("password");
 
 		PortInfo consolePort = ListenerDao.selectSpecialPort(EnvKey.Listener.ADMIN_CONSOLE);
 
@@ -44,7 +44,7 @@ class ConsoleService {
 		
 		if (portId != null && portId.equals(id)) {
 			if (portPw != null && portPw.equals(password)) {
-				HttpServletRequest httpReq = RequestContext.get(RequestContext.HTTP_SERVLET_REQ);
+				HttpServletRequest httpReq = RequestContext.get(RequestContext.Key.HTTP_SERVLET_REQ);
 				httpReq.getSession().setAttribute(WebServlet.LOGIN_SUCCESS, Constant.YES);
 
 				return "main.html";
@@ -54,17 +54,17 @@ class ConsoleService {
 		return "index.html";
 	}
 
-	public Object getServiceList(Map<String, Object> _param) {
-		String findServicePath = (String) _param.get(Command.Key.SERVICE_PATH);
+	public Object getServiceList(Map<String, Object> param) {
+		String findServicePath = (String) param.get(Command.Key.SERVICE_PATH);
 
 		Map<String, HashMap<String, Object>> result = this.getAllServiceInfo();
 
 		if (!StringUtil.isNullOrEmpty(findServicePath)) {
-			result.forEach((_key, _value) -> _value.keySet().forEach(_valueKey -> {
-				if(!Command.Key.CLASS.equals(_valueKey) && !_valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
-					String servicePath = _key + "/" + _valueKey;
+			result.forEach((key, value) -> value.keySet().forEach(valueKey -> {
+				if(!Command.Key.CLASS.equals(valueKey) && !valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
+					String servicePath = key + "/" + valueKey;
 					if (!servicePath.contains(findServicePath)) {
-						_value.put(_valueKey, null);
+						value.put(valueKey, null);
 					}
 				}
 			}));
@@ -90,20 +90,14 @@ class ConsoleService {
 				Set<Method> services = ReflectionUtils.getAllMethods(directoryClass, ReflectionUtils.withAnnotation(Service.class));
 
 				for (Method method : services) {
-					String serviceName = method.getName();
-
-					Service serviceAnn = method.getAnnotation(Service.class);
-					if (!serviceAnn.name().isEmpty()) {
-						serviceName = serviceAnn.name();
-					}
-
+					String serviceName = this.getServiceName(method);
 					ServiceWrapper service = ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
 
 					if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
 						serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
 					}
 
-					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath(), serviceName);
+					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath());
 
 					serviceMap.put(serviceName, service.getMethodName());
 					serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
@@ -118,9 +112,24 @@ class ConsoleService {
 		return serviceList;
 	}
 
-	private Map<String, Object> makeServiceVariableMap(String _serviceDirPath, String _serviceName) {
+	private String getServiceName(Method method) {
+		String serviceName = method.getName();
+		Service serviceAnnotation = method.getAnnotation(Service.class);
+
+		if (!serviceAnnotation.value().isEmpty()) {
+			serviceName = serviceAnnotation.value();
+		}
+
+		if (!serviceAnnotation.name().isEmpty()) {
+			serviceName = serviceAnnotation.name();
+		}
+
+		return serviceName;
+	}
+
+	private Map<String, Object> makeServiceVariableMap(String serviceDirPath) {
 		Map<String, Object> variables = new HashMap<>();
-		ServiceVariable variable = ServiceInfoDao.selectServiceVariable(_serviceDirPath, _serviceName);
+		ServiceVariable variable = ServiceInfoDao.selectServiceVariable(serviceDirPath);
 
 		for (String key : variable.getKeys()) {
 			variables.put(key, variable.get(key).toString());
@@ -129,11 +138,11 @@ class ConsoleService {
 		return variables;
 	}
 
-	public Object getScheduleList(Map<String, Object> _param) {
+	public Object getScheduleList(Map<String, Object> param) {
 		List<String> resultList = new ArrayList<>();
-		List<String> list = this._getScheduleList();
+		List<String> list = this.getScheduleList();
 
-		String id = (String) _param.get(Command.Key.ID);
+		String id = (String) param.get(Command.Key.ID);
 		if (!StringUtil.isNullOrEmpty(id)) {
 			for (String info : list) {
 				if (info.contains(id)) {
@@ -144,14 +153,14 @@ class ConsoleService {
 			resultList.addAll(list);
 		}
 
-		if (resultList.size() == 0) {
+		if (resultList.isEmpty()) {
 			return Command.NO_DATA_RESPONSE;
 		} else {
 			return resultList;
 		}
 	}
 
-	private List<String> _getScheduleList()
+	private List<String> getScheduleList()
 	{
 		ArrayList<String> list = new ArrayList<>();
 
@@ -174,8 +183,8 @@ class ConsoleService {
 		return list;
 	}
 
-	public List<DynamicSettingVo> getDynamicSettingList(Map<String, Object> _param) {
-		String settingName = (String) _param.get(Command.Key.NAME);
+	public List<DynamicSettingVo> getDynamicSettingList(Map<String, Object> param) {
+		String settingName = (String) param.get(Command.Key.NAME);
 		
 		if (settingName == null) {
 			settingName = "";
@@ -184,10 +193,10 @@ class ConsoleService {
 		return DynamicSetting.getInstance().getList(settingName);
 	}
 
-	public String updateDynamicSetting(Map<String, Object> _param) {
-		String name = (String) _param.get(Command.Key.NAME);
-		String value = (String) _param.get(Command.Key.VALUE);
-		String des = (String) _param.get(Command.Key.DESCRIPTION);
+	public String updateDynamicSetting(Map<String, Object> param) {
+		String name = (String) param.get(Command.Key.NAME);
+		String value = (String) param.get(Command.Key.VALUE);
+		String des = (String) param.get(Command.Key.DESCRIPTION);
 
 		try {
 			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
@@ -203,8 +212,8 @@ class ConsoleService {
 		}
 	}
 
-	public String removeDynamicSetting(Map<String, Object> _param) {
-		String name = (String) _param.get(Command.Key.NAME);
+	public String removeDynamicSetting(Map<String, Object> param) {
+		String name = (String) param.get(Command.Key.NAME);
 		
 		try {
 			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
@@ -220,10 +229,10 @@ class ConsoleService {
 		}
 	}
 
-	public String addDynamicSetting(Map<String, Object> _param) {
-		String name = (String) _param.get(Command.Key.NAME);
-		String value = (String) _param.get(Command.Key.VALUE);
-		String des = (String) _param.get(Command.Key.DESCRIPTION);
+	public String addDynamicSetting(Map<String, Object> param) {
+		String name = (String) param.get(Command.Key.NAME);
+		String value = (String) param.get(Command.Key.VALUE);
+		String des = (String) param.get(Command.Key.DESCRIPTION);
 		
 		try {
 			DynamicSettingVo vo = DynamicSetting.getInstance().get(name);
@@ -239,10 +248,10 @@ class ConsoleService {
 		}
 	}
 
-	public Object setServiceVariableValue(Map<String, Object> _parameter) {
-		String servicePath = (String) _parameter.get(Command.Key.SERVICE_PATH);
-		String variableName = (String) _parameter.get(Command.Key.VARIABLE_NAME);
-		String variableValue = (String) _parameter.get(Command.Key.VARIABLE_VALUE);
+	public Object setServiceVariableValue(Map<String, Object> parameter) {
+		String servicePath = (String) parameter.get(Command.Key.SERVICE_PATH);
+		String variableName = (String) parameter.get(Command.Key.VARIABLE_NAME);
+		String variableValue = (String) parameter.get(Command.Key.VARIABLE_VALUE);
 
 		try {
 			ServiceProvider.lookup(servicePath);
@@ -253,62 +262,62 @@ class ConsoleService {
 		try {
 			String[] pathArray = servicePath.split("/");
 			String serviceName = pathArray[pathArray.length - 1];
-			String serviceDirPath = this._getServiceDirectoryPath(servicePath);
+			String serviceDirPath = this.getServiceDirectoryPath(servicePath);
 
-			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName);
-			if (serviceVariable.get(variableName) == null) {
+			ServiceVariable serviceVariable = ServiceInfoDao.selectServiceVariable(serviceDirPath);
+			if (serviceVariable == ServiceVariable.NULL_OBJECT || serviceVariable.get(variableName) == null) {
 				return Command.makeSimpleResult("Variable is not exist.");
 			}
 
 			if (serviceVariable.get(variableName) instanceof String) {
-				ServiceInfoDao.updateServiceVariableValue(serviceDirPath, serviceName, variableName, variableValue);
+				ServiceInfoDao.updateServiceVariableValue(serviceDirPath, variableName, variableValue);
 			} else {
-				ServiceInfoDao.deleteServiceVariable(serviceDirPath, serviceName, variableName);
+				ServiceInfoDao.deleteServiceVariable(serviceDirPath, variableName);
 
 				String[] values = variableValue.split(",");
 				for(String value : values) {
-					ServiceInfoDao.insertServiceVariable(serviceDirPath, serviceName, variableName, value.trim());
+					ServiceInfoDao.insertServiceVariable(serviceDirPath, variableName, value.trim());
 				}
 			}
 
 			String[] serviceParam = new String[]{serviceDirPath, serviceName};
 			ServiceProvider.getInstance().update(null, serviceParam);
 
-			return ServiceInfoDao.selectServiceVariable(serviceDirPath, serviceName).get(variableName);
+			return ServiceInfoDao.selectServiceVariable(serviceDirPath).get(variableName);
 		} catch (Exception e) {
 			this.logger.error("Service variable SET error.", e);
 			return Command.makeSimpleResult(e.getMessage());
 		}
 	}
 
-	private String _getServiceDirectoryPath(String _servicePath) {
+	private String getServiceDirectoryPath(String servicePath) {
 		int lastSlash;
-		for (lastSlash = _servicePath.length() - 1; lastSlash >= 0; --lastSlash) {
-			if (_servicePath.charAt(lastSlash) == '/') {
+		for (lastSlash = servicePath.length() - 1; lastSlash >= 0; --lastSlash) {
+			if (servicePath.charAt(lastSlash) == '/') {
 				break;
 			}
 		}
 
 		if (lastSlash > 0) {
-			return _servicePath.substring(0, lastSlash);
+			return servicePath.substring(0, lastSlash);
 		} else {
 			return Constant.EMPTY_STRING;
 		}
 	}
 
-	public Object setSchedulerOnOff(Map<String, Object> _parameter) {
-		String id = (String) _parameter.get(Command.Key.ID);
-		String value = (String) _parameter.get(Command.Key.VALUE);
+	public Object setSchedulerOnOff(Map<String, Object> parameter) {
+		String id = (String) parameter.get(Command.Key.ID);
+		String value = (String) parameter.get(Command.Key.VALUE);
 
 		ServiceInfoDao.updateSchedulerUse(id, value);
 		SchedulerManager.getInstance().update(null, id);
 
-		return this.getScheduleList(_parameter);
+		return this.getScheduleList(parameter);
 	}
 
-	public Object setSchedulerCron(Map<String, Object> _parameter) {
-		String id = (String) _parameter.get(Command.Key.ID);
-		String cron = (String) _parameter.get(Command.Key.CRON);
+	public Object setSchedulerCron(Map<String, Object> parameter) {
+		String id = (String) parameter.get(Command.Key.ID);
+		String cron = (String) parameter.get(Command.Key.CRON);
 
 		SchedulerInfo info = ServiceInfoDao.selectScheduler(id);
 		if (info.isNull()) {
@@ -318,10 +327,10 @@ class ConsoleService {
 		ServiceInfoDao.updateSchedulerCron(id, cron);
 		SchedulerManager.getInstance().update(null, id);
 
-		return this.getScheduleList(_parameter);
+		return this.getScheduleList(parameter);
 	}
 
-	public Object getPortInfo(Map<String, Object> _parameter) {
+	public Object getPortInfo(Map<String, Object> parameter) {
 		List<Map<String, Object>> result = new ArrayList<>();
 
 		List<PortInfo> infoList = ListenerDao.selectPortList();

@@ -2,9 +2,12 @@ package team.balam.exof.module.listener.handler;
 
 import team.balam.exof.environment.vo.PortInfo;
 
-public interface ChannelHandlerArray extends ChannelHandlerMaker
-{
-	void init(PortInfo _info);
+public interface ChannelHandlerArray extends ChannelHandlerMaker {
+	default void init(PortInfo info) {
+
+	}
 	
-	void destroy();
+	default void destroy() {
+
+	}
 }

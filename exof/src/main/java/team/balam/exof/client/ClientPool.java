@@ -17,6 +17,7 @@ import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
+import team.balam.exof.module.listener.handler.ChannelInitializerException;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -70,33 +71,35 @@ public class ClientPool {
 
 		for (int i = 0; i < this.targetSize; ++i) {
 			int index = (int) ((currentIndex + i) % this.targetSize);
-			InetSocketAddress target = this.target[index];
+			InetSocketAddress address = this.target[index];
 
-			if (this.poolHealthChecker.isFail(target)) {
+			if (this.poolHealthChecker.isFail(address)) {
 				continue;
 			}
 
-			FixedChannelPool targetPool = this.pools.get(target);
+			FixedChannelPool targetPool = this.pools.get(address);
 			Future<Channel> channelFuture = targetPool.acquire();
 
 			try {
 				Channel channel = channelFuture.get(this.acquireTimeout, TimeUnit.MILLISECONDS);
-				Client client = new PooledClient(this._initChannelHandler(channel), targetPool, this.poolHealthChecker, target);
+				Client client = new PooledClient(this.initChannelHandler(channel), targetPool, this.poolHealthChecker, address);
 				client.setReadTimeout(this.readTimeout);
 
 				return client;
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
-				this.poolHealthChecker.addFail(target);
+				this.poolHealthChecker.addFail(address);
 				LOG.error("Can not get client from client pool", e);
+			} catch (ChannelInitializerException e) {
+				LOG.error("Can not initialize channel pipeline.", e);
 			}
 		}
 
 		throw new ClientPoolException("All connection is wrong.");
 	}
 
-	private Channel _initChannelHandler(Channel _channel) {
-		ChannelPipeline pipeline = _channel.pipeline();
-		ChannelHandler[] channelHandlers = this.channelHandlerMaker.make((SocketChannel) _channel);
+	private Channel initChannelHandler(Channel channel) throws ChannelInitializerException {
+		ChannelPipeline pipeline = channel.pipeline();
+		ChannelHandler[] channelHandlers = this.channelHandlerMaker.make((SocketChannel) channel);
 
 		for (int i = 0; i < channelHandlers.length; ++i) {
 			String handlerName = CHANNEL_HANDLER_MAKER + i;
@@ -106,7 +109,7 @@ public class ClientPool {
 			pipeline.addLast(handlerName, channelHandlers[i]);
 		}
 
-		return _channel;
+		return channel;
 	}
 
 	public void destroy() {
