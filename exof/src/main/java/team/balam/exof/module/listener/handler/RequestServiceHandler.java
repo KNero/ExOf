@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.listener.handler.transform.BadFormatException;
 import team.balam.exof.module.listener.handler.transform.ServiceObjectTransform;
+import team.balam.exof.module.service.ServiceNotFoundException;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.ServiceWrapper;
@@ -49,8 +50,13 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter {
 		} catch(BadFormatException bad) {
     		LOG.error("Session is closed. Because message is bad format.", bad);
     		ctx.close();
+	    } catch(ServiceNotFoundException | CallInternalServiceException e) {
+		    LOG.error("Can not execute service.", e);
+		    if (serviceObject != null && !serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError()) {
+			    ctx.close();
+		    }
     	} catch(Exception e) {
-    		LOG.error("Can not execute service.", e);
+    		LOG.error("Fail to execute transform.", e);
     		if (serviceObject != null && !serviceObject.isAutoCloseSession() && serviceObject.isCloseSessionByError()) {
 			    ctx.close();
 		    }
@@ -63,7 +69,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter {
     	}
     }
 
-    private static void callService(ServiceObject serviceObject) throws Exception {
+    private static void callService(ServiceObject serviceObject) throws ServiceNotFoundException, CallInternalServiceException {
 	    String servicePath = serviceObject.getServicePath();
 	    ServiceWrapper service = ServiceProvider.lookup(servicePath);
 	    if (service.isInternal()) {

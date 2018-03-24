@@ -1,5 +1,7 @@
 package team.balam.exof.module.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.Outbound;
 
@@ -8,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceWrapperImpl implements ServiceWrapper {
+	private static final Logger LOG = LoggerFactory.getLogger(ServiceWrapperImpl.class);
+
 	private Method method;
 	private Object host;
 	private int methodParamCount;
@@ -56,23 +60,27 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public <T> T call(ServiceObject so) throws Exception {
-		for (Inbound in : this.inbound) {
-			in.execute(so);
-		}
-
-		Object[] methodParameter = null;
-		if (this.methodParamCount > 0) {
-			methodParameter = so.getServiceParameter();
-		}
-
-		Object result = this.method.invoke(this.host, methodParameter);
-		if (result != null) {
-			for (Outbound out : this.outbound) {
-				result = out.execute(result);
+	public <T> T call(ServiceObject so) {
+		try {
+			for (Inbound in : this.inbound) {
+				in.execute(so);
 			}
 
-			return (T) result;
+			Object[] methodParameter = null;
+			if (this.methodParamCount > 0) {
+				methodParameter = so.getServiceParameter();
+			}
+
+			Object result = this.method.invoke(this.host, methodParameter);
+			if (result != null) {
+				for (Outbound out : this.outbound) {
+					result = out.execute(result);
+				}
+
+				return (T) result;
+			}
+		} catch (Exception e) {
+			LOG.error("Fail to call service.", e);
 		}
 
 		return null;

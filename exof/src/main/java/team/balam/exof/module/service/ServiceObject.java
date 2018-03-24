@@ -12,10 +12,18 @@ public final class ServiceObject
 	public ServiceObject() {
 
 	}
-	
-	public ServiceObject(String _path)
+
+	public ServiceObject(Object request) {
+		this.request = request;
+	}
+
+	public ServiceObject(Object... serviceParameter) {
+		this.serviceParameter = serviceParameter;
+	}
+
+	public ServiceObject(String path)
 	{
-		this.servicePath = _path;
+		this.servicePath = path;
 	}
 	
 	final public String getServicePath()
@@ -28,14 +36,14 @@ public final class ServiceObject
 		this.servicePath = servicePath;
 	}
 	
-	public void setServiceParameter(Object[] _parameter)
+	public void setServiceParameter(Object... parameter)
 	{
-		this.serviceParameter = _parameter;
+		this.serviceParameter = parameter;
 	}
 	
-	public void setRequest(Object _request) 
+	public void setRequest(Object request)
 	{
-		this.request = _request;
+		this.request = request;
 	}
 	
 	public Object getRequest()

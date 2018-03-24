@@ -17,5 +17,5 @@ public interface ServiceWrapper
 
 	String getMethodName();
 
-	<T> T call(ServiceObject so) throws Exception;
+	<T> T call(ServiceObject so);
 }
