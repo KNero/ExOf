@@ -40,7 +40,7 @@ CLI를 사용한 서버 정보 검색 및 설정
 <dependency>
     <groupId>team.balam</groupId>
     <artifactId>exof</artifactId>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
 </dependency>
 ```
 # Gradle
@@ -56,6 +56,6 @@ repositories {
 ```
 ```gradle
 dependencies {
-    compile group: 'team.balam', name: 'exof', version: '1.3.2'
+    compile group: 'team.balam', name: 'exof', version: '1.3.3'
 }
 ```
