@@ -37,31 +37,31 @@ public class TestService {
 	@Inbound(TestInbound.class)
 	@Outbound(TestOutbound.class)
 	public String schedule() {
-		this.logger.info("Service Variable : " + this.scheduleA + " / " + this.scheduleB + " / " + this.scheduleC);
+		this.logger.info("Service Variable : {}/{}/{}", this.scheduleA, this.scheduleB, this.scheduleC);
 		
 		return "END";
 	}
 
 	@Service
 	public void arrayParam() {
-		this.logger.info("Service Variable : " + this.arrayParamA + " / " + this.arrayParamB + " / " + this.arrayParamC);
+		this.logger.info("Service Variable : {}/{}/{}", this.arrayParamA, this.arrayParamB, this.arrayParamC);
 	}
 
 	@Service
 	@Inbound(TestInbound.class)
 	@Outbound(TestOutbound.class)
-	public void receive(Object _req) {
-		this.logger.info("Receive data : " + _req.toString());
+	public void receive(Object req) {
+		this.logger.info("Receive data : {}", req);
 
 		RequestContext.writeAndFlushResponse("response\0".getBytes());
 	}
 
 	@Service
 	@Inbound({HttpGet.class, QueryStringToMap.class})
-	public HttpResponse receiveHttp(Map<String, Object> _request) {
-		this.logger.info("response : " + _request.get("message").toString());
+	public HttpResponse receiveHttp(Map<String, Object> request) {
+		this.logger.info("response : {}", request.get("message"));
 
-		return HttpResponseBuilder.buildOkMessage(_request.get("message").toString());
+		return HttpResponseBuilder.buildOkMessage(request.get("message").toString());
 	}
 
 	@Service("http-get")

@@ -34,11 +34,20 @@ public class RequestContext
 	}
 
 	public static HttpServletRequest getServletRequest() {
-		return get(Key.HTTP_SERVLET_REQ);
+		HttpServletRequest servletRequest = get(Key.HTTP_SERVLET_REQ);
+		if (servletRequest == null) {
+			throw new NullPointerException("Servlet request is null");
+		}
+
+		return servletRequest;
 	}
 
 	public static HttpServletResponse getServletResponse() {
-		return get(Key.HTTP_SERVLET_RES);
+		HttpServletResponse servletResponse = get(Key.HTTP_SERVLET_RES);
+		if (servletResponse == null) {
+			throw new NullPointerException("Servlet response is null");
+		}
+		return servletResponse;
 	}
 
 	public static ChannelFuture writeResponse(Object res) {
