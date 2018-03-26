@@ -36,6 +36,8 @@ class ServiceDirectory {
 	}
 	
 	void startup() {
+		this.loadServiceVariable();
+
 		if(this.startup != null) {
 			try {
 				this.startup.invoke(this.host);
@@ -44,8 +46,6 @@ class ServiceDirectory {
 				LOG.error("Can not start the service. ServiceDirectory path : {}", this.dirPath, e);
 			}
 		}
-
-		this.loadServiceVariable();
 	}
 
 	@SuppressWarnings("unchecked")
