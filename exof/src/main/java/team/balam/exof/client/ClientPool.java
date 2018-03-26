@@ -114,7 +114,7 @@ public class ClientPool {
 
 	public void destroy() {
 		this.poolHealthChecker.stop();
-		this.eventLoopGroup.shutdownGracefully();
+		this.eventLoopGroup.shutdownGracefully(10, 20, TimeUnit.SECONDS);
 		for (InetSocketAddress address : this.target) {
 			this.pools.get(address).close();
 		}

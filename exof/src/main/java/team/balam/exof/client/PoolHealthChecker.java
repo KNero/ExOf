@@ -41,6 +41,12 @@ public class PoolHealthChecker implements Runnable {
 	@Override
 	public final void run() {
 		while (this.isRunning) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				//ignore
+			}
+
 			if (failTarget.isEmpty()) {
 				continue;
 			}
@@ -61,12 +67,6 @@ public class PoolHealthChecker implements Runnable {
 				}
 
 				this.failTarget.remove(target);
-			}
-
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				//ignore
 			}
 		}
 	}
