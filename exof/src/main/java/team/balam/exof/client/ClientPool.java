@@ -45,7 +45,7 @@ public class ClientPool {
 	private ChannelPoolMap<InetSocketAddress, FixedChannelPool> pools;
 	private EventLoopGroup eventLoopGroup;
 
-	private void _init() {
+	private void init() {
 		this.targetSize = this.target.length;
 		this.eventLoopGroup = new NioEventLoopGroup();
 		this.pools = new AbstractChannelPoolMap<InetSocketAddress, FixedChannelPool>() {
@@ -62,7 +62,6 @@ public class ClientPool {
 						acquireTimeout, maxPoolSize, Integer.MAX_VALUE);
 			}
 		};
-
 		this.poolHealthChecker.start();
 	}
 
@@ -84,6 +83,8 @@ public class ClientPool {
 				Channel channel = channelFuture.get(this.acquireTimeout, TimeUnit.MILLISECONDS);
 				Client client = new PooledClient(this.initChannelHandler(channel), targetPool, this.poolHealthChecker, address);
 				client.setReadTimeout(this.readTimeout);
+
+				this.poolHealthChecker.updateLastPingTime(address);
 
 				return client;
 			} catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -114,10 +115,7 @@ public class ClientPool {
 
 	public void destroy() {
 		this.poolHealthChecker.stop();
-		this.eventLoopGroup.shutdownGracefully(10, 20, TimeUnit.SECONDS);
-		for (InetSocketAddress address : this.target) {
-			this.pools.get(address).close();
-		}
+		this.eventLoopGroup.shutdownGracefully(10L, 20L, TimeUnit.SECONDS);
 	}
 
 	public static class Builder {
@@ -133,8 +131,8 @@ public class ClientPool {
 			return this;
 		}
 
-		public Builder addTarget(String _host, int _port) {
-			this.targetList.add(new InetSocketAddress(_host, _port));
+		public Builder addTarget(String host, int port) {
+			this.targetList.add(new InetSocketAddress(host, port));
 			return this;
 		}
 
@@ -175,11 +173,11 @@ public class ClientPool {
 			}
 
 			if (this.clientHealthChecker == null) {
-				this.clientHealthChecker = _client -> true;
+				this.clientHealthChecker = client -> true;
 			}
 
 			clientPool.poolHealthChecker = new PoolHealthChecker(this.clientHealthChecker, clientPool.channelHandlerMaker);
-			clientPool._init();
+			clientPool.init();
 			return clientPool;
 		}
 	}
