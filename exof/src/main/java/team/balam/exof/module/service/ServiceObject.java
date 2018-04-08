@@ -13,14 +13,6 @@ public final class ServiceObject
 
 	}
 
-	public ServiceObject(Object request) {
-		this.request = request;
-	}
-
-	public ServiceObject(Object... serviceParameter) {
-		this.serviceParameter = serviceParameter;
-	}
-
 	public ServiceObject(String path)
 	{
 		this.servicePath = path;
