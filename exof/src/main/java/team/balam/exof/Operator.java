@@ -46,13 +46,11 @@ public class Operator {
 			try {
 				container.start();
 				logger.info("Container[{}] is started.", container.getName());
+			} catch (InitializeFatalException e) {
+				logger.error("Init fatal error occurred by starting container[{}].", container.getName(), e);
+				System.exit(0);
 			} catch (Exception e) {
-				if (e instanceof InitializeFatalException) {
-					logger.error("Init fatal error occurred by starting container[{}].", container.getName(), e);
-					System.exit(0);
-				} else {
-					logger.error("Container[{}] can not start.", container.getName(), e);
-				}
+				logger.error("Container[{}] can not start.", container.getName(), e);
 			}
 		});
 		
@@ -94,6 +92,10 @@ public class Operator {
 						if (netif != null) {
 							byte[] mac = netif.getHardwareAddress();
 							if (mac != null) {
+								if (sb.length() > 0) {
+									sb.append(", ");
+								}
+
 								for (int i = 0; i < mac.length; i++) {
 									sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
 								}

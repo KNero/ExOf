@@ -14,8 +14,12 @@ import java.util.List;
  * lib/external 폴더 안의 jar 파일의 class 를 관리한다.
  */
 public class ExternalClassLoader {
-    private static Logger LOG = LoggerFactory.getLogger(ExternalClassLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExternalClassLoader.class);
 	private static URLClassLoader external;
+
+	private ExternalClassLoader() {
+
+	}
 
 	/**
 	 * 폴더 안의 모든 jar 를 로딩한다.
@@ -32,7 +36,7 @@ public class ExternalClassLoader {
 
 				if (jar.isFile() && file.endsWith(".jar")) {
 					try {
-					    LOG.info("");
+					    LOG.info("loaded jar : {}", jar.toURI());
 						urlList.add(jar.toURI().toURL());
 					} catch(MalformedURLException e) {
 					}

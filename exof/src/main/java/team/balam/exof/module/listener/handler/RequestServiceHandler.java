@@ -77,7 +77,12 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter {
 	    }
 
 	    long start = System.currentTimeMillis();
-	    Object response = service.call(serviceObject);
+	    Object response = null;
+	    try {
+	    	response = service.call(serviceObject);
+	    } catch (Exception e) {
+	    	LOG.error("Fail to execute service.", e);
+	    }
 
 	    if(LOG.isInfoEnabled()) {
 		    long end = System.currentTimeMillis();
