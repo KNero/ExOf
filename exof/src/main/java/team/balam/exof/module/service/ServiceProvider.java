@@ -49,7 +49,11 @@ public class ServiceProvider implements Module, Observer
 
 		if (serviceDirAnn != null) {
 			Object host = clazz.newInstance();
-			ServiceDirectory serviceDir = this.serviceDirectory.computeIfAbsent(info.getPath(), key -> new ServiceDirectory(host, key));
+			ServiceDirectory serviceDir = this.serviceDirectory.computeIfAbsent(info.getPath(), key -> {
+				ServiceDirectory newServiceDirectory = new ServiceDirectory(host, key);
+				newServiceDirectory.setInternal(serviceDirAnn.internal());
+				return newServiceDirectory;
+			});
 
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
 			for (Method m : services) {

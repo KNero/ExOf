@@ -27,6 +27,7 @@ class ServiceDirectory {
 	
 	private Method startup;
 	private Method shutdown;
+	private boolean isInternal;
 	
 	private Map<String, ServiceWrapper> serviceMap = new ConcurrentHashMap<>();
 	
@@ -34,7 +35,11 @@ class ServiceDirectory {
 		this.host = host;
 		this.dirPath = dirPath;
 	}
-	
+
+	void setInternal(boolean internal) {
+		isInternal = internal;
+	}
+
 	void startup() {
 		this.loadServiceVariable();
 
@@ -60,11 +65,6 @@ class ServiceDirectory {
 
 			Service serviceAnn = field.getAnnotation(Service.class);
 			if(serviceAnn != null) {
-				ServiceVariable serviceVariables = dirInfo.getVariable();
-				if (serviceVariables == ServiceVariable.NULL_OBJECT) {
-					return;
-				}
-
 				try {
 					Class<?> fieldType = field.getType();
 					if (fieldType.equals(ServiceWrapper.class)) {
@@ -167,7 +167,7 @@ class ServiceDirectory {
 		ServiceWrapperImpl service = new ServiceWrapperImpl();
 		service.setHost(this.host);
 		service.setMethod(method);
-		service.setInternal(annotation.internal());
+		service.setInternal(this.isInternal);
 
 		this.checkInboundAnnotation(method, service);
 		this.checkOutboundAnnotation(method, service);
