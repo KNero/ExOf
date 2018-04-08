@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 public @interface ServiceDirectory {
 	String value() default "";
 	String path() default "";
+	boolean internal() default false;
 }
