@@ -4,5 +4,5 @@ import team.balam.exof.module.service.ServiceObject;
 
 public interface Inbound
 {
-	void execute(ServiceObject _se) throws InboundExecuteException;
+	void execute(ServiceObject serviceObject) throws InboundExecuteException;
 }
