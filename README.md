@@ -27,12 +27,8 @@ CLI를 사용한 서버 정보 검색 및 설정
 ```xml
 <repositories>
     <repository>
-        <id>KNero-mvn-repo</id>
-        <url>https://raw.github.com/KNero/exof/mvn-repo</url>
-        <snapshots>
-            <enabled>true</enabled>
-            <updatePolicy>always</updatePolicy>
-        </snapshots>
+        <id>exof-maven</id>
+        <url>https://github.com/KNero/ExOf/raw/master/build/mvn-repo</url>
     </repository>
 </repositories>
 ```
@@ -49,7 +45,7 @@ repositories {
     maven {
         mavenLocal()
         maven {
-            url "https://raw.github.com/KNero/exof/mvn-repo"
+            url "https://github.com/KNero/ExOf/raw/master/build/mvn-repo"
         }
     }
 }
