@@ -28,7 +28,7 @@ CLI를 사용한 서버 정보 검색 및 설정
 <repositories>
     <repository>
         <id>exof-maven</id>
-        <url>https://github.com/KNero/ExOf/raw/master/build/mvn-repo</url>
+        <url>https://github.com/KNero/repository/raw/master/maven</url>
     </repository>
 </repositories>
 ```
@@ -36,7 +36,7 @@ CLI를 사용한 서버 정보 검색 및 설정
 <dependency>
     <groupId>team.balam</groupId>
     <artifactId>exof</artifactId>
-    <version>1.3.6</version>
+    <version>1.3.7</version>
 </dependency>
 ```
 # Gradle
@@ -45,13 +45,13 @@ repositories {
     maven {
         mavenLocal()
         maven {
-            url "https://github.com/KNero/ExOf/raw/master/build/mvn-repo"
+            url "https://github.com/KNero/repository/raw/master/maven"
         }
     }
 }
 ```
 ```gradle
 dependencies {
-    compile group: 'team.balam', name: 'exof', version: '1.3.6'
+    compile group: 'team.balam', name: 'exof', version: '1.3.7'
 }
 ```
