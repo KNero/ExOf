@@ -51,10 +51,10 @@ public class ClientTest {
 
 	@BeforeClass
 	public static void init() throws Exception {
-		new File(TEST_DB).deleteOnExit();
+		new File(TEST_DB).delete();
 		try {
 			DatabaseLoader.load(Constant.ENV_DB, TEST_DB);
-		} catch (AlreadyExistsConnectionException e) {
+		} catch (Exception e) {
 			//ignore
 		}
 		ExternalClassLoader.load("./lib/external");

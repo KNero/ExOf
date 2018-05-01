@@ -55,7 +55,7 @@ public class LoaderTest {
 		Assert.assertEquals(3, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
-		Assert.assertEquals(6, directoryInfos.size());
+		Assert.assertEquals(7, directoryInfos.size());
 	}
 
 	@Test
