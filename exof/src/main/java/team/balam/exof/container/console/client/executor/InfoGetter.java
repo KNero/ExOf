@@ -1,5 +1,6 @@
 package team.balam.exof.container.console.client.executor;
 
+import team.balam.exof.Constant;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
@@ -49,7 +50,8 @@ class InfoGetter
 							if(! _valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE) && valueMap.get(_valueKey) != null) {
 								serviceSize.incrementAndGet();
 
-								infoLog.append(" -s- ").append(_valueKey).append("(method name : ").append(valueMap.get(_valueKey)).append(")").append("\n");
+								String callPath = _key + (!_valueKey.isEmpty() ? Constant.SERVICE_SEPARATE + _valueKey : "");
+								infoLog.append(" -s- ").append(callPath).append(" (method name : ").append(valueMap.get(_valueKey)).append(")").append("\n");
 								
 								Map<String, Object> variables = (Map<String, Object>) valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
 								variables.keySet().forEach(_name -> infoLog.append("   -v- ").append(_name).append(" : ").append(variables.get(_name).toString()).append("\n"));

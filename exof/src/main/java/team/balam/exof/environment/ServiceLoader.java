@@ -53,7 +53,7 @@ public class ServiceLoader implements Loader {
 					if (this.equalsNodeName(serviceNode, EnvKey.Service.SERVICE_DIRECTORY)) {
 						this.insertServiceDirectoryInfo(serviceNode);
 					} else if (this.equalsNodeName(serviceNode, EnvKey.Service.SCHEDULER)) {
-						String[] pathArr = filePath.split("/");
+						String[] pathArr = filePath.split(Constant.SERVICE_SEPARATE);
 						String fileName = pathArr[pathArr.length - 1];
 
 						this.insertSchedulerInfo(fileName, serviceNode);
@@ -177,7 +177,7 @@ public class ServiceLoader implements Loader {
 			}
 
 			NodeImpl scheduleNode = new NodeImpl();
-			scheduleNode.addAttribute(EnvKey.Service.SERVICE_PATH, serviceDirectoryPath + "/" + serviceName);
+			scheduleNode.addAttribute(EnvKey.Service.SERVICE_PATH, serviceDirectoryPath + Constant.SERVICE_SEPARATE + serviceName);
 			scheduleNode.addAttribute(EnvKey.Service.CRON, annotation.schedule());
 			scheduleNode.addAttribute(EnvKey.Service.DUPLICATE_EXECUTION, Constant.NO);
 			scheduleNode.addAttribute(EnvKey.Service.USE, Constant.YES);

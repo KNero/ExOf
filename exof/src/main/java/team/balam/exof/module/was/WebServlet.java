@@ -3,6 +3,7 @@ package team.balam.exof.module.was;
 import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
@@ -15,14 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 public class WebServlet extends HttpServlet {
 	private static final Logger LOG  = LoggerFactory.getLogger(WebServlet.class);
 
-	private ServicePathExtractor servicePathExtractor;
+	private static ServicePathExtractor servicePathExtractor;
 
 	@Override
 	public void init() {
 		String servicePathExtractorClassName = this.getInitParameter("servicePathExtractor");
 		if (!StringUtil.isNullOrEmpty(servicePathExtractorClassName)) {
 			try {
-				this.servicePathExtractor = (ServicePathExtractor) Class.forName(servicePathExtractorClassName).newInstance();
+				servicePathExtractor = (ServicePathExtractor) ExternalClassLoader.loadClass(servicePathExtractorClassName).newInstance();
 			} catch (Exception e) {
 				LOG.error("Can't create servicePathExtractor instance.", e);
 			}
@@ -31,31 +32,31 @@ public class WebServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-		this._execute(req, resp);
+		this.execute(req, resp);
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		this._execute(req, resp);
+		this.execute(req, resp);
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
-		this._execute(req, resp);
+		this.execute(req, resp);
 	}
 
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
-		this._execute(req, resp);
+		this.execute(req, resp);
 	}
 
-	private void _execute(HttpServletRequest req, HttpServletResponse resp) {
+	private void execute(HttpServletRequest req, HttpServletResponse resp) {
 		RequestContext.set(RequestContext.Key.HTTP_SERVLET_REQ, req);
 		RequestContext.set(RequestContext.Key.HTTP_SERVLET_RES, resp);
 
 		String servicePath = req.getPathInfo();
-		if (this.servicePathExtractor != null) {
-			servicePath = this.servicePathExtractor.extract(req);
+		if (servicePathExtractor != null) {
+			servicePath = servicePathExtractor.extract(req);
 		}
 
 		ServiceObject serviceObject = new ServiceObject(servicePath);

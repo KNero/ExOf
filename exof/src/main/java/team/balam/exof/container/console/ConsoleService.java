@@ -62,7 +62,7 @@ class ConsoleService {
 		if (!StringUtil.isNullOrEmpty(findServicePath)) {
 			result.forEach((key, value) -> value.keySet().forEach(valueKey -> {
 				if(!Command.Key.CLASS.equals(valueKey) && !valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
-					String servicePath = key + "/" + valueKey;
+					String servicePath = key + Constant.SERVICE_SEPARATE + valueKey;
 					if (!servicePath.contains(findServicePath)) {
 						value.put(valueKey, null);
 					}
@@ -90,41 +90,29 @@ class ConsoleService {
 				Set<Method> services = ReflectionUtils.getAllMethods(directoryClass, ReflectionUtils.withAnnotation(Service.class));
 
 				for (Method method : services) {
-					String serviceName = this.getServiceName(method);
-					ServiceWrapper service = ServiceProvider.lookup(directoryInfo.getPath() + "/" + serviceName);
+					String serviceName = ServiceProvider.getServiceName(method);
+					try {
+						ServiceWrapper service = ServiceProvider.lookup(directoryInfo.getPath() + Constant.SERVICE_SEPARATE + serviceName);
 
-					if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
-						serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName());
+						if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
+							String isInternal = service.isInternal() ? " (internal)" : "";
+							serviceMap.put(EnvKey.Service.CLASS, service.getHost().getClass().getName() + isInternal);
+						}
+
+						Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath());
+
+						serviceMap.put(serviceName, service.getMethodName());
+						serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
+					} catch (ServiceNotFoundException e) {
+						this.logger.error("service not found", e);
 					}
-
-					Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath());
-
-					serviceMap.put(serviceName, service.getMethodName());
-					serviceMap.put(serviceName + EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
 				}
 			} catch (ClassNotFoundException e) {
 				this.logger.error("class not found : " + directoryInfo.getClassName(), e);
-			} catch (ServiceNotFoundException e) {
-				this.logger.error("service not found", e);
 			}
 		});
 
 		return serviceList;
-	}
-
-	private String getServiceName(Method method) {
-		String serviceName = method.getName();
-		Service serviceAnnotation = method.getAnnotation(Service.class);
-
-		if (!serviceAnnotation.value().isEmpty()) {
-			serviceName = serviceAnnotation.value();
-		}
-
-		if (!serviceAnnotation.name().isEmpty()) {
-			serviceName = serviceAnnotation.name();
-		}
-
-		return serviceName;
 	}
 
 	private Map<String, Object> makeServiceVariableMap(String serviceDirPath) {
@@ -260,7 +248,7 @@ class ConsoleService {
 		}
 
 		try {
-			String[] pathArray = servicePath.split("/");
+			String[] pathArray = servicePath.split(Constant.SERVICE_SEPARATE);
 			String serviceName = pathArray[pathArray.length - 1];
 			String serviceDirPath = this.getServiceDirectoryPath(servicePath);
 

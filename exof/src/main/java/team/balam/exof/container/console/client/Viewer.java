@@ -83,6 +83,7 @@ public class Viewer
 			System.out.println("\n----------------------------------------------------------------------------------");
 			try {
 				this.commandExecutor.execute(this.command);
+				this.command.clearParameter();
 			} catch (NotFoundOperation e) {
 				System.out.println("There is no menu.");
 			}

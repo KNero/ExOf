@@ -10,6 +10,7 @@ public class Constant {
 	public static final String YES = "yes";
 	public static final String NO = "no";
 	public static final String EMPTY_STRING = "";
+	public static final String SERVICE_SEPARATE = "/";
 
 	public static final String ENV_DB = ".env.db";
 }
