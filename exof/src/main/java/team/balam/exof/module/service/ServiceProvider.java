@@ -3,6 +3,7 @@ package team.balam.exof.module.service;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import team.balam.exof.Constant;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.EnvKey;
@@ -31,9 +32,12 @@ public class ServiceProvider implements Module, Observer
 
 	private static ServiceProvider self = new ServiceProvider();
 	
-	private ServiceProvider()
-	{
+	private ServiceProvider() {
 		
+	}
+
+	ServiceDirectory getServiceDirectory(String path) {
+		return serviceDirectory.get(path);
 	}
 	
 	public static ServiceProvider getInstance()
@@ -57,13 +61,13 @@ public class ServiceProvider implements Module, Observer
 
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
 			for (Method m : services) {
-				String serviceName = this.getServiceName(m);
+				String serviceName = getServiceName(m);
 
 				serviceDir.register(serviceName, m);
 
 				if (logger.isInfoEnabled()) {
-					logger.info("Service is loaded. path[{}] class[{}] name[{}]",
-							info.getPath() + "/" + serviceName, info.getClassName(), serviceName);
+					String servicePath = !serviceName.isEmpty() ? info.getPath() + Constant.SERVICE_SEPARATE + serviceName : info.getPath();
+					logger.info("Service is loaded. path[{}] class[{}] name[{}]", servicePath, info.getClassName(), serviceName);
 				}
 			}
 
@@ -82,9 +86,9 @@ public class ServiceProvider implements Module, Observer
 		}
 	}
 
-	private String getServiceName(Method method) {
-		String serviceName = method.getName();
+	public static String getServiceName(Method method) {
 		Service serviceAnnotation = method.getAnnotation(Service.class);
+		String serviceName = "";
 
 		if (!serviceAnnotation.value().isEmpty()) {
 			serviceName = serviceAnnotation.value();
@@ -102,19 +106,26 @@ public class ServiceProvider implements Module, Observer
 			throw new IllegalArgumentException("Path is null : " + path);
 		}
 
-		Map<String, ServiceDirectory> serviceDirectoryMap = self.serviceDirectory;
-
 		self.waitLoadingService();
 
-		int splitIdx = path.lastIndexOf("/");
-		if (splitIdx == -1) {
-			throw new ServiceNotFoundException(path);
+		Map<String, ServiceDirectory> serviceDirectoryMap = self.serviceDirectory;
+		String serviceDirectoryPath;
+		String serviceName;
+
+		if (serviceDirectoryMap.containsKey(path)) {
+			serviceDirectoryPath = path;
+			serviceName = "";
+		} else {
+			int splitIdx = path.lastIndexOf('/');
+			if (splitIdx == -1) {
+				throw new ServiceNotFoundException(path);
+			}
+
+			serviceDirectoryPath = path.substring(0, splitIdx);
+			serviceName = path.substring(splitIdx + 1);
 		}
 
-		String dirPath = path.substring(0, splitIdx);
-		String serviceName = path.substring(splitIdx + 1);
-
-		ServiceDirectory serviceDir = serviceDirectoryMap.get(dirPath);
+		ServiceDirectory serviceDir = serviceDirectoryMap.get(serviceDirectoryPath);
 		if (serviceDir == null) {
 			throw new ServiceNotFoundException(path);
 		}
@@ -164,7 +175,7 @@ public class ServiceProvider implements Module, Observer
 				try {
 					this.register(info);
 
-					logger.warn("Service Directory is loaded.\n{}", info.toString());
+					logger.warn("Service Directory is loaded.\n{}", info);
 				} catch(Exception e) {
 					logger.error("Can not register the service. Class : {}", info.getClassName(), e);
 				}

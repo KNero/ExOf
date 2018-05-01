@@ -17,6 +17,9 @@ public class ScanTestService {
 	private String b = "B";
 	private String c = "C";
 
+	@ServiceDirectory("/internal")
+	private InternalService internalService;
+
 	@Service(name = "autoSchedule"/*, schedule = "0/5 * * * * ?"*/)
 	@Inbound(TestInbound.class)
 	@Outbound(TestOutbound.class)
@@ -24,5 +27,12 @@ public class ScanTestService {
 		this.logger.info("Auto Scan Service Variable : " + this.a + " / " + this.b + " / " + this.c);
 
 		return "END";
+	}
+
+	@Service("call-internal-service")
+	public void callInternalService() {
+		if (!"test_test2".equals(this.internalService.test2())) {
+			throw new RuntimeException("not equals return value.");
+		}
 	}
 }

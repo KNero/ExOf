@@ -33,7 +33,7 @@ public class TestService {
 	@Variable public String arrayParamB;
 	@Variable public List<String> arrayParamC;
 	
-	@Service
+	@Service("schedule")
 	@Inbound(TestInbound.class)
 	@Outbound(TestOutbound.class)
 	public String schedule() {
@@ -42,12 +42,12 @@ public class TestService {
 		return "END";
 	}
 
-	@Service
+	@Service("arrayParam")
 	public void arrayParam() {
 		this.logger.info("Service Variable : {}/{}/{}", this.arrayParamA, this.arrayParamB, this.arrayParamC);
 	}
 
-	@Service
+	@Service("receive")
 	@Inbound(TestInbound.class)
 	@Outbound(TestOutbound.class)
 	public void receive(Object req) {
@@ -56,7 +56,7 @@ public class TestService {
 		RequestContext.writeAndFlushResponse("response\0".getBytes());
 	}
 
-	@Service
+	@Service("receiveHttp")
 	@Inbound({HttpGet.class, QueryStringToMap.class})
 	public HttpResponse receiveHttp(Map<String, Object> request) {
 		this.logger.info("response : {}", request.get("message"));
@@ -92,7 +92,7 @@ public class TestService {
 		}
 	}
 
-	@Service
+	@Service("receiveHttpGet4Jetty")
 	@Inbound({HttpGet.class, QueryStringToMap.class})
 	public void receiveHttpGet4Jetty(Map<String, Object> param) throws IOException {
 		HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
@@ -112,7 +112,7 @@ public class TestService {
 		}
 	}
 
-	@Service
+	@Service("receiveHttpPost4Jetty")
 	@Inbound({HttpPost.class, JsonToMap.class})
 	public void receiveHttpPost4Jetty(Map<String, Object> param) throws IOException {
 		HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
@@ -124,5 +124,10 @@ public class TestService {
 		} else {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	@Service("throwException")
+	public void throwException() throws TestException {
+		throw new TestException();
 	}
 }

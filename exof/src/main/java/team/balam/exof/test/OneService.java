@@ -32,7 +32,7 @@ public class OneService {
 		log.info("Startup one-service.");
 	}
 
-	@Service
+	@Service("testSingleMethod")
 	public void testSingleMethod() {
 		log.info("a: {}, b: {}, c: {}", this.a, this.b, this.c);
 	}
