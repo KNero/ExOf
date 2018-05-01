@@ -5,16 +5,16 @@ import org.slf4j.LoggerFactory;
 import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class PoolHealthChecker implements Runnable {
 	private static final Logger LOG = LoggerFactory.getLogger(PoolHealthChecker.class);
 
 	private static final int PING_INTERVAL = 10000;
-	private Map<InetSocketAddress, Long> lastPingTime = new HashMap<>();
+	private Map<InetSocketAddress, Long> lastPingTime = new ConcurrentHashMap<>();
 
 	private Set<InetSocketAddress> failTarget = new CopyOnWriteArraySet<>();
 	private ClientHealthChecker healthChecker;
@@ -73,6 +73,7 @@ public class PoolHealthChecker implements Runnable {
 				if (System.currentTimeMillis() - data.getValue() > PING_INTERVAL) {
 					try {
 						this.send(data.getKey());
+						this.lastPingTime.put(data.getKey(), System.currentTimeMillis());
 					} catch (Exception e) {
 						LOG.error("Fail to check ping.", e);
 						this.failTarget.add(data.getKey());
@@ -87,10 +88,12 @@ public class PoolHealthChecker implements Runnable {
 			client.connect(target.getHostName(), target.getPort());
 
 			if (this.healthChecker.check( client)) {
-				this.failTarget.remove(target);
-				LOG.info("[{}] pool's checking health is success.", target);
+				if (this.failTarget.contains(target)) {
+					this.failTarget.remove(target);
+					LOG.info("[{}] pool's checking health is success.", target);
+				}
 			} else {
-				throw new Exception ("Target state is not normal.");
+				throw new Exception("Target state is not normal.");
 			}
 		}
 	}
