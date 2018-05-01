@@ -3,6 +3,7 @@ package team.balam.exof.module.service;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import team.balam.exof.Constant;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
@@ -36,6 +37,10 @@ class ServiceDirectory {
 		this.dirPath = dirPath;
 	}
 
+	Object getHost() {
+		return host;
+	}
+
 	void setInternal(boolean internal) {
 		isInternal = internal;
 	}
@@ -59,23 +64,28 @@ class ServiceDirectory {
 
 		this.loadPrimitiveVariable(dirInfo);
 
-		Set<Field> fields = ReflectionUtils.getAllFields(host.getClass(), ReflectionUtils.withAnnotation(Service.class));
+		Set<Field> fields = ReflectionUtils.getAllFields(host.getClass(), ReflectionUtils.withAnnotations(Service.class));
 		for(Field field : fields) {
 			field.setAccessible(true);
-
 			Service serviceAnn = field.getAnnotation(Service.class);
-			if(serviceAnn != null) {
-				try {
-					Class<?> fieldType = field.getType();
-					if (fieldType.equals(ServiceWrapper.class)) {
-						this.setService(field, serviceAnn.value());
-					} else {
-						LOG.error("This type can not be set. ServiceDirectory:{}, Field type:{}",
-								dirInfo.getPath(), fieldType);
-					}
-				} catch (IllegalAccessException e) {
-					LOG.error(e.getMessage(), e);
-				}
+
+			try {
+				setService(field, !serviceAnn.value().isEmpty() ? serviceAnn.value() : serviceAnn.name());
+			} catch (IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+
+		fields = ReflectionUtils.getAllFields(host.getClass(), ReflectionUtils.withAnnotations(team.balam.exof.module.service.annotation.ServiceDirectory.class));
+		for(Field field : fields) {
+			field.setAccessible(true);
+			team.balam.exof.module.service.annotation.ServiceDirectory directoryAnn =
+					field.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
+
+			try {
+				setServiceDirectory(field, !directoryAnn.value().isEmpty() ? directoryAnn.value() : directoryAnn.path());
+			} catch (IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -124,16 +134,30 @@ class ServiceDirectory {
 	}
 
 	private void setService(Field field, String servicePath) throws IllegalAccessException {
-		if (!servicePath.isEmpty()) {
-			try {
-				ServiceWrapper serviceWrapper = ServiceProvider.lookup(servicePath);
-				field.set(host, serviceWrapper);
-			} catch (ServiceNotFoundException e) {
-				LOG.error("Can not find service. {}", servicePath);
+		Class<?> fieldType = field.getType();
+		if (fieldType.equals(ServiceWrapper.class)) {
+			if (!servicePath.isEmpty()) {
+				try {
+					ServiceWrapper serviceWrapper = ServiceProvider.lookup(servicePath);
+					field.set(host, serviceWrapper);
+				} catch (ServiceNotFoundException e) {
+					LOG.error("Can not find service. {}", servicePath);
+				}
+			} else {
+				LOG.error("Field's service annotation is must have full service path. ServiceDirectory:{}, Field:{}",
+						this.dirPath, field.getName());
 			}
 		} else {
-			LOG.error("Field's service annotation is must have full service path. ServiceDirectory:{}, Field:{}",
-					this.dirPath, field.getName());
+			LOG.error("This type can not be set. service path:{}, Field type:{}", servicePath, fieldType);
+		}
+	}
+
+	private void setServiceDirectory(Field field, String serviceDirectoryPath)  throws IllegalAccessException {
+		ServiceDirectory directory = ServiceProvider.getInstance().getServiceDirectory(serviceDirectoryPath);
+		if (directory != null) {
+			field.set(host, directory.getHost());
+		} else {
+			LOG.error("ServiceDirectory is not exists. path:{}", serviceDirectoryPath);
 		}
 	}
 	
@@ -160,9 +184,8 @@ class ServiceDirectory {
 
 	void register(String serviceName,Method method) throws Exception {
 		if (this.serviceMap.containsKey(serviceName)) {
-			throw new ServiceAlreadyExistsException(this.dirPath + "/" + serviceName);
+			throw new ServiceAlreadyExistsException(this.dirPath + (!serviceName.isEmpty() ? Constant.SERVICE_SEPARATE + serviceName : ""));
 		}
-		Service annotation = method.getAnnotation(Service.class);
 
 		ServiceWrapperImpl service = new ServiceWrapperImpl();
 		service.setHost(this.host);
