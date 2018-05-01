@@ -43,7 +43,7 @@ public class DeployRequesterTest {
 
 		client.connect("localhost", 2000);
 
-		String res = client.sendAndWait("{\"aaa\":\"external_test\", \"servicePath\":\"/test/external/execute\"}\0");
+		String res = client.sendAndWait("{\"aaa\":\"external_test\", \"servicePath\":\"/test/external\"}\0");
 		client.close();
 
 		Assert.assertEquals("response-2-2", res);
@@ -74,7 +74,7 @@ public class DeployRequesterTest {
 
 		client.connect("localhost", 2000);
 
-		String res = client.sendAndWait("{\"aaa\":\"external_test\", \"servicePath\":\"/test/external/execute\"}\0");
+		String res = client.sendAndWait("{\"aaa\":\"external_test\", \"servicePath\":\"/test/external\"}\0");
 		client.close();
 
 		Assert.assertEquals("response-1-1", res);
@@ -107,7 +107,7 @@ public class DeployRequesterTest {
 
 		client.connect("localhost", 2000);
 
-		String res = client.sendAndWait("{\"aaa\":\"external_test\", \"servicePath\":\"/test/external/execute\"}\0");
+		String res = client.sendAndWait("{\"aaa\":\"external_test\", \"servicePath\":\"/test/external\"}\0");
 		client.close();
 
 		Assert.assertEquals("response-2-2", res);

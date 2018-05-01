@@ -3,6 +3,7 @@ package team.balam.exof.module.service;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.Outbound;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,17 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 			methodParameter = so.getServiceParameter();
 		}
 
-		Object result = this.method.invoke(this.host, methodParameter);
+		Object result;
+		try {
+			result = this.method.invoke(this.host, methodParameter);
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof Exception) {
+				throw (Exception) e.getCause();
+			} else {
+				throw e;
+			}
+		}
+
 		if (this.isNotEmptyOutbound) {
 			for (Outbound out : this.outbound) {
 				result = out.execute(result);

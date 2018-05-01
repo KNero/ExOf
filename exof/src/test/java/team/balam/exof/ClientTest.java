@@ -47,7 +47,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class ClientTest {
 	private static final String TEST_HOME = "./test-workspace/ClientTest";
-	private static final String TEST_DB = TEST_HOME + "/" + Constant.ENV_DB;
+	private static final String TEST_DB = TEST_HOME + Constant.SERVICE_SEPARATE + Constant.ENV_DB;
 
 	@BeforeClass
 	public static void init() throws Exception {
