@@ -3,12 +3,9 @@ package team.balam.exof.module.service;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import team.balam.exof.Constant;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
-import team.balam.exof.module.service.annotation.Inbound;
-import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Variable;
 
@@ -16,9 +13,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 class ServiceDirectory {
 	private static final Logger LOG = LoggerFactory.getLogger(ServiceDirectory.class);
@@ -30,11 +25,19 @@ class ServiceDirectory {
 	private Method shutdown;
 	private boolean isInternal;
 	
-	private Map<String, ServiceWrapper> serviceMap = new ConcurrentHashMap<>();
-	
 	ServiceDirectory(Object host, String dirPath) {
 		this.host = host;
 		this.dirPath = dirPath;
+	}
+
+	void setStartup(Method startup)
+	{
+		this.startup = startup;
+	}
+
+	void setShutdown(Method shutdown)
+	{
+		this.shutdown = shutdown;
 	}
 
 	Object getHost() {
@@ -43,6 +46,10 @@ class ServiceDirectory {
 
 	void setInternal(boolean internal) {
 		isInternal = internal;
+	}
+
+	boolean isInternal() {
+		return isInternal;
 	}
 
 	void startup() {
@@ -138,7 +145,7 @@ class ServiceDirectory {
 		if (fieldType.equals(ServiceWrapper.class)) {
 			if (!servicePath.isEmpty()) {
 				try {
-					ServiceWrapper serviceWrapper = ServiceProvider.lookup(servicePath);
+					ServiceWrapper serviceWrapper = ServiceProvider.lookup(new ServiceObject(servicePath));
 					field.set(host, serviceWrapper);
 				} catch (ServiceNotFoundException e) {
 					LOG.error("Can not find service. {}", servicePath);
@@ -170,52 +177,5 @@ class ServiceDirectory {
 				LOG.error("Can not stop the service. ServiceDirectory path : {}", this.dirPath, e);
 			}
 		}
-	}
-	
-	void setStartup(Method startup)
-	{
-		this.startup = startup;
-	}
-	
-	void setShutdown(Method shutdown)
-	{
-		this.shutdown = shutdown;
-	}
-
-	void register(String serviceName,Method method) throws Exception {
-		if (this.serviceMap.containsKey(serviceName)) {
-			throw new ServiceAlreadyExistsException(this.dirPath + (!serviceName.isEmpty() ? Constant.SERVICE_SEPARATE + serviceName : ""));
-		}
-
-		ServiceWrapperImpl service = new ServiceWrapperImpl();
-		service.setHost(this.host);
-		service.setMethod(method);
-		service.setInternal(this.isInternal);
-
-		this.checkInboundAnnotation(method, service);
-		this.checkOutboundAnnotation(method, service);
-
-		this.serviceMap.put(serviceName, service);
-	}
-
-	private void checkInboundAnnotation(Method method, ServiceWrapperImpl service) throws Exception {
-		Inbound inboundAnn = method.getAnnotation(Inbound.class);
-		if (inboundAnn != null) {
-			for (Class<? extends team.balam.exof.module.service.component.Inbound> clazz : inboundAnn.value()) {
-				service.addInbound(clazz.newInstance());
-			}
-		}
-	}
-
-	private void checkOutboundAnnotation(Method method, ServiceWrapperImpl service) throws Exception {
-		Outbound outboundAnn = method.getAnnotation(Outbound.class);
-		if (outboundAnn != null) {
-			for (Class<? extends team.balam.exof.module.service.component.Outbound<?, ?>> clazz : outboundAnn.value())
-			service.addOutbound(clazz.newInstance());
-		}
-	}
-	
-	ServiceWrapper getService(String serviceName) {
-		return this.serviceMap.get(serviceName);
 	}
 }

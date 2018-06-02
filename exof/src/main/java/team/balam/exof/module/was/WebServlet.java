@@ -65,7 +65,7 @@ public class WebServlet extends HttpServlet {
 		RequestContext.set(RequestContext.Key.SERVICE_OBJECT, serviceObject);
 
 		try {
-			ServiceWrapper service = ServiceProvider.lookup(servicePath);
+			ServiceWrapper service = ServiceProvider.lookup(serviceObject);
 			if (service.isInternal()) {
 				LOG.error("Service is internal. path:{}, class:{}", servicePath, service.getHost());
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not call internal service.");

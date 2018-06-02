@@ -23,38 +23,38 @@ public abstract class JsonToObject implements Inbound {
 	private Class<?> objectType;
 	protected String charset = Charset.defaultCharset().name();
 
-	protected JsonToObject(Class<?> _objectType) {
-		this.objectType = _objectType;
+	protected JsonToObject(Class<?> objectType) {
+		this.objectType = objectType;
 	}
 
 	@Override
-	public void execute(ServiceObject _se) throws InboundExecuteException {
-		if (_se.getRequest() instanceof FullHttpRequest) {
-			this._parseAndSetNettyRequest(_se);
-		} else if (_se.getRequest() instanceof HttpServletRequest) {
-			this._parseAndSetJettyRequest(_se);
+	public void execute(ServiceObject se) throws InboundExecuteException {
+		if (se.getRequest() instanceof FullHttpRequest) {
+			this.parseAndSetNettyRequest(se);
+		} else if (se.getRequest() instanceof HttpServletRequest) {
+			this.parseAndSetJettyRequest(se);
 		} else {
-			throw new InboundExecuteException("Request is not type that can process. " + _se.getRequest());
+			throw new InboundExecuteException("Request is not type that can process. " + se.getRequest());
 		}
 	}
 
-	private void _parseAndSetNettyRequest(ServiceObject _se) throws InboundExecuteException {
-		FullHttpRequest httpRequest = (FullHttpRequest) _se.getRequest();
+	private void parseAndSetNettyRequest(ServiceObject se) throws InboundExecuteException {
+		FullHttpRequest httpRequest = (FullHttpRequest) se.getRequest();
 		byte[] buf = new byte[httpRequest.headers().getInt(HttpHeaderNames.CONTENT_LENGTH)];
 		httpRequest.content().readBytes(buf);
 
 		try {
 			Object result = JSON_MAPPER.readValue(buf, this.objectType);
-			_se.setServiceParameter(new Object[]{result});
+			se.setServiceParameter(result);
 
-			LOG.info("json transform result : {}", result.toString());
+			LOG.info("json transform result : {}", result);
 		} catch (IOException e) {
 			throw new InboundExecuteException("Can't parse json body. " + new String(buf), e);
 		}
 	}
 
-	private void _parseAndSetJettyRequest(ServiceObject _se) throws InboundExecuteException {
-		HttpServletRequest request = (HttpServletRequest) _se.getRequest();
+	private void parseAndSetJettyRequest(ServiceObject se) throws InboundExecuteException {
+		HttpServletRequest request = (HttpServletRequest) se.getRequest();
 		String json = null;
 
 		try {
@@ -63,9 +63,7 @@ public abstract class JsonToObject implements Inbound {
 
 			json = URLDecoder.decode(out.toString(this.charset), this.charset);
 			Object result = JSON_MAPPER.readValue(json, this.objectType);
-			_se.setServiceParameter(new Object[]{result});
-
-			LOG.info("json transform result : {}", json);
+			se.setServiceParameter(result);
 		} catch (IOException e) {
 			throw new InboundExecuteException("Can't parse json body. receive data: " + json, e);
 		}

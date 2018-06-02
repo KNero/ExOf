@@ -91,7 +91,5 @@ public class QueryStringToMap implements Inbound {
 
 			});
 		}
-
-		LOG.info("query string value : {}", param);
 	}
 }

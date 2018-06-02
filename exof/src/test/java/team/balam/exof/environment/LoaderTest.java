@@ -85,13 +85,13 @@ public class LoaderTest {
 	public void test04_loadService() throws Exception {
 		SystemSetting.setFramework(EnvKey.Framework.AUTORELOAD_SERVICE_VARIABLE, true);
 
-		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
+		ServiceWrapper service = ServiceProvider.lookup(new ServiceObject("/test/schedule"));
 		TestService host = service.getHost();
 		Assert.assertEquals("scheduleA-1", host.scheduleA);
 		Assert.assertEquals("scheduleB-2", host.scheduleB);
 		Assert.assertEquals("scheduleC-3", host.scheduleC);
 
-		service = ServiceProvider.lookup("/test/arrayParam");
+		service = ServiceProvider.lookup(new ServiceObject("/test/arrayParam"));
 		host = service.getHost();
 		Assert.assertEquals("arrayParamA-1", host.arrayParamA);
 		Assert.assertEquals("arrayParamB-2", host.arrayParamB);
@@ -100,13 +100,13 @@ public class LoaderTest {
 		Assert.assertEquals("arrayParamC-3", host.arrayParamC.get(2));
 		Assert.assertEquals("arrayParamC-4", host.arrayParamC.get(3));
 
-		service = ServiceProvider.lookup("/test2/schedule");
+		service = ServiceProvider.lookup(new ServiceObject("/test2/schedule"));
 		host = service.getHost();
 		Assert.assertEquals("other-scheduleA-a1", host.scheduleA);
 		Assert.assertEquals("other-scheduleB-b2", host.scheduleB);
 		Assert.assertEquals("other-scheduleC-c3", host.scheduleC);
 
-		service = ServiceProvider.lookup("/autoScan/autoSchedule");
+		service = ServiceProvider.lookup(new ServiceObject("/autoScan/autoSchedule"));
 		service.call(new ServiceObject("/autoScan/autoSchedule"));
 	}
 
@@ -143,7 +143,7 @@ public class LoaderTest {
 
 	@Test
 	public void test06_callOneService() throws Exception {
-		ServiceWrapper service = ServiceProvider.lookup("/one-service/testSingleMethod");
+		ServiceWrapper service = ServiceProvider.lookup(new ServiceObject("/one-service/testSingleMethod"));
 		service.call(new ServiceObject("/one-service/testSingleMethod"));
 		OneService oneService = service.getHost();
 
@@ -166,7 +166,7 @@ public class LoaderTest {
 		ConsoleCommandHandler handler = new ConsoleCommandHandler();
 		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
 
-		ServiceWrapper service = ServiceProvider.lookup("/test/schedule");
+		ServiceWrapper service = ServiceProvider.lookup(new ServiceObject("/test/schedule"));
 		TestService host = service.getHost();
 		Assert.assertEquals("a2a2", host.scheduleA);
 
@@ -178,14 +178,14 @@ public class LoaderTest {
 		handler = new ConsoleCommandHandler();
 		handler.channelRead(Mockito.mock(ChannelHandlerContext.class), command.toJson());
 
-		service = ServiceProvider.lookup("/one-service/testSingleMethod");
+		service = ServiceProvider.lookup(new ServiceObject("/one-service/testSingleMethod"));
 		OneService host1 = service.getHost();
 		Assert.assertEquals("two-1", host1.a);
 	}
 
 	@Test
 	public void test08_loadServiceMemberVariable() throws Exception {
-		ServiceWrapper serviceWrapper = ServiceProvider.lookup("/one-service/testSingleMethod");
+		ServiceWrapper serviceWrapper = ServiceProvider.lookup(new ServiceObject("/one-service/testSingleMethod"));
 		OneService oneService = serviceWrapper.getHost();
 		Assert.assertNotNull(oneService.service);
 	}

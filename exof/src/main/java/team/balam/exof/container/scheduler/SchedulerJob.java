@@ -53,7 +53,7 @@ public class SchedulerJob implements Job
 			}
 			
 			ServiceObject so = new ServiceObject(info.getServicePath());
-			ServiceWrapper service = ServiceProvider.lookup(so.getServicePath());
+			ServiceWrapper service = ServiceProvider.lookup(so);
 			
 			service.call(so);
 			

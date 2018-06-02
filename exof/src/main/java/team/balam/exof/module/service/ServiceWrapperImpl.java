@@ -10,6 +10,7 @@ import java.util.List;
 
 public class ServiceWrapperImpl implements ServiceWrapper {
 	private Method method;
+	private String serviceName;
 	private Object host;
 	private int methodParamCount;
 	private boolean isInternal;
@@ -27,6 +28,14 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 	void setMethod(Method method) {
 		this.method = method;
 		this.methodParamCount = this.method.getParameterCount();
+	}
+
+	void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	String getServiceName() {
+		return serviceName;
 	}
 
 	void setInternal(boolean internal) {

@@ -130,4 +130,19 @@ public class TestService {
 	public void throwException() throws TestException {
 		throw new TestException();
 	}
+
+	@Service
+	public void emptyNameTest() {}
+
+	@Service("wild1/{1}")
+	public void testWildcard1() {}
+
+	@Service("wild2/{2}")
+	public void testWildcard2() {}
+
+	@Service("wild1/{1}/1")
+	public void testWildcard1_1() {}
+
+	@Service("wild2/{2}/2")
+	public void testWildcard2_2() {}
 }

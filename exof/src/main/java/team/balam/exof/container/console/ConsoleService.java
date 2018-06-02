@@ -18,6 +18,7 @@ import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.exof.module.listener.RequestContext;
 import team.balam.exof.module.service.ServiceNotFoundException;
+import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.service.ServiceWrapper;
 import team.balam.exof.module.service.annotation.Service;
@@ -92,7 +93,8 @@ class ConsoleService {
 				for (Method method : services) {
 					String serviceName = ServiceProvider.getServiceName(method);
 					try {
-						ServiceWrapper service = ServiceProvider.lookup(directoryInfo.getPath() + Constant.SERVICE_SEPARATE + serviceName);
+						ServiceObject serviceObject = new ServiceObject(directoryInfo.getPath() + Constant.SERVICE_SEPARATE + serviceName);
+						ServiceWrapper service = ServiceProvider.lookup(serviceObject);
 
 						if (!serviceMap.containsKey(EnvKey.Service.CLASS)) {
 							String isInternal = service.isInternal() ? " (internal)" : "";
@@ -242,7 +244,7 @@ class ConsoleService {
 		String variableValue = (String) parameter.get(Command.Key.VARIABLE_VALUE);
 
 		try {
-			ServiceProvider.lookup(servicePath);
+			ServiceProvider.lookup(new ServiceObject(servicePath));
 		} catch (Exception e) {
 			return Command.makeSimpleResult("error : " + e.getMessage());
 		}

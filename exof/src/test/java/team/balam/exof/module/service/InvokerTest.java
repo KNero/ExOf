@@ -16,24 +16,24 @@ public class InvokerTest {
 
 	@Test
 	public void callEmptyNameService() throws ServiceNotFoundException {
-		ServiceProvider.lookup("/test/external");
-		ServiceProvider.lookup("/test/external/");
+		ServiceProvider.lookup(new ServiceObject("/test/external"));
+		ServiceProvider.lookup(new ServiceObject("/test/external/"));
 	}
 
 	@Test
 	public void callNormalService() throws ServiceNotFoundException {
-		ServiceProvider.lookup("/one-service/testSingleMethod");
+		ServiceProvider.lookup(new ServiceObject("/one-service/testSingleMethod"));
 	}
 
 	@Test
 	public void callServiceDirectory() throws Exception {
-		ServiceWrapper service = ServiceProvider.lookup("/autoScan/call-internal-service");
+		ServiceWrapper service = ServiceProvider.lookup(new ServiceObject("/autoScan/call-internal-service"));
 		service.call();
 	}
 
 	@Test(expected = TestException.class)
 	public void throwException() throws Exception {
-		ServiceWrapper service = ServiceProvider.lookup("/test/throwException");
+		ServiceWrapper service = ServiceProvider.lookup(new ServiceObject("/test/throwException"));
 		service.call();
 	}
 }

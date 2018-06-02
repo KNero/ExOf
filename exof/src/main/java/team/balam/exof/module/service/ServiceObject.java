@@ -1,10 +1,14 @@
 package team.balam.exof.module.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class ServiceObject
 {
 	private Object request;
 	private String servicePath;
 	private Object[] serviceParameter;
+	private Map<String, String> pathVariable = new HashMap<>();
 	
 	private boolean isAutoCloseSession;
 	private boolean isCloseSessionByError;
@@ -13,12 +17,20 @@ public final class ServiceObject
 
 	}
 
+	final void setPathVariable(Map<String, String> pathVariable) {
+		this.pathVariable = pathVariable;
+	}
+
+	public final String getPathVariable(String key) {
+		return pathVariable.get(key);
+	}
+
 	public ServiceObject(String path)
 	{
 		this.servicePath = path;
 	}
-	
-	final public String getServicePath()
+
+	public final String getServicePath()
 	{
 		return this.servicePath;
 	}
