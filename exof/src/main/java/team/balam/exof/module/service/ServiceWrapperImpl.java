@@ -34,7 +34,8 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 		this.serviceName = serviceName;
 	}
 
-	String getServiceName() {
+	@Override
+	public String getServiceName() {
 		return serviceName;
 	}
 

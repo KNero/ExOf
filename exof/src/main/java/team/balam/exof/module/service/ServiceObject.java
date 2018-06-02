@@ -7,6 +7,7 @@ public final class ServiceObject
 {
 	private Object request;
 	private String servicePath;
+	private String serviceGroupId;
 	private Object[] serviceParameter;
 	private Map<String, String> pathVariable = new HashMap<>();
 	
@@ -70,6 +71,14 @@ public final class ServiceObject
 
 	public boolean isCloseSessionByError() {
 		return isCloseSessionByError;
+	}
+
+	public String getServiceGroupId() {
+		return serviceGroupId;
+	}
+
+	public void setServiceGroupId(String serviceGroupId) {
+		this.serviceGroupId = serviceGroupId;
 	}
 
 	/**

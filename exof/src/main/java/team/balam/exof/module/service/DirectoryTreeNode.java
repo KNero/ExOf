@@ -5,8 +5,6 @@ import org.reflections.ReflectionUtils;
 import team.balam.exof.Constant;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.db.ServiceInfoDao;
-import team.balam.exof.module.service.annotation.Inbound;
-import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Shutdown;
 import team.balam.exof.module.service.annotation.Startup;
@@ -25,7 +23,7 @@ class DirectoryTreeNode {
 	private HashMap<String, DirectoryTreeNode> childNode = new HashMap<>();
 
 	private ServiceDirectory serviceDirectory;
-	private ServiceWrapper service;
+	private ServiceGroup serviceGroup;
 
 	private DirectoryTreeNode(String name) {
 		this.name = name;
@@ -43,7 +41,7 @@ class DirectoryTreeNode {
 	ServiceWrapper findService(ServiceObject serviceObject) {
 		String[] path = validatePath(serviceObject.getServicePath());
 		if (path.length == 0) {
-			return service;
+			return serviceGroup.getService(null);
 		}
 
 		HashMap<String, String> pathVariable = new HashMap<>();
@@ -51,7 +49,7 @@ class DirectoryTreeNode {
 
 		DirectoryTreeNode node = find(path, pathVariable);
 		if (node != null) {
-			return node.service;
+			return node.serviceGroup.getService(serviceObject.getServiceGroupId());
 		} else {
 			return null;
 		}
@@ -182,7 +180,7 @@ class DirectoryTreeNode {
 		static void append(DirectoryTreeNode root, String path, String className) throws Exception {
 			Class<?> clazz = ExternalClassLoader.loadClass(className);
 			ServiceDirectory newServiceDirectory = createServiceDirectory(path, clazz);
-			List<ServiceWrapperImpl> serviceList = createServiceNode(newServiceDirectory, clazz);
+			List<ServiceGroup> serviceList = createServiceNode(newServiceDirectory, clazz);
 
 			String[] dirPath = validatePath(path);
 			int dirPathCount = 0;
@@ -197,7 +195,7 @@ class DirectoryTreeNode {
 				}
 			}
 
-			for (ServiceWrapperImpl service : serviceList) {
+			for (ServiceGroup service : serviceList) {
 				DirectoryTreeNode currentNode = root;
 				String[] servicePath = validatePath(path + Constant.SERVICE_SEPARATE + service.getServiceName());
 				ArrayList<String> pathArray = new ArrayList<>();
@@ -231,10 +229,10 @@ class DirectoryTreeNode {
 					}
 				}
 
-				if (currentNode.service == null) {
-					currentNode.service = service;
+				if (currentNode.serviceGroup == null) {
+					currentNode.serviceGroup = service;
 				} else {
-					throw new ServiceAlreadyExistsException(service.getHost() + ". Method:" + service.getMethodName());
+					throw new ServiceAlreadyExistsException(service.toString());
 				}
 			}
 		}
@@ -265,45 +263,20 @@ class DirectoryTreeNode {
 		}
 
 		@SuppressWarnings("unchecked")
-		private static List<ServiceWrapperImpl> createServiceNode(ServiceDirectory serviceDirectory, Class<?> clazz) throws Exception {
-			ArrayList<ServiceWrapperImpl> serviceList = new ArrayList<>();
+		private static List<ServiceGroup> createServiceNode(ServiceDirectory serviceDirectory, Class<?> clazz) throws Exception {
+			HashMap<String, ServiceGroup> groupList = new HashMap<>();
 
 			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
 			for (Method m : services) {
-				String serviceName = ServiceProvider.getServiceName(m);
+				String serviceName = ServiceProvider.extractServiceName(m);
 
-				ServiceWrapperImpl service = new ServiceWrapperImpl();
-				service.setServiceName(serviceName);
-				service.setHost(serviceDirectory.getHost());
-				service.setMethod(m);
-				service.setInternal(serviceDirectory.isInternal());
+				ServiceGroup group = groupList.getOrDefault(serviceName, new ServiceGroup(serviceDirectory.getHost(), serviceName));
+				group.add(m, serviceDirectory.isInternal());
 
-				checkInboundAnnotation(m, service);
-				checkOutboundAnnotation(m, service);
-
-				serviceList.add(service);
+				groupList.putIfAbsent(serviceName, group);
 			}
 
-			return serviceList;
+			return new ArrayList<>(groupList.values());
 		}
-
-		private static void checkInboundAnnotation(Method method, ServiceWrapperImpl service) throws Exception {
-			Inbound inboundAnn = method.getAnnotation(Inbound.class);
-			if (inboundAnn != null) {
-				for (Class<? extends team.balam.exof.module.service.component.Inbound> clazz : inboundAnn.value()) {
-					service.addInbound(clazz.newInstance());
-				}
-			}
-		}
-
-		private static void checkOutboundAnnotation(Method method, ServiceWrapperImpl service) throws Exception {
-			Outbound outboundAnn = method.getAnnotation(Outbound.class);
-			if (outboundAnn != null) {
-				for (Class<? extends team.balam.exof.module.service.component.Outbound<?, ?>> clazz : outboundAnn.value())
-					service.addOutbound(clazz.newInstance());
-			}
-		}
-
-
 	}
 }

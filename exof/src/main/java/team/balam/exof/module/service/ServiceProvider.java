@@ -37,7 +37,7 @@ public class ServiceProvider implements Module, Observer
 		return self;
 	}
 
-	public static String getServiceName(Method method) {
+	public static String extractServiceName(Method method) {
 		Service serviceAnnotation = method.getAnnotation(Service.class);
 		String serviceName = "";
 

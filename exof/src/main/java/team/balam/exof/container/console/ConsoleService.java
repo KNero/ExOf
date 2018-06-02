@@ -91,7 +91,7 @@ class ConsoleService {
 				Set<Method> services = ReflectionUtils.getAllMethods(directoryClass, ReflectionUtils.withAnnotation(Service.class));
 
 				for (Method method : services) {
-					String serviceName = ServiceProvider.getServiceName(method);
+					String serviceName = ServiceProvider.extractServiceName(method);
 					try {
 						ServiceObject serviceObject = new ServiceObject(directoryInfo.getPath() + Constant.SERVICE_SEPARATE + serviceName);
 						ServiceWrapper service = ServiceProvider.lookup(serviceObject);

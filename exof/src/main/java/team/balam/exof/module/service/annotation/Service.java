@@ -18,4 +18,6 @@ public @interface Service {
 	String value() default "";
 	String name() default "";
 	String schedule() default "";
+
+	String groupId() default "";
 }
