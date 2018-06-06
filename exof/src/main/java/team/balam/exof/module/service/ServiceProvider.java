@@ -7,9 +7,7 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.SystemSetting;
 import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.module.Module;
-import team.balam.exof.module.service.annotation.Service;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -35,21 +33,6 @@ public class ServiceProvider implements Module, Observer
 	public static ServiceProvider getInstance()
 	{
 		return self;
-	}
-
-	public static String extractServiceName(Method method) {
-		Service serviceAnnotation = method.getAnnotation(Service.class);
-		String serviceName = "";
-
-		if (!serviceAnnotation.value().isEmpty()) {
-			serviceName = serviceAnnotation.value();
-		}
-
-		if (!serviceAnnotation.name().isEmpty()) {
-			serviceName = serviceAnnotation.name();
-		}
-
-		return serviceName;
 	}
 
 	public static ServiceWrapper lookup(ServiceObject serviceObject) throws ServiceNotFoundException {

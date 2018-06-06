@@ -189,4 +189,16 @@ public class LoaderTest {
 		OneService oneService = serviceWrapper.getHost();
 		Assert.assertNotNull(oneService.service);
 	}
+
+	@Test
+	public void loadRestService() throws Exception {
+		ServiceObject serviceObject = new ServiceObject("/autoScan/rest");
+		serviceObject.setServiceGroupId("GET");
+		Object o1 = ServiceProvider.lookup(serviceObject).getHost();
+
+		serviceObject.setServiceGroupId("POST");
+		Object o2 = ServiceProvider.lookup(serviceObject).getHost();
+
+		Assert.assertEquals(o1, o2);
+	}
 }

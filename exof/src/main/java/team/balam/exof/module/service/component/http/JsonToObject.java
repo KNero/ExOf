@@ -47,7 +47,9 @@ public abstract class JsonToObject implements Inbound {
 			Object result = JSON_MAPPER.readValue(buf, this.objectType);
 			se.setServiceParameter(result);
 
-			LOG.info("json transform result : {}", result);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("json transform result : {}", result);
+			}
 		} catch (IOException e) {
 			throw new InboundExecuteException("Can't parse json body. " + new String(buf), e);
 		}
@@ -64,6 +66,10 @@ public abstract class JsonToObject implements Inbound {
 			json = URLDecoder.decode(out.toString(this.charset), this.charset);
 			Object result = JSON_MAPPER.readValue(json, this.objectType);
 			se.setServiceParameter(result);
+
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("json transform result : {}", result);
+			}
 		} catch (IOException e) {
 			throw new InboundExecuteException("Can't parse json body. receive data: " + json, e);
 		}

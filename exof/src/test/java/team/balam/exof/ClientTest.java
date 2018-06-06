@@ -34,7 +34,6 @@ import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.ServiceLoader;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.util.sqlite.connection.DatabaseLoader;
-import team.balam.util.sqlite.connection.pool.AlreadyExistsConnectionException;
 
 import java.io.File;
 import java.net.URI;
@@ -141,31 +140,11 @@ public class ClientTest {
 			ObjectMapper objectMapper = new ObjectMapper();
 			Map<String, Object> resultMap = objectMapper.readValue(jsonStr, mapType);
 
-			resultMap.forEach((_key, _value) -> {
-				Map<String, Object> valueMap = (Map<String, Object>) _value;
-
-				StringBuilder infoLog = new StringBuilder();
-				Assert.assertNotNull(valueMap.get(Command.Key.CLASS));
-
-				infoLog.append("Directory path : ").append(_key).append("\n");
-				infoLog.append("Class : ").append(valueMap.get(Command.Key.CLASS)).append("\n");
-				infoLog.append("Service list").append("\n");
-
-				valueMap.keySet().forEach(_valueKey -> {
-					if (!Command.Key.CLASS.equals(_valueKey)) {
-						if (!_valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE)) {
-							Assert.assertNotNull(valueMap.get(_valueKey));
-
-							infoLog.append(" -s- ").append(_valueKey).append("(method name : ").append(valueMap.get(_valueKey)).append(")").append("\n");
-
-							Map<String, Object> variables = (Map<String, Object>) valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
-							variables.keySet().forEach(_name -> Assert.assertNotNull(variables.get(_name)));
-							variables.keySet().forEach(_name -> infoLog.append("   -v- ").append(_name).append(" : ").append(variables.get(_name).toString()).append("\n"));
-						}
-					}
-				});
-
-				System.out.println(infoLog);
+			resultMap.forEach((key, value) -> {
+				Map<String, Object> info = (Map<String, Object>) value;
+				Assert.assertNotNull(info.get(EnvKey.Service.CLASS));
+				Assert.assertNotNull(info.get(EnvKey.Service.SERVICE_VARIABLE));
+				Assert.assertNotNull(info.get("services"));
 			});
 			return null;
 		});

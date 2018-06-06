@@ -6,6 +6,8 @@ import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
+import team.balam.exof.module.service.component.http.HttpMethod;
+import team.balam.exof.module.service.component.http.RestService;
 import team.balam.exof.test.TestInbound;
 import team.balam.exof.test.TestOutbound;
 
@@ -24,7 +26,7 @@ public class ScanTestService {
 	@Inbound(TestInbound.class)
 	@Outbound(TestOutbound.class)
 	public String schedule() {
-		this.logger.info("Auto Scan Service Variable : " + this.a + " / " + this.b + " / " + this.c);
+		this.logger.info("Auto Scan Service Variable : {} / {} / {}", a, b, c);
 
 		return "END";
 	}
@@ -34,5 +36,15 @@ public class ScanTestService {
 		if (!"test_test2".equals(this.internalService.test2())) {
 			throw new RuntimeException("not equals return value.");
 		}
+	}
+
+	@RestService(method = HttpMethod.GET, name = "rest")
+	public void get() {
+
+	}
+
+	@RestService(method = HttpMethod.POST, name = "rest")
+	public void post() {
+
 	}
 }

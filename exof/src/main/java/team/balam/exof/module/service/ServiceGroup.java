@@ -3,29 +3,39 @@ package team.balam.exof.module.service;
 import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
+import team.balam.exof.module.service.component.http.RestService;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ServiceGroup {
 	private String serviceName;
 	private Object serviceDirectoryHost;
+	private List<ServiceMaker> serviceMakerList = new ArrayList<>();
 
 	private Map<String, ServiceWrapper> group = new HashMap<>();
 
 	ServiceGroup(Object serviceDirectoryHost, String serviceName) {
 		this.serviceDirectoryHost = serviceDirectoryHost;
 		this.serviceName = serviceName;
+		serviceMakerList.add(new DefaultMaker());
+		serviceMakerList.add(new RestMaker());
 	}
 
-	public String getServiceName() {
+	String getServiceName() {
 		return serviceName;
 	}
 
 	void add(Method method, boolean isInternal) throws Exception {
-		Service serviceAnn = method.getAnnotation(Service.class);
-		String groupId = serviceAnn.groupId();
+		for (ServiceMaker maker : serviceMakerList) {
+			maker.make(method, isInternal);
+		}
+	}
+
+	private String checkGroupId(String groupId) throws ServiceLoadException {
 		if (groupId.isEmpty()) {
 			groupId = serviceName;
 		}
@@ -35,6 +45,10 @@ public class ServiceGroup {
 					String.format("Service group id is duplicated. class[%s], group id: %s", serviceDirectoryHost.toString(), groupId));
 		}
 
+		return groupId;
+	}
+
+	private ServiceWrapper createService(Method method, boolean isInternal) throws Exception {
 		ServiceWrapperImpl service = new ServiceWrapperImpl();
 		service.setServiceName(serviceName);
 		service.setHost(serviceDirectoryHost);
@@ -44,8 +58,9 @@ public class ServiceGroup {
 		checkInboundAnnotation(method, service);
 		checkOutboundAnnotation(method, service);
 
-		group.put(groupId, service);
+		return service;
 	}
+
 
 	private static void checkInboundAnnotation(Method method, ServiceWrapperImpl service) throws Exception {
 		Inbound inboundAnn = method.getAnnotation(Inbound.class);
@@ -75,5 +90,33 @@ public class ServiceGroup {
 	@Override
 	public String toString() {
 		return "class: " + serviceDirectoryHost.getClass() + ", service name: " + serviceName;
+	}
+
+	private interface ServiceMaker {
+		void make(Method serviceMethod, boolean isInternal) throws Exception;
+	}
+
+	private class DefaultMaker implements ServiceMaker {
+		@Override
+		public void make(Method serviceMethod, boolean isInternal) throws Exception {
+			Service serviceAnn = serviceMethod.getAnnotation(Service.class);
+			if (serviceAnn != null) {
+				String groupId = checkGroupId(serviceAnn.groupId());
+
+				group.put(groupId, createService(serviceMethod, isInternal));
+			}
+		}
+	}
+
+	private class RestMaker implements ServiceMaker {
+		@Override
+		public void make(Method serviceMethod, boolean isInternal) throws Exception {
+			RestService serviceAnn = serviceMethod.getAnnotation(RestService.class);
+			if (serviceAnn != null) {
+				String groupId = checkGroupId(serviceAnn.method().name());
+
+				group.put(groupId, createService(serviceMethod, isInternal));
+			}
+		}
 	}
 }

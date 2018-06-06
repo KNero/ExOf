@@ -8,6 +8,7 @@ import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Shutdown;
 import team.balam.exof.module.service.annotation.Startup;
+import team.balam.exof.module.service.component.http.RestService;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-class DirectoryTreeNode {
+public class DirectoryTreeNode {
 	private String name;
 	private String pathVariableName;
 	private boolean isWildcard;
@@ -164,7 +165,8 @@ class DirectoryTreeNode {
 		return str.toString();
 	}
 
-	static class Builder {
+	public static class Builder {
+		public static final Class[] SERVICE_ANNOTATIONS = new Class[]{Service.class, RestService.class};
 		private Builder() {
 
 		}
@@ -266,17 +268,49 @@ class DirectoryTreeNode {
 		private static List<ServiceGroup> createServiceNode(ServiceDirectory serviceDirectory, Class<?> clazz) throws Exception {
 			HashMap<String, ServiceGroup> groupList = new HashMap<>();
 
-			Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(Service.class));
-			for (Method m : services) {
-				String serviceName = ServiceProvider.extractServiceName(m);
+			for (Class serviceAnn : SERVICE_ANNOTATIONS) {
+				Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(serviceAnn));
+				for (Method m : services) {
+					String serviceName = extractServiceName(serviceAnn, m);
 
-				ServiceGroup group = groupList.getOrDefault(serviceName, new ServiceGroup(serviceDirectory.getHost(), serviceName));
-				group.add(m, serviceDirectory.isInternal());
+					ServiceGroup group = groupList.getOrDefault(serviceName, new ServiceGroup(serviceDirectory.getHost(), serviceName));
+					group.add(m, serviceDirectory.isInternal());
 
-				groupList.putIfAbsent(serviceName, group);
+					groupList.putIfAbsent(serviceName, group);
+				}
 			}
 
 			return new ArrayList<>(groupList.values());
+		}
+
+		public static String extractServiceName(Class serviceAnnotation, Method method) {
+			if (Service.class.equals(serviceAnnotation)) {
+				return extractServiceNameFromServiceAnn(method);
+			} else if (RestService.class.equals(serviceAnnotation)) {
+				return extractServiceNameFromRestServiceAnn(method);
+			} else {
+				throw new IllegalArgumentException("Not supported annotation. " + serviceAnnotation);
+			}
+		}
+
+		private static String extractServiceNameFromRestServiceAnn(Method method) {
+			RestService serviceAnnotation = method.getAnnotation(RestService.class);
+			return serviceAnnotation.name();
+		}
+
+		private static String extractServiceNameFromServiceAnn(Method method) {
+			Service serviceAnnotation = method.getAnnotation(Service.class);
+			String serviceName = "";
+
+			if (!serviceAnnotation.value().isEmpty()) {
+				serviceName = serviceAnnotation.value();
+			}
+
+			if (!serviceAnnotation.name().isEmpty()) {
+				serviceName = serviceAnnotation.name();
+			}
+
+			return serviceName;
 		}
 	}
 }
