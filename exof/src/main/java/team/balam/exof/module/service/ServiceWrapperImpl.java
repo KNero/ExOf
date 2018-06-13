@@ -19,6 +19,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
+	private ParameterMaker parameterMaker;
 
 	@Override
 	public String getMethodName() {
@@ -28,6 +29,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 	void setMethod(Method method) {
 		this.method = method;
 		this.methodParamCount = this.method.getParameterCount();
+		parameterMaker = new ParameterMaker(method);
 	}
 
 	void setServiceName(String serviceName) {
@@ -48,6 +50,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 		return this.isInternal;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getHost()
 	{
@@ -80,7 +83,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 
 		Object[] methodParameter = null;
 		if (this.methodParamCount > 0) {
-			methodParameter = so.getServiceParameter();
+			methodParameter = parameterMaker.getParameter(so);
 		}
 
 		Object result;

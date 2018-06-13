@@ -3,13 +3,19 @@ package team.balam.exof.module.service;
 import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
+import team.balam.exof.module.service.component.http.HttpMethod;
+import team.balam.exof.module.service.component.http.HttpMethodFilter;
+import team.balam.exof.module.service.component.http.JsonToObject;
+import team.balam.exof.module.service.component.http.QueryStringToMap;
 import team.balam.exof.module.service.component.http.RestService;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ServiceGroup {
 	private String serviceName;
@@ -21,6 +27,7 @@ public class ServiceGroup {
 	ServiceGroup(Object serviceDirectoryHost, String serviceName) {
 		this.serviceDirectoryHost = serviceDirectoryHost;
 		this.serviceName = serviceName;
+
 		serviceMakerList.add(new DefaultMaker());
 		serviceMakerList.add(new RestMaker());
 	}
@@ -30,8 +37,11 @@ public class ServiceGroup {
 	}
 
 	void add(Method method, boolean isInternal) throws Exception {
-		for (ServiceMaker maker : serviceMakerList) {
-			maker.make(method, isInternal);
+		Annotation[] annotationList = method.getAnnotations();
+		for (Annotation ann : annotationList) {
+			for (ServiceMaker maker : serviceMakerList) {
+				maker.make(ann, method, isInternal);
+			}
 		}
 	}
 
@@ -48,17 +58,21 @@ public class ServiceGroup {
 		return groupId;
 	}
 
-	private ServiceWrapper createService(Method method, boolean isInternal) throws Exception {
+	private void createService(String groupId, Method method, boolean isInternal, Consumer<ServiceWrapperImpl> preInOutBound) throws Exception {
 		ServiceWrapperImpl service = new ServiceWrapperImpl();
 		service.setServiceName(serviceName);
 		service.setHost(serviceDirectoryHost);
 		service.setMethod(method);
 		service.setInternal(isInternal);
 
+		if (preInOutBound != null) {
+			preInOutBound.accept(service);
+		}
+
 		checkInboundAnnotation(method, service);
 		checkOutboundAnnotation(method, service);
 
-		return service;
+		group.put(groupId, service);
 	}
 
 
@@ -93,29 +107,49 @@ public class ServiceGroup {
 	}
 
 	private interface ServiceMaker {
-		void make(Method serviceMethod, boolean isInternal) throws Exception;
+		void make(Annotation annotation, Method serviceMethod, boolean isInternal) throws Exception;
 	}
 
 	private class DefaultMaker implements ServiceMaker {
 		@Override
-		public void make(Method serviceMethod, boolean isInternal) throws Exception {
-			Service serviceAnn = serviceMethod.getAnnotation(Service.class);
-			if (serviceAnn != null) {
+		public void make(Annotation annotation, Method serviceMethod, boolean isInternal) throws Exception {
+			if (annotation.annotationType() == Service.class) {
+				Service serviceAnn = (Service) annotation;
 				String groupId = checkGroupId(serviceAnn.groupId());
 
-				group.put(groupId, createService(serviceMethod, isInternal));
+				if (group.containsKey(groupId)) {
+					throw new ServiceLoadException("groupId is duplicated. method: " + serviceMethod);
+				}
+
+				createService(groupId, serviceMethod, isInternal, null);
 			}
 		}
 	}
 
 	private class RestMaker implements ServiceMaker {
 		@Override
-		public void make(Method serviceMethod, boolean isInternal) throws Exception {
-			RestService serviceAnn = serviceMethod.getAnnotation(RestService.class);
-			if (serviceAnn != null) {
+		public void make(Annotation annotation, Method serviceMethod, boolean isInternal) throws Exception {
+			if (annotation.annotationType() == RestService.class) {
+				RestService serviceAnn = (RestService) annotation;
 				String groupId = checkGroupId(serviceAnn.method().name());
 
-				group.put(groupId, createService(serviceMethod, isInternal));
+				if (group.containsKey(groupId)) {
+					throw new ServiceLoadException("groupId is duplicated. method: " + serviceMethod);
+				}
+
+				createService(groupId, serviceMethod, isInternal, serviceWrapper -> {
+					if (serviceAnn.method() == HttpMethod.POST) {
+						serviceWrapper.addInbound(HttpMethodFilter.POST);
+					} else if (serviceAnn.method() == HttpMethod.GET) {
+						serviceWrapper.addInbound(HttpMethodFilter.GET);
+					} else if (serviceAnn.method() == HttpMethod.PUT) {
+						serviceWrapper.addInbound(HttpMethodFilter.PUT);
+					} else if (serviceAnn.method() == HttpMethod.DELETE) {
+						serviceWrapper.addInbound(HttpMethodFilter.DELETE);
+					} else if (serviceAnn.method() == HttpMethod.PATCH) {
+						serviceWrapper.addInbound(HttpMethodFilter.PATCH);
+					}
+				});
 			}
 		}
 	}

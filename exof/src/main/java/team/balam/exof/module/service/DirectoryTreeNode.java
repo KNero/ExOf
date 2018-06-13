@@ -272,11 +272,12 @@ public class DirectoryTreeNode {
 				Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(serviceAnn));
 				for (Method m : services) {
 					String serviceName = extractServiceName(serviceAnn, m);
+					String checkName = serviceName.replaceAll(Constant.SERVICE_SEPARATE, "");
 
-					ServiceGroup group = groupList.getOrDefault(serviceName, new ServiceGroup(serviceDirectory.getHost(), serviceName));
+					ServiceGroup group = groupList.getOrDefault(checkName, new ServiceGroup(serviceDirectory.getHost(), serviceName));
 					group.add(m, serviceDirectory.isInternal());
 
-					groupList.putIfAbsent(serviceName, group);
+					groupList.putIfAbsent(checkName, group);
 				}
 			}
 

@@ -1,6 +1,8 @@
 package team.balam.exof.module.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class ServiceObject
@@ -8,8 +10,10 @@ public final class ServiceObject
 	private Object request;
 	private String servicePath;
 	private String serviceGroupId;
+
 	private Object[] serviceParameter;
 	private Map<String, String> pathVariable = new HashMap<>();
+	private List<Object> parameterValues = new ArrayList<>(5);
 	
 	private boolean isAutoCloseSession;
 	private boolean isCloseSessionByError;
@@ -18,17 +22,16 @@ public final class ServiceObject
 
 	}
 
+	public ServiceObject(String path) {
+		this.servicePath = path;
+	}
+
 	final void setPathVariable(Map<String, String> pathVariable) {
 		this.pathVariable = pathVariable;
 	}
 
 	public final String getPathVariable(String key) {
 		return pathVariable.get(key);
-	}
-
-	public ServiceObject(String path)
-	{
-		this.servicePath = path;
 	}
 
 	public final String getServicePath()
@@ -61,6 +64,14 @@ public final class ServiceObject
 		return isAutoCloseSession;
 	}
 
+	public void addParameterValue(Object value) {
+		parameterValues.add(value);
+	}
+
+	public List<Object> getParameterValues() {
+		return parameterValues;
+	}
+
 	/**
 	 * 정상/비정상 종료시 현재 클라이언트 세션을 닫을지 여부
 	 */
@@ -88,13 +99,7 @@ public final class ServiceObject
 		this.isCloseSessionByError = isCloseSessionByError;
 	}
 
-	final Object[] getServiceParameter() {
-		if(this.serviceParameter != null) {
-			return this.serviceParameter;
-		} else if (this.request != null) {
-			return new Object[]{this.request};
-		} else {
-			return null;
-		}
+	public Object[] getServiceParameter() {
+		return serviceParameter;
 	}
 }

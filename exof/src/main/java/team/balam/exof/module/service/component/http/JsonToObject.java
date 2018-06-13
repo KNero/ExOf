@@ -2,6 +2,7 @@ package team.balam.exof.module.service.component.http;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import java.nio.charset.Charset;
 public abstract class JsonToObject implements Inbound {
 	private static final Logger LOG = LoggerFactory.getLogger(JsonToObject.class);
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+	private static final String JSON_CONTENT_TYPE = HttpHeaderValues.APPLICATION_JSON.toString();
 
 	private Class<?> objectType;
 	protected String charset = Charset.defaultCharset().name();
@@ -40,6 +42,10 @@ public abstract class JsonToObject implements Inbound {
 
 	private void parseAndSetNettyRequest(ServiceObject se) throws InboundExecuteException {
 		FullHttpRequest httpRequest = (FullHttpRequest) se.getRequest();
+		if (!JSON_CONTENT_TYPE.equals(httpRequest.headers().get(HttpHeaderNames.CONTENT_TYPE))) {
+			return;
+		}
+
 		byte[] buf = new byte[httpRequest.headers().getInt(HttpHeaderNames.CONTENT_LENGTH)];
 		httpRequest.content().readBytes(buf);
 
@@ -57,6 +63,10 @@ public abstract class JsonToObject implements Inbound {
 
 	private void parseAndSetJettyRequest(ServiceObject se) throws InboundExecuteException {
 		HttpServletRequest request = (HttpServletRequest) se.getRequest();
+		if (!JSON_CONTENT_TYPE.equals(request.getContentType())) {
+			return;
+		}
+
 		String json = null;
 
 		try {
@@ -65,7 +75,7 @@ public abstract class JsonToObject implements Inbound {
 
 			json = URLDecoder.decode(out.toString(this.charset), this.charset);
 			Object result = JSON_MAPPER.readValue(json, this.objectType);
-			se.setServiceParameter(result);
+			se.addParameterValue(result);
 
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("json transform result : {}", result);

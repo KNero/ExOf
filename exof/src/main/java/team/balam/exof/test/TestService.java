@@ -66,7 +66,7 @@ public class TestService {
 
 	@Service("http-get")
 	@Inbound({HttpGet.class, QueryStringToMap.class})
-	public HttpResponse receiveHttpGet(Map<String, Object> param) {
+	public HttpResponse receiveHttpGet(Map<String, Object> param) throws Exception {
 		this.logger.info("Receive http data : {}", param);
 
 		@SuppressWarnings("unchecked")
@@ -77,8 +77,21 @@ public class TestService {
 
 		if (!"pA".equals(param.get("paramA")) || !"pB".equals(param.get("paramB")) || !"권성민".equals(param.get("name"))) {
 			return HttpResponseBuilder.buildServerError("wrong param");
-		} else {
-			return HttpResponseBuilder.buildOkMessage("response");
+		}
+
+		return HttpResponseBuilder.buildOkMessage("response");
+	}
+
+	@Service("http-get2")
+	@Inbound({HttpGet.class, QueryStringToMap.class})
+	public void receiveHttpGet2(@Variable("list[]") List<String> list, @Variable("paramA") String paramA, @Variable("paramB") String paramB,
+	                            @Variable("name") String name) throws Exception {
+		if (!"권1".equals(list.get(0)) || !"권2".equals(list.get(1)) || !"권3".equals(list.get(2)) || !"권4".equals(list.get(3))) {
+			throw new Exception("receiveHttpGet - 1");
+		}
+
+		if (!"pA".equals(paramA) || !"pB".equals(paramB) || !"권성민".equals(name)) {
+			throw new Exception("receiveHttpGet - 2");
 		}
 	}
 
