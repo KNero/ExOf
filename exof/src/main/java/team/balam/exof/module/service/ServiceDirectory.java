@@ -85,7 +85,6 @@ class ServiceDirectory {
 
 		fields = ReflectionUtils.getAllFields(host.getClass(), ReflectionUtils.withAnnotations(team.balam.exof.module.service.annotation.ServiceDirectory.class));
 		for(Field field : fields) {
-			field.setAccessible(true);
 			team.balam.exof.module.service.annotation.ServiceDirectory directoryAnn =
 					field.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
 
@@ -162,6 +161,7 @@ class ServiceDirectory {
 	private void setServiceDirectory(Field field, String serviceDirectoryPath)  throws IllegalAccessException {
 		ServiceDirectory directory = ServiceProvider.getInstance().getServiceDirectory(serviceDirectoryPath);
 		if (directory != null) {
+			field.setAccessible(true);
 			field.set(host, directory.getHost());
 		} else {
 			LOG.error("ServiceDirectory is not exists. path:{}", serviceDirectoryPath);

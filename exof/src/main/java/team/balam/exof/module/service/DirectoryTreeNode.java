@@ -181,21 +181,8 @@ public class DirectoryTreeNode {
 
 		static void append(DirectoryTreeNode root, String path, String className) throws Exception {
 			Class<?> clazz = ExternalClassLoader.loadClass(className);
-			ServiceDirectory newServiceDirectory = createServiceDirectory(path, clazz);
+			ServiceDirectory newServiceDirectory = appendServiceDirectory(root, path, className);
 			List<ServiceGroup> serviceList = createServiceNode(newServiceDirectory, clazz);
-
-			String[] dirPath = validatePath(path);
-			int dirPathCount = 0;
-			boolean isFindDirNode = false;
-
-			if (dirPath.length == 0) {
-				if (root.serviceDirectory != null) {
-					throw new ServiceLoadException("Already exists directory. [" + path + "] " + className);
-				} else {
-					isFindDirNode = true;
-					root.serviceDirectory = newServiceDirectory;
-				}
-			}
 
 			for (ServiceGroup service : serviceList) {
 				DirectoryTreeNode currentNode = root;
@@ -215,20 +202,6 @@ public class DirectoryTreeNode {
 					} else {
 						currentNode = node;
 					}
-
-					if (!isFindDirNode && i < dirPath.length && dirPath[i].equals(servicePath[i])) {
-						// service path 를 찾으면서 service directory path 를 찾아서 ServiceDirectory 를 생성해 준다.
-						++dirPathCount;
-
-						if (dirPathCount == dirPath.length) {
-							if (currentNode.serviceDirectory == null) {
-								isFindDirNode = true;
-								currentNode.serviceDirectory = newServiceDirectory;
-							} else {
-								throw new ServiceLoadException("Already exists directory. [" + path + "] " + className);
-							}
-						}
-					}
 				}
 
 				if (currentNode.serviceGroup == null) {
@@ -239,10 +212,41 @@ public class DirectoryTreeNode {
 			}
 		}
 
+		private static ServiceDirectory appendServiceDirectory(DirectoryTreeNode root, String path, String className) throws Exception {
+			DirectoryTreeNode currentNode = root;
+			Class<?> clazz = ExternalClassLoader.loadClass(className);
+			ServiceDirectory newServiceDirectory = createServiceDirectory(path, clazz);
+			String[] dirPath = validatePath(path);
+
+			ArrayList<String> pathArray = new ArrayList<>();
+			for (int i = 0; i < dirPath.length; ++i) {
+				String pathPart = dirPath[i];
+				pathArray.add(pathPart);
+
+				DirectoryTreeNode node = root.find(pathArray.toArray(new String[i + 1]), 0, null);
+
+				if (node == null) {
+					DirectoryTreeNode newNode = new DirectoryTreeNode(pathPart);
+					currentNode.appendChild(newNode);
+					currentNode = newNode;
+				} else {
+					currentNode = node;
+				}
+			}
+
+			if (currentNode.serviceDirectory == null) {
+				currentNode.serviceDirectory = newServiceDirectory;
+				return newServiceDirectory;
+			} else {
+				throw new ServiceLoadException("Already exists service directory. [" + path + "] " + className);
+			}
+		}
+
 		@SuppressWarnings("unchecked")
 		private static ServiceDirectory createServiceDirectory(String path, Class<?> clazz) throws Exception {
 			team.balam.exof.module.service.annotation.ServiceDirectory serviceDirAnn =
 					clazz.getAnnotation(team.balam.exof.module.service.annotation.ServiceDirectory.class);
+
 			if (serviceDirAnn != null) {
 				ServiceDirectory newServiceDirectory = new ServiceDirectory(clazz.newInstance(), path);
 				newServiceDirectory.setInternal(serviceDirAnn.internal());
