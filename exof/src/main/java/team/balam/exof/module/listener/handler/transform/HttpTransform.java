@@ -8,11 +8,12 @@ public class HttpTransform implements ServiceObjectTransform<FullHttpRequest>
 {
 
 	@Override
-	public ServiceObject transform(FullHttpRequest _msg) throws Exception 
+	public ServiceObject transform(FullHttpRequest request)
 	{
-		QueryStringDecoder decoder = new QueryStringDecoder(_msg.uri());
+		QueryStringDecoder decoder = new QueryStringDecoder(request.uri());
 		ServiceObject serviceObject = new ServiceObject(decoder.path());
-		serviceObject.setRequest(_msg);
+		serviceObject.setRequest(request);
+		serviceObject.setServiceGroupId(request.method().name());
 
 		return serviceObject;
 	}

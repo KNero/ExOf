@@ -29,7 +29,11 @@ import java.util.Map;
  */
 public class QueryStringToMap implements Inbound {
 	private static final Logger LOG = LoggerFactory.getLogger(QueryStringToMap.class);
-	protected String charset = Charset.defaultCharset().name();
+	private String charset = Charset.defaultCharset().name();
+
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
 
 	public void execute(ServiceObject se) throws InboundExecuteException {
 		if (se.getRequest() instanceof HttpRequest) {
@@ -77,7 +81,8 @@ public class QueryStringToMap implements Inbound {
 
 	private static void setParameter(ServiceObject se, String uri) {
 		Map<String, Object> param = new HashMap<>();
-		se.setServiceParameter(param);
+		se.addParameterValue(param);
+
 		if (uri != null) {
 			QueryStringDecoder decoder = new QueryStringDecoder(uri);
 			decoder.parameters().forEach((key, value) -> {
@@ -92,6 +97,8 @@ public class QueryStringToMap implements Inbound {
 			});
 		}
 
-		LOG.info("query string value : {}", param);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("QueryString: {}", param);
+		}
 	}
 }

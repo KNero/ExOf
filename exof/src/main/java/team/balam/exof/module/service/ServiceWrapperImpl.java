@@ -10,6 +10,7 @@ import java.util.List;
 
 public class ServiceWrapperImpl implements ServiceWrapper {
 	private Method method;
+	private String serviceName;
 	private Object host;
 	private int methodParamCount;
 	private boolean isInternal;
@@ -18,6 +19,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 
 	private List<Inbound> inbound = new ArrayList<>(5);
 	private List<Outbound<?, ?>> outbound = new ArrayList<>(5);
+	private ParameterMaker parameterMaker;
 
 	@Override
 	public String getMethodName() {
@@ -27,6 +29,16 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 	void setMethod(Method method) {
 		this.method = method;
 		this.methodParamCount = this.method.getParameterCount();
+		parameterMaker = new ParameterMaker(method);
+	}
+
+	void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	@Override
+	public String getServiceName() {
+		return serviceName;
 	}
 
 	void setInternal(boolean internal) {
@@ -38,6 +50,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 		return this.isInternal;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getHost()
 	{
@@ -70,7 +83,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 
 		Object[] methodParameter = null;
 		if (this.methodParamCount > 0) {
-			methodParameter = so.getServiceParameter();
+			methodParameter = parameterMaker.getParameter(so);
 		}
 
 		Object result;

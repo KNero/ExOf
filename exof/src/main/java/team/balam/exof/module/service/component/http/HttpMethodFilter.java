@@ -17,6 +17,12 @@ import java.io.IOException;
  * Created by smkwon on 2018-02-01.
  */
 public class HttpMethodFilter implements Inbound {
+	public static final HttpMethodFilter GET = new HttpMethodFilter(HttpMethod.GET);
+	public static final HttpMethodFilter PUT = new HttpMethodFilter(HttpMethod.PUT);
+	public static final HttpMethodFilter POST = new HttpMethodFilter(HttpMethod.POST);
+	public static final HttpMethodFilter PATCH = new HttpMethodFilter(HttpMethod.PATCH);
+	public static final HttpMethodFilter DELETE = new HttpMethodFilter(HttpMethod.DELETE);
+
     private HttpMethod method;
 
     HttpMethodFilter(HttpMethod method) {
@@ -24,17 +30,17 @@ public class HttpMethodFilter implements Inbound {
     }
 
     @Override
-    public void execute(ServiceObject _se) throws InboundExecuteException {
-    	if (_se.getRequest() instanceof HttpRequest) {
-		    HttpRequest request = (HttpRequest) _se.getRequest();
+    public void execute(ServiceObject serviceObject) throws InboundExecuteException {
+    	if (serviceObject.getRequest() instanceof HttpRequest) {
+		    HttpRequest request = (HttpRequest) serviceObject.getRequest();
 		    if (!this.method.equals(request.method())) {
 			    FullHttpResponse response = HttpResponseBuilder.buildNotImplemented("Http method is must " + this.method.name());
 			    RequestContext.writeAndFlushResponse(response);
 
-			    throw this.throwException(_se.getServicePath());
+			    throw this.throwException(serviceObject.getServicePath());
 		    }
-	    } else if (_se.getRequest() instanceof HttpServletRequest) {
-    		HttpServletRequest request = (HttpServletRequest) _se.getRequest();
+	    } else if (serviceObject.getRequest() instanceof HttpServletRequest) {
+    		HttpServletRequest request = (HttpServletRequest) serviceObject.getRequest();
     		if (!this.method.name().equals(request.getMethod())) {
     			HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
     			try {
@@ -43,7 +49,7 @@ public class HttpMethodFilter implements Inbound {
     				throw new InboundExecuteException("Fail to send response.", e);
 			    }
 
-			    throw this.throwException(_se.getServicePath());
+			    throw this.throwException(serviceObject.getServicePath());
 		    }
 	    }
     }

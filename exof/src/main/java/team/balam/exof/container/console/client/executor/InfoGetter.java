@@ -1,6 +1,6 @@
 package team.balam.exof.container.console.client.executor;
 
-import team.balam.exof.Constant;
+import io.netty.util.internal.StringUtil;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
@@ -10,7 +10,6 @@ import team.balam.exof.environment.EnvKey;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 class InfoGetter
 {
@@ -30,43 +29,35 @@ class InfoGetter
 			Command command = new Command(ServiceList.GET_SERVICE_LIST);
 			command.addParameter(Command.Key.SERVICE_PATH, servicePath);
 
-			Client.send(command, _result -> {
-				Map<String, Object> resultMap = (Map<String, Object>) _result;
-				resultMap.forEach((_key, _value) -> {
-					if (_value == null) {
-						return;
+			Client.send(command, result -> {
+				Map<String, Object> resultMap = (Map<String, Object>) result;
+				resultMap.forEach((key, value) -> {
+					Map<String, Object> info = (Map<String, Object>) value;
+					System.out.println("ServiceDirectory : " + key + " (" + info.get(EnvKey.Service.CLASS) + ")");
+
+					Map<String, Object> variable = (Map<String, Object>) info.get(EnvKey.Service.SERVICE_VARIABLE);
+					if (!variable.isEmpty()) {
+						System.out.println("ServiceVariable ");
+						variable.forEach((vk, vv) -> System.out.println("\t(V) " + vk + ": " + vv));
+						System.out.println();
 					}
 
-					StringBuilder infoLog = new StringBuilder();
-					AtomicInteger serviceSize = new AtomicInteger();
+					List<Object> services = (List<Object>) info.get("services");
+					for (Object serviceInfo : services) {
+						Map<String, String> m = (Map<String, String>) serviceInfo;
 
-					Map<String, Object> valueMap = (Map<String, Object>)_value;
-					infoLog.append("Directory path : ").append(_key).append("\n");
-					infoLog.append("Class : ").append(valueMap.get(Command.Key.CLASS)).append("\n");
-					infoLog.append("Service list").append("\n");
-
-					valueMap.keySet().forEach(_valueKey -> {
-						if(! Command.Key.CLASS.equals(_valueKey)) {
-							if(! _valueKey.endsWith(EnvKey.Service.SERVICE_VARIABLE) && valueMap.get(_valueKey) != null) {
-								serviceSize.incrementAndGet();
-
-								String callPath = _key + (!_valueKey.isEmpty() ? Constant.SERVICE_SEPARATE + _valueKey : "");
-								infoLog.append(" -s- ").append(callPath).append(" (method name : ").append(valueMap.get(_valueKey)).append(")").append("\n");
-								
-								Map<String, Object> variables = (Map<String, Object>) valueMap.get(_valueKey + EnvKey.Service.SERVICE_VARIABLE);
-								variables.keySet().forEach(_name -> infoLog.append("   -v- ").append(_name).append(" : ").append(variables.get(_name).toString()).append("\n"));
-							}
+						if (StringUtil.isNullOrEmpty(servicePath)) {
+							m.forEach((k, v) -> System.out.println("\t" + k + ": " + v));
+							System.out.println();
+						} else if (m.get("path").contains(servicePath)) {
+							m.forEach((k, v) -> System.out.println("\t" + k + ": " + v));
+							System.out.println();
 						}
-					});
-
-					if (serviceSize.get() > 0) {
-						System.out.println(infoLog);
 					}
 				});
 			}, null);
 		}
-		catch(IOException e)
-		{
+		catch(IOException e) {
 			e.printStackTrace();
 		}
 	}

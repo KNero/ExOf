@@ -70,8 +70,7 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private static void callService(ServiceObject serviceObject) throws ServiceNotFoundException, CallInternalServiceException {
-	    String servicePath = serviceObject.getServicePath();
-	    ServiceWrapper service = ServiceProvider.lookup(servicePath);
+	    ServiceWrapper service = ServiceProvider.lookup(serviceObject);
 	    if (service.isInternal()) {
 			throw new CallInternalServiceException(serviceObject.getServicePath());
 	    }

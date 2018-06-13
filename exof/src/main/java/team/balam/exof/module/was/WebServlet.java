@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 public class WebServlet extends HttpServlet {
 	private static final Logger LOG  = LoggerFactory.getLogger(WebServlet.class);
 
-	private static ServicePathExtractor servicePathExtractor;
+	private ServicePathExtractor servicePathExtractor;
 
 	@Override
 	public void init() {
@@ -61,11 +61,12 @@ public class WebServlet extends HttpServlet {
 
 		ServiceObject serviceObject = new ServiceObject(servicePath);
 		serviceObject.setRequest(req);
+		serviceObject.setServiceGroupId(req.getMethod().toUpperCase());
 
 		RequestContext.set(RequestContext.Key.SERVICE_OBJECT, serviceObject);
 
 		try {
-			ServiceWrapper service = ServiceProvider.lookup(servicePath);
+			ServiceWrapper service = ServiceProvider.lookup(serviceObject);
 			if (service.isInternal()) {
 				LOG.error("Service is internal. path:{}, class:{}", servicePath, service.getHost());
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not call internal service.");
