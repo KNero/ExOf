@@ -100,7 +100,7 @@ class ConsoleService {
 				List<Map<String, String>> serviceInfoList = new ArrayList<>();
 				serviceMap.put("services", serviceInfoList);
 
-				for (Class serviceAnnotation : DirectoryTreeNode.Builder.SERVICE_ANNOTATIONS) {
+				for (Class serviceAnnotation : DirectoryTreeNode.Builder.SERVICE_NAME_GETTER.keySet()) {
 					Set<Method> services = ReflectionUtils.getAllMethods(directoryClass, ReflectionUtils.withAnnotation(serviceAnnotation));
 
 					for (Method method : services) {

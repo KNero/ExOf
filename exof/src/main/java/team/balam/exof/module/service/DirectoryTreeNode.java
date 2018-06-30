@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class DirectoryTreeNode {
 	private String name;
@@ -166,7 +168,27 @@ public class DirectoryTreeNode {
 	}
 
 	public static class Builder {
-		public static final Class[] SERVICE_ANNOTATIONS = new Class[]{Service.class, RestService.class};
+		public static final Map<Class, Function<Method, String>> SERVICE_NAME_GETTER = new HashMap<>();
+		static {
+			SERVICE_NAME_GETTER.put(Service.class, method ->  {
+				Service serviceAnnotation = method.getAnnotation(Service.class);
+				String serviceName = "";
+
+				if (!serviceAnnotation.value().isEmpty()) {
+					serviceName = serviceAnnotation.value();
+				}
+
+				if (!serviceAnnotation.name().isEmpty()) {
+					serviceName = serviceAnnotation.name();
+				}
+
+				return serviceName;
+			});
+			SERVICE_NAME_GETTER.put(RestService.class, method -> {
+				RestService serviceAnnotation = method.getAnnotation(RestService.class);
+				return serviceAnnotation.name();
+			});
+		}
 		private Builder() {
 
 		}
@@ -185,45 +207,25 @@ public class DirectoryTreeNode {
 			List<ServiceGroup> serviceList = createServiceNode(newServiceDirectory, clazz);
 
 			for (ServiceGroup service : serviceList) {
-				DirectoryTreeNode currentNode = root;
-				String[] servicePath = validatePath(path + Constant.SERVICE_SEPARATE + service.getServiceName());
-				ArrayList<String> pathArray = new ArrayList<>();
+				DirectoryTreeNode goalNode = findNode(root, path + Constant.SERVICE_SEPARATE + service.getServiceName());
 
-				for (int i = 0; i < servicePath.length; ++i) {
-					String pathPart = servicePath[i];
-					pathArray.add(pathPart);
-
-					DirectoryTreeNode node = root.find(Arrays.copyOf(servicePath, pathArray.size()), 0, null);
-
-					if (node == null) {
-						DirectoryTreeNode newNode = new DirectoryTreeNode(pathPart);
-						currentNode.appendChild(newNode);
-						currentNode = newNode;
-					} else {
-						currentNode = node;
-					}
-				}
-
-				if (currentNode.serviceGroup == null) {
-					currentNode.serviceGroup = service;
+				if (goalNode.serviceGroup == null) {
+					goalNode.serviceGroup = service;
 				} else {
 					throw new ServiceAlreadyExistsException(service.toString());
 				}
 			}
 		}
 
-		private static ServiceDirectory appendServiceDirectory(DirectoryTreeNode root, String path, String className) throws Exception {
+		private static DirectoryTreeNode findNode(DirectoryTreeNode root,String path) {
 			DirectoryTreeNode currentNode = root;
-			Class<?> clazz = ExternalClassLoader.loadClass(className);
-			ServiceDirectory newServiceDirectory = createServiceDirectory(path, clazz);
-			String[] dirPath = validatePath(path);
+			String[] nodeName = validatePath(path);
 
 			ArrayList<String> pathArray = new ArrayList<>();
-			for (int i = 0; i < dirPath.length; ++i) {
-				String pathPart = dirPath[i];
+			for (String pathPart : nodeName) {
 				pathArray.add(pathPart);
 
-				DirectoryTreeNode node = root.find(pathArray.toArray(new String[i + 1]), 0, null);
+				DirectoryTreeNode node = root.find(Arrays.copyOf(nodeName, pathArray.size()), 0, null);
 
 				if (node == null) {
 					DirectoryTreeNode newNode = new DirectoryTreeNode(pathPart);
@@ -234,8 +236,16 @@ public class DirectoryTreeNode {
 				}
 			}
 
-			if (currentNode.serviceDirectory == null) {
-				currentNode.serviceDirectory = newServiceDirectory;
+			return currentNode;
+		}
+
+		private static ServiceDirectory appendServiceDirectory(DirectoryTreeNode root, String path, String className) throws Exception {
+			Class<?> clazz = ExternalClassLoader.loadClass(className);
+			ServiceDirectory newServiceDirectory = createServiceDirectory(path, clazz);
+			DirectoryTreeNode goalNode = findNode(root, path);
+
+			if (goalNode.serviceDirectory == null) {
+				goalNode.serviceDirectory = newServiceDirectory;
 				return newServiceDirectory;
 			} else {
 				throw new ServiceLoadException("Already exists service directory. [" + path + "] " + className);
@@ -272,7 +282,7 @@ public class DirectoryTreeNode {
 		private static List<ServiceGroup> createServiceNode(ServiceDirectory serviceDirectory, Class<?> clazz) throws Exception {
 			HashMap<String, ServiceGroup> groupList = new HashMap<>();
 
-			for (Class serviceAnn : SERVICE_ANNOTATIONS) {
+			for (Class serviceAnn : SERVICE_NAME_GETTER.keySet()) {
 				Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(serviceAnn));
 				for (Method m : services) {
 					String serviceName = extractServiceName(serviceAnn, m);
@@ -289,33 +299,12 @@ public class DirectoryTreeNode {
 		}
 
 		public static String extractServiceName(Class serviceAnnotation, Method method) {
-			if (Service.class.equals(serviceAnnotation)) {
-				return extractServiceNameFromServiceAnn(method);
-			} else if (RestService.class.equals(serviceAnnotation)) {
-				return extractServiceNameFromRestServiceAnn(method);
+			Function<Method, String> serviceNameGetter = SERVICE_NAME_GETTER.get(serviceAnnotation);
+			if (serviceNameGetter != null) {
+				return serviceNameGetter.apply(method);
 			} else {
 				throw new IllegalArgumentException("Not supported annotation. " + serviceAnnotation);
 			}
-		}
-
-		private static String extractServiceNameFromRestServiceAnn(Method method) {
-			RestService serviceAnnotation = method.getAnnotation(RestService.class);
-			return serviceAnnotation.name();
-		}
-
-		private static String extractServiceNameFromServiceAnn(Method method) {
-			Service serviceAnnotation = method.getAnnotation(Service.class);
-			String serviceName = "";
-
-			if (!serviceAnnotation.value().isEmpty()) {
-				serviceName = serviceAnnotation.value();
-			}
-
-			if (!serviceAnnotation.name().isEmpty()) {
-				serviceName = serviceAnnotation.name();
-			}
-
-			return serviceName;
 		}
 	}
 }

@@ -1,10 +1,11 @@
 package team.balam.exof.module.service;
 
+import org.slf4j.LoggerFactory;
 import team.balam.exof.module.service.annotation.Inbound;
 import team.balam.exof.module.service.annotation.Outbound;
 import team.balam.exof.module.service.annotation.Service;
-import team.balam.exof.module.service.component.http.HttpMethod;
 import team.balam.exof.module.service.component.http.HttpMethodFilter;
+import team.balam.exof.module.service.component.http.QueryStringToMap;
 import team.balam.exof.module.service.component.http.RestService;
 
 import java.lang.annotation.Annotation;
@@ -136,17 +137,27 @@ public class ServiceGroup {
 				}
 
 				createService(groupId, serviceMethod, isInternal, serviceWrapper -> {
-					if (serviceAnn.method() == HttpMethod.POST) {
-						serviceWrapper.addInbound(HttpMethodFilter.POST);
-					} else if (serviceAnn.method() == HttpMethod.GET) {
-						serviceWrapper.addInbound(HttpMethodFilter.GET);
-					} else if (serviceAnn.method() == HttpMethod.PUT) {
-						serviceWrapper.addInbound(HttpMethodFilter.PUT);
-					} else if (serviceAnn.method() == HttpMethod.DELETE) {
-						serviceWrapper.addInbound(HttpMethodFilter.DELETE);
-					} else if (serviceAnn.method() == HttpMethod.PATCH) {
-						serviceWrapper.addInbound(HttpMethodFilter.PATCH);
+					switch (serviceAnn.method()) {
+						case POST:
+							serviceWrapper.addInbound(HttpMethodFilter.POST);
+							break;
+						case GET:
+							serviceWrapper.addInbound(HttpMethodFilter.GET);
+							break;
+						case PUT:
+							serviceWrapper.addInbound(HttpMethodFilter.PUT);
+							break;
+						case DELETE:
+							serviceWrapper.addInbound(HttpMethodFilter.DELETE);
+							break;
+						case PATCH:
+							serviceWrapper.addInbound(HttpMethodFilter.PATCH);
+							break;
+						default:
+							LoggerFactory.getLogger(RestMaker.class).error("not supported method. {}", serviceAnn.method());
 					}
+
+					serviceWrapper.addInbound(new QueryStringToMap());
 				});
 			}
 		}
