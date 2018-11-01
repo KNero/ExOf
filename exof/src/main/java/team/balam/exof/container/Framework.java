@@ -8,13 +8,14 @@ import team.balam.exof.module.deploy.Deploy;
 import team.balam.exof.module.listener.Listener;
 import team.balam.exof.module.service.ServiceProvider;
 import team.balam.exof.module.was.JettyModule;
+import team.balam.exof.module.was.WasModule;
 import team.balam.util.sqlite.connection.PoolManager;
 
 
 public class Framework implements Container
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Framework.class);
-	private Module[] moduleList = new Module[]{new JettyModule(),
+	private Module[] moduleList = new Module[]{new WasModule(),
 												new Deploy(),
 												Listener.getInstance(),
 												ServiceProvider.getInstance()};

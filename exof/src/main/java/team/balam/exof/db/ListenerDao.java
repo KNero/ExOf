@@ -31,10 +31,10 @@ public class ListenerDao {
 				"KEY TEXT NOT NULL," +
 				"VALUE TEXT," +
 				"PRIMARY KEY (PORT, KEY))";
-		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query);
 
 		query = "DELETE FROM PORT_ATTRIBUTE";
-		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query);
 	}
 
 	private static void initChildElementsTable() throws Exception {
@@ -44,11 +44,11 @@ public class ListenerDao {
 				"KEY TEXT TEXT NOT NULL," +
 				"VALUE TEXT," +
 				"PRIMARY KEY (PORT, NODE_NAME, KEY))";
-		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query);
 
 
 		query = "DELETE FROM PORT_CHILD_ATTRIBUTE";
-		EnvDbHelper.execute(QueryVo.Type.DELETE, query, null);
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query);
 	}
 
 	public static void insertPortAttribute(int _port, String _key, String _value) throws LoadEnvException {
@@ -77,7 +77,7 @@ public class ListenerDao {
 		String query  = "SELECT PORT FROM PORT_ATTRIBUTE GROUP BY PORT";
 
 		try {
-			List<Map<String, Object>> list = EnvDbHelper.select(query, null);
+			List<Map<String, Object>> list = EnvDbHelper.select(query);
 
 			List<PortInfo> result = new ArrayList<>();
 			for (Map<String, Object> m : list) {
@@ -135,18 +135,31 @@ public class ListenerDao {
 		return Constant.EMPTY_STRING;
 	}
 
-	public static PortInfo selectJettyModule() {
-		return selectSpecialPort(EnvKey.Listener.JETTY);
+	public static List<PortInfo> selectJettyModule() {
+		return selectSpecialPortList(EnvKey.Listener.JETTY);
 	}
 
-	public static PortInfo selectSpecialPort(String _value) {
+	public static List<PortInfo> selectSpecialPortList(String _value) {
 		String query = "SELECT PORT FROM PORT_ATTRIBUTE WHERE KEY=? AND VALUE=?";
 		Object[] param = new Object[]{EnvKey.Listener.TYPE, _value};
 
+		List<PortInfo> result = new ArrayList<>();
+
 		try {
 			List<Map<String, Object>> list = EnvDbHelper.select(query, param);
+			list.forEach(info -> result.add(new PortInfo((Integer) info.get("port"))));
+		} catch (Exception e) {
+			LOGGER.error("Can not get port.", e);
+		}
+
+		return result;
+	}
+
+	public static PortInfo selectSpecialPort(String _value) {
+		try {
+			List<PortInfo> list = selectSpecialPortList(_value);
 			if (list.size() == 1) {
-				return new PortInfo((Integer) list.get(0).get("port"));
+				return list.get(0);
 			} else if (list.size() > 1) {
 				throw new Exception(_value.toUpperCase() + " port is must one. count > 1");
 			}
@@ -160,7 +173,6 @@ public class ListenerDao {
 	/**
 	 * 특수한 기능을 사용하기 위한 포트를 확인해 준다.
 	 * 특수한 포트가 아닐 경우 ServerPort 에 의해서 오픈된다.
-	 * @param _number
 	 * @return
 	 */
 	public static boolean isSpecialPort(int _number) {

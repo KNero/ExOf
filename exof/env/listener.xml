@@ -15,7 +15,7 @@
         <messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>
     </port>
 	
-	<port type="jetty" http="8080" https="8090" maxIdleTime="30000" requestHeaderSize="8192"
+	<port type="jetty" http="8080" https="8081" maxIdleTime="30000" requestHeaderSize="8192"
 		keystorePath="./env/keystore.jks"
 		keystorePassword="test123"
 		sslContextClass="team.balam.exof.module.was.SimpleSslContextFactory" 

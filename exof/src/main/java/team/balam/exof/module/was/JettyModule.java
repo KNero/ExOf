@@ -21,10 +21,6 @@ public class JettyModule implements Module {
 
 	@Override
 	public void start() throws Exception {
-		if (this.portInfo == null || this.portInfo.isNull()) {
-			this.portInfo = ListenerDao.selectJettyModule();
-		}
-
 		if (!this.portInfo.isNull()) {
 			int http = this.portInfo.getAttributeToInt(EnvKey.Listener.HTTP, 0);
 			int https = this.portInfo.getAttributeToInt(EnvKey.Listener.HTTPS, 0);
