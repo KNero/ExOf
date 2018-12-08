@@ -28,8 +28,6 @@ public interface EnvKey {
 		String PACKAGE = "package";
 		
 		String SERVICE_VARIABLE = "serviceVariable";
-		String SERVICE_NAME = "serviceName";
-		
 		String VARIABLE = "variable";
 		String NAME = "name";
 		String VALUE = "value";

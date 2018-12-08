@@ -9,13 +9,16 @@
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
-    <servlet>
-        <servlet-name>exof-servlet</servlet-name>
-        <servlet-class>team.balam.exof.module.was.WebServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>exof-servlet</servlet-name>
-        <url-pattern>/api/*</url-pattern>
-    </servlet-mapping>
+    <filter>
+        <filter-name>exofRequestFilter</filter-name>
+        <filter-class>team.balam.exof.module.was.ExofRequestFilter</filter-class>
+        <init-param>
+            <param-name>servicePathExtractor</param-name>
+            <param-value>team.balam.exof.module.was.SimpleRequestLogger</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>exofRequestFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 </web-app>

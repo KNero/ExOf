@@ -11,12 +11,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.environment.EnvKey;
 import team.balam.exof.environment.vo.PortInfo;
 import team.balam.exof.module.listener.handler.ChannelHandlerArray;
-import team.balam.exof.module.listener.handler.ChannelHandlerMaker;
 import team.balam.exof.module.listener.handler.ChannelInitializerException;
 import team.balam.exof.module.listener.handler.RequestServiceHandler;
 import team.balam.exof.module.listener.handler.SessionEventHandler;
@@ -27,17 +27,16 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class ServerPort
-{
-	private ServerPort self = this;
-	
+@Slf4j
+public class ServerPort extends ChannelInitializer<SocketChannel> {
 	private PortInfo portInfo;
 	
 	private Channel channel;
 	private EventLoopGroup bossGroup;
 	private EventLoopGroup workerGroup;
 	
-	private ChannelHandlerMaker channelHandlerArray;
+	private ChannelHandlerArray channelHandlerArray;
+	private RequestServiceHandler requestHandler;
 	
 	ServerPort(PortInfo _info)
 	{
@@ -49,9 +48,9 @@ public class ServerPort
 		return this.portInfo.getNumber();
 	}
 	
-	public void open() throws Exception
-	{
-		RequestServiceHandler requestHandler = this._createRequestServiceHandler();
+	public void open() throws Exception {
+	    initChannelHandler();
+	    initRequestServiceHandler();
 
 		this.bossGroup = new NioEventLoopGroup();
 		
@@ -60,23 +59,12 @@ public class ServerPort
 		Executor workerExecutor = new ThreadPoolExecutor(workerSize, workerSize, 1, TimeUnit.SECONDS, new SynchronousQueue<>());
 		
 		this.workerGroup = new NioEventLoopGroup(workerSize, workerExecutor);
-		
+
 		ServerBootstrap b = new ServerBootstrap();
 		b.group(this.bossGroup, this.workerGroup)
 			.channel(NioServerSocketChannel.class)
 			.handler(new LoggingHandler(LogLevel.INFO))
-			.childHandler(new ChannelInitializer<SocketChannel>()
-			{
-				@Override
-				protected void initChannel(SocketChannel socketChannel)
-				{
-					try {
-						socketChannel.pipeline().addLast(self.channelHandlerArray.make(socketChannel)).addLast(requestHandler);
-					} catch (ChannelInitializerException e) {
-						LoggerFactory.getLogger(ServerPort.class).error("Fail to create channel pipeline", e);
-					}
-				}
-			})
+			.childHandler(this)
 			.childOption(ChannelOption.SO_KEEPALIVE, true)
 			.childOption(ChannelOption.SO_REUSEADDR, true);
 		
@@ -85,61 +73,79 @@ public class ServerPort
 		this.channel = future.channel();
 	}
 
-	private RequestServiceHandler _createRequestServiceHandler() throws Exception {
-		RequestServiceHandler requestHandler = new RequestServiceHandler();
+	private void initChannelHandler() throws Exception {
+        String channelHandler = this.portInfo.getChannelHandler();
+        if (!channelHandler.isEmpty()) {
+            Object handlerArray = ExternalClassLoader.loadClass(channelHandler).newInstance();
+            if (handlerArray instanceof ChannelHandlerArray) {
+                this.channelHandlerArray = (ChannelHandlerArray) handlerArray;
+                this.channelHandlerArray.init(this.portInfo);
+            } else {
+                throw new ServerPortInitializeException("channelHandler is [instance of ChannelHandlerArray]");
+            }
+        } else {
+            throw new ServerPortInitializeException("channelHandler is null. Check listener.xml");
+        }
+    }
 
-		String channelHandler = this.portInfo.getChannelHandler();
-		if (!channelHandler.isEmpty()) {
-			this.channelHandlerArray = (ChannelHandlerArray) ExternalClassLoader.loadClass(channelHandler).newInstance();
-
-			if (this.channelHandlerArray instanceof ChannelHandlerArray) {
-				((ChannelHandlerArray) this.channelHandlerArray).init(this.portInfo);
-			}
-		} else {
-			throw new ServerPortInitializeException("channelHandler is null. Check listener.xml");
-		}
+	private void initRequestServiceHandler() throws Exception {
+		requestHandler = new RequestServiceHandler();
 
 		String messageTransformClass = this.portInfo.getMessageTransform();
 		if (!messageTransformClass.isEmpty()) {
-			ServiceObjectTransform messageTransform =
-					(ServiceObjectTransform) ExternalClassLoader.loadClass(messageTransformClass).newInstance();
-            messageTransform.init(this.portInfo);
 
-			requestHandler.setServiceObjectTransform(messageTransform);
+		    Object transform = ExternalClassLoader.loadClass(messageTransformClass).newInstance();
+		    if (transform instanceof ServiceObjectTransform) {
+                ServiceObjectTransform messageTransform = (ServiceObjectTransform) transform;
+                messageTransform.init(this.portInfo);
+
+                requestHandler.setServiceObjectTransform(messageTransform);
+            } else {
+                throw new ServerPortInitializeException("messageTransform is [instance of ServiceObjectTransform]");
+            }
 		} else {
 			throw new ServerPortInitializeException("messageTransform is null. Check listener.xml");
 		}
 
 		String sessionHandlerClass = this.portInfo.getSessionHandler();
 		if (!sessionHandlerClass.isEmpty()) {
-			SessionEventHandler sessionHandler =
-					(SessionEventHandler) ExternalClassLoader.loadClass(sessionHandlerClass).newInstance();
-			requestHandler.setSessionEventHandler(sessionHandler);
 
-			sessionHandler.init(this.portInfo);
+		    Object handler = ExternalClassLoader.loadClass(sessionHandlerClass).newInstance();
+		    if (handler instanceof SessionEventHandler) {
+                SessionEventHandler sessionHandler = (SessionEventHandler) handler;
+                requestHandler.setSessionEventHandler(sessionHandler);
+
+                sessionHandler.init(this.portInfo);
+            } else {
+                throw new ServerPortInitializeException("sessionHandler is [instance of SessionEventHandler]");
+            }
 		}
-
-		return requestHandler;
 	}
-	
-	public void close()
-	{
-		if (this.channelHandlerArray instanceof ChannelHandlerArray) {
-			((ChannelHandlerArray) this.channelHandlerArray).destroy();
+
+	@Override
+	protected void initChannel(SocketChannel socketChannel) throws Exception {
+		try {
+			socketChannel.pipeline().addLast(this.channelHandlerArray.make(socketChannel)).addLast(requestHandler);
+		} catch (ChannelInitializerException e) {
+			LoggerFactory.getLogger(ServerPort.class).error("Fail to create channel pipeline", e);
+			throw e;
 		}
-		
-		if(this.channel != null)
-		{
+	}
+
+	public void close() {
+	    if (this.channelHandlerArray != null) {
+            this.channelHandlerArray.destroy();
+        }
+
+		if (this.channel != null) {
 			this.channel.close();
 		}
-		
-		if(this.workerGroup != null)
-		{
+
+		if (this.workerGroup != null) {
 			this.workerGroup.shutdownGracefully();
 		}
-		
-		if(this.bossGroup != null)
-		{
+
+		if (this.bossGroup != null) {
 			this.bossGroup.shutdownGracefully();
 		}
 	}

@@ -13,6 +13,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * ExofRequestFilter 를 사용해 주세요.
+ */
+@Deprecated
 public class WebServlet extends HttpServlet {
 	private static final Logger LOG  = LoggerFactory.getLogger(WebServlet.class);
 
@@ -20,7 +24,10 @@ public class WebServlet extends HttpServlet {
 
 	@Override
 	public void init() {
-		String servicePathExtractorClassName = this.getInitParameter("servicePathExtractor");
+		setServicePathExtractor(this.getInitParameter("servicePathExtractor"));
+	}
+
+	void setServicePathExtractor(String servicePathExtractorClassName) {
 		if (!StringUtil.isNullOrEmpty(servicePathExtractorClassName)) {
 			try {
 				servicePathExtractor = (ServicePathExtractor) ExternalClassLoader.loadClass(servicePathExtractorClassName).newInstance();
@@ -32,29 +39,45 @@ public class WebServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-		this.execute(req, resp);
+		try {
+			this.execute(req, resp);
+		} catch (Exception e) {
+			LOG.error("An error occurred during service execution.", e);
+		}
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		this.execute(req, resp);
+		try {
+			this.execute(req, resp);
+		} catch (Exception e) {
+			LOG.error("An error occurred during service execution.", e);
+		}
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
-		this.execute(req, resp);
+		try {
+			this.execute(req, resp);
+		} catch (Exception e) {
+			LOG.error("An error occurred during service execution.", e);
+		}
 	}
 
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
-		this.execute(req, resp);
+		try {
+			this.execute(req, resp);
+		} catch (Exception e) {
+			LOG.error("An error occurred during service execution.", e);
+		}
 	}
 
-	private void execute(HttpServletRequest req, HttpServletResponse resp) {
+	void execute(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		RequestContext.set(RequestContext.Key.HTTP_SERVLET_REQ, req);
 		RequestContext.set(RequestContext.Key.HTTP_SERVLET_RES, resp);
 
-		String servicePath = req.getPathInfo();
+		String servicePath = req.getRequestURI();
 		if (servicePathExtractor != null) {
 			servicePath = servicePathExtractor.extract(req);
 		}
@@ -65,24 +88,20 @@ public class WebServlet extends HttpServlet {
 
 		RequestContext.set(RequestContext.Key.SERVICE_OBJECT, serviceObject);
 
-		try {
-			ServiceWrapper service = ServiceProvider.lookup(serviceObject);
-			if (service.isInternal()) {
-				LOG.error("Service is internal. path:{}, class:{}", servicePath, service.getHost());
-				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not call internal service.");
-				return;
-			}
+		ServiceWrapper service = ServiceProvider.lookup(serviceObject);
+		if (service.isInternal()) {
+			LOG.error("Service is internal. path:{}, class:{}", servicePath, service.getHost());
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not call internal service.");
+			return;
+		}
 
-			long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 
-			service.call(serviceObject);
+		service.call(serviceObject);
 
-			if(LOG.isInfoEnabled()) {
-				long end = System.currentTimeMillis();
-				LOG.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
-			}
-		} catch(Exception e) {
-			LOG.error("An error occurred during service execution.", e);
+		if(LOG.isInfoEnabled()) {
+			long end = System.currentTimeMillis();
+			LOG.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
 		}
 	}
 }
