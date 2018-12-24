@@ -164,4 +164,18 @@ public class DirectoryTreeNodeTest {
 		DirectoryTreeNode.Builder.append(root, "/test", team.balam.exof.test.TestService.class.getName());
 		DirectoryTreeNode.Builder.append(root, "/test", team.balam.exof.test.TestService.class.getName());
 	}
+
+	@Test
+	public void testFindService() throws Exception {
+		DirectoryTreeNode root = DirectoryTreeNode.Builder.createRoot();
+		DirectoryTreeNode.Builder.append(root, "/test1", team.balam.exof.test.TestService.class.getName());
+		DirectoryTreeNode.Builder.append(root, "/test2", team.balam.exof.test.TestService.class.getName());
+
+		Assert.assertNotNull(root.findService(new ServiceObject("/test1")));
+		Assert.assertNotNull(root.findService(new ServiceObject("/test2")));
+		Assert.assertNull(root.findService(new ServiceObject("/")));
+
+		DirectoryTreeNode.Builder.append(root, "/", team.balam.exof.test.TestService.class.getName());
+		Assert.assertNotNull(root.findService(new ServiceObject("/")));
+	}
 }

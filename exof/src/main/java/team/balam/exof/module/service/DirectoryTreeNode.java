@@ -44,7 +44,11 @@ public class DirectoryTreeNode {
 	ServiceWrapper findService(ServiceObject serviceObject) {
 		String[] path = validatePath(serviceObject.getServicePath());
 		if (path.length == 0) {
-			return serviceGroup.getService(null);
+			if (serviceGroup != null) {
+				return serviceGroup.getService(null);
+			} else {
+				return null;
+			}
 		}
 
 		HashMap<String, String> pathVariable = new HashMap<>();
