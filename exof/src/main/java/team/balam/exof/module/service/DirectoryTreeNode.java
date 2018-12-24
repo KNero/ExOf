@@ -55,7 +55,7 @@ public class DirectoryTreeNode {
 		serviceObject.setPathVariable(pathVariable);
 
 		DirectoryTreeNode node = find(path, pathVariable);
-		if (node != null) {
+		if (node != null && node.serviceGroup != null) {
 			return node.serviceGroup.getService(serviceObject.getServiceGroupId());
 		} else {
 			return null;
