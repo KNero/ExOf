@@ -83,8 +83,20 @@ public class ServiceLoader implements Loader {
 	
 	private void insertServiceDirectoryInfo(Node node) throws LoadEnvException {
 		NamedNodeMap attr = node.getAttributes();
-		String path = attr.getNamedItem(EnvKey.Service.PATH).getNodeValue();
-		String className = attr.getNamedItem(EnvKey.Service.CLASS).getNodeValue();
+
+        String path;
+        Node pathNode = attr.getNamedItem(EnvKey.Service.PATH);
+        if (pathNode != null) {
+            path = pathNode.getNodeValue();
+        } else {
+            throw new NullPointerException("serviceDirectory's path attribute is null.");
+        }
+
+        String className = "";
+		Node classNode = attr.getNamedItem(EnvKey.Service.CLASS);
+		if (classNode != null) {
+		    className = classNode.getNodeValue();
+        }
 
 		if (!className.isEmpty()) {
 			ServiceInfoDao.insertServiceDirectory(path, className);
