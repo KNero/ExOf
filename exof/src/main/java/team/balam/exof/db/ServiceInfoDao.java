@@ -8,6 +8,7 @@ import team.balam.exof.environment.vo.ServiceDirectoryInfo;
 import team.balam.exof.environment.vo.ServiceVariable;
 import team.balam.util.sqlite.connection.vo.QueryVo;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +29,7 @@ public class ServiceInfoDao {
 		initServiceDirectoryTable();
 		initServiceVariableTable();
 		initScheduleTable();
+		initLoadedServiceTable();
 	}
 
 	private static void initServiceDirectoryTable() throws Exception {
@@ -66,6 +68,18 @@ public class ServiceInfoDao {
 		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query);
 
 		query = "DELETE FROM SCHEDULER";
+		EnvDbHelper.execute(QueryVo.Type.DELETE, query);
+	}
+
+	private static void initLoadedServiceTable() throws Exception {
+		String query = "CREATE TABLE IF NOT EXISTS LOADED_SERVICE (" +
+				"CLASS TEXT, " +
+				"SERVICE_NAME TEXT, " +
+				"SERVICE_GROUP TEXT, " +
+				"METHOD TEXT)";
+		EnvDbHelper.execute(QueryVo.Type.EXECUTE, query);
+
+		query = "DELETE FROM LOADED_SERVICE";
 		EnvDbHelper.execute(QueryVo.Type.DELETE, query);
 	}
 
@@ -282,5 +296,38 @@ public class ServiceInfoDao {
 		} catch (Exception e) {
 			LOGGER.error("Error occurred execute query.", e);
 		}
+	}
+
+	public static void insertLoadedService(String directoryClass, String servicePath, String serviceGroupId, String method) {
+		String query = "insert into loaded_service (class, service_name, service_group, method) values (?, ?, ?, ?)";
+		Object[] param = new Object[]{directoryClass, servicePath, serviceGroupId, method};
+
+		try {
+			EnvDbHelper.execute(QueryVo.Type.INSERT, query, param);
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+	}
+
+	public static List<LoadedServiceDto> selectServiceFrom(String directoryClass) {
+		ArrayList<LoadedServiceDto> result = new ArrayList<>();
+
+		String query = "select * from loaded_service where class=?";
+		Object[] param = new Object[]{directoryClass};
+
+		try {
+			List<Map<String, Object>> resultList = EnvDbHelper.select(query, param);
+
+			for (Map<String, Object> row : resultList) {
+				result.add(new LoadedServiceDto(directoryClass,
+						row.get("service_name").toString(),
+						row.get("service_group").toString(),
+						row.get("method").toString()));
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error occurred execute query.", e);
+		}
+
+		return result;
 	}
 }

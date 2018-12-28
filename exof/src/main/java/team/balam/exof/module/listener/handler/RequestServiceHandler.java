@@ -83,14 +83,14 @@ public class RequestServiceHandler extends ChannelInboundHandlerAdapter {
 	    	LOG.error("Fail to execute service.", e);
 	    }
 
-	    if(LOG.isInfoEnabled()) {
-		    long end = System.currentTimeMillis();
-		    LOG.info("Service[{}] is completed. Elapsed : {} ms", serviceObject.getServicePath(), end - start);
-	    }
-
 	    if (response != null) {
 		    RequestContext.writeAndFlushResponse(response);
 	    }
+
+		if(LOG.isInfoEnabled()) {
+			long end = System.currentTimeMillis();
+			LOG.info("Service[{}] is completed. Elapsed : {} ms", serviceObject.getServicePath(), end - start);
+		}
     }
 
     @Override

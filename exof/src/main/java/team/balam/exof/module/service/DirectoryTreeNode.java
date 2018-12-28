@@ -5,19 +5,11 @@ import org.reflections.ReflectionUtils;
 import team.balam.exof.Constant;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.db.ServiceInfoDao;
-import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Shutdown;
 import team.balam.exof.module.service.annotation.Startup;
-import team.balam.exof.module.service.component.http.RestService;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
 
 public class DirectoryTreeNode {
 	private String name;
@@ -172,29 +164,7 @@ public class DirectoryTreeNode {
 	}
 
 	public static class Builder {
-		public static final Map<Class, Function<Method, String>> SERVICE_NAME_GETTER = new HashMap<>();
-		static {
-			SERVICE_NAME_GETTER.put(Service.class, method ->  {
-				Service serviceAnnotation = method.getAnnotation(Service.class);
-				String serviceName = "";
-
-				if (!serviceAnnotation.value().isEmpty()) {
-					serviceName = serviceAnnotation.value();
-				}
-
-				if (!serviceAnnotation.name().isEmpty()) {
-					serviceName = serviceAnnotation.name();
-				}
-
-				return serviceName;
-			});
-			SERVICE_NAME_GETTER.put(RestService.class, method -> {
-				RestService serviceAnnotation = method.getAnnotation(RestService.class);
-				return serviceAnnotation.name();
-			});
-		}
 		private Builder() {
-
 		}
 
 		/**
@@ -206,9 +176,8 @@ public class DirectoryTreeNode {
 		}
 
 		static void append(DirectoryTreeNode root, String path, String className) throws Exception {
-			Class<?> clazz = ExternalClassLoader.loadClass(className);
 			ServiceDirectory newServiceDirectory = appendServiceDirectory(root, path, className);
-			List<ServiceGroup> serviceList = createServiceNode(newServiceDirectory, clazz);
+			List<ServiceGroup> serviceList = TreeServiceNodeMaker.make(newServiceDirectory);
 
 			for (ServiceGroup service : serviceList) {
 				DirectoryTreeNode goalNode = findNode(root, path + Constant.SERVICE_SEPARATE + service.getServiceName());
@@ -279,35 +248,6 @@ public class DirectoryTreeNode {
 			} else {
 				ServiceInfoDao.deleteServiceDirectory(path);
 				throw new ServiceLoadException("This class undefined ServiceDirectory annotation.");
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		private static List<ServiceGroup> createServiceNode(ServiceDirectory serviceDirectory, Class<?> clazz) throws Exception {
-			HashMap<String, ServiceGroup> groupList = new HashMap<>();
-
-			for (Class serviceAnn : SERVICE_NAME_GETTER.keySet()) {
-				Set<Method> services = ReflectionUtils.getAllMethods(clazz, ReflectionUtils.withAnnotation(serviceAnn));
-				for (Method m : services) {
-					String serviceName = extractServiceName(serviceAnn, m);
-					String checkName = serviceName.replaceAll(Constant.SERVICE_SEPARATE, "");
-
-					ServiceGroup group = groupList.getOrDefault(checkName, new ServiceGroup(serviceDirectory.getHost(), serviceName));
-					group.add(m, serviceDirectory.isInternal());
-
-					groupList.putIfAbsent(checkName, group);
-				}
-			}
-
-			return new ArrayList<>(groupList.values());
-		}
-
-		public static String extractServiceName(Class serviceAnnotation, Method method) {
-			Function<Method, String> serviceNameGetter = SERVICE_NAME_GETTER.get(serviceAnnotation);
-			if (serviceNameGetter != null) {
-				return serviceNameGetter.apply(method);
-			} else {
-				throw new IllegalArgumentException("Not supported annotation. " + serviceAnnotation);
 			}
 		}
 	}

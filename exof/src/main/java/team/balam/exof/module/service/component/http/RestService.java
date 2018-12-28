@@ -1,14 +1,13 @@
 package team.balam.exof.module.service.component.http;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import team.balam.exof.module.service.annotation.RestServices;
+
+import java.lang.annotation.*;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
+@Repeatable(RestServices.class)
 public @interface RestService {
 	HttpMethod method();
 	String name() default "";

@@ -3,6 +3,7 @@ package team.balam.exof.module.service;
 
 import org.junit.Assert;
 import org.junit.Test;
+import team.balam.exof.module.service.annotation.Service;
 
 public class DirectoryTreeNodeTest {
 	@Test

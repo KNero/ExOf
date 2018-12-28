@@ -55,7 +55,7 @@ public class LoaderTest {
 		Assert.assertEquals(3, schedulerInfos.size());
 
 		List<ServiceDirectoryInfo> directoryInfos = ServiceInfoDao.selectServiceDirectory();
-		Assert.assertEquals(7, directoryInfos.size());
+		Assert.assertEquals(8, directoryInfos.size());
 	}
 
 	@Test
@@ -200,5 +200,25 @@ public class LoaderTest {
 		Object o2 = ServiceProvider.lookup(serviceObject).getHost();
 
 		Assert.assertEquals(o1, o2);
+	}
+
+	@Test
+	public void testMultiAnnotation()  throws Exception {
+		ServiceProvider.lookup(new ServiceObject("/multi-annotation/test/1"));
+		ServiceProvider.lookup(new ServiceObject("/multi-annotation/test/2"));
+
+		ServiceObject serviceObject = new ServiceObject("/multi-annotation/test/1");
+		serviceObject.setServiceGroupId("GET");
+		ServiceProvider.lookup(serviceObject);
+
+		serviceObject = new ServiceObject("/multi-annotation/test/2");
+		serviceObject.setServiceGroupId("GET");
+		ServiceProvider.lookup(serviceObject);
+
+		ServiceProvider.lookup(new ServiceObject("/multi-annotation/test/3"));
+
+		serviceObject = new ServiceObject("/multi-annotation/test/3");
+		serviceObject.setServiceGroupId("GET");
+		ServiceProvider.lookup(serviceObject);
 	}
 }

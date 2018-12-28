@@ -1,9 +1,8 @@
 package team.balam.exof.module.service;
 
 import org.slf4j.LoggerFactory;
-import team.balam.exof.module.service.annotation.Inbound;
-import team.balam.exof.module.service.annotation.Outbound;
-import team.balam.exof.module.service.annotation.Service;
+import team.balam.exof.db.ServiceInfoDao;
+import team.balam.exof.module.service.annotation.*;
 import team.balam.exof.module.service.component.http.HttpMethodFilter;
 import team.balam.exof.module.service.component.http.QueryStringToMap;
 import team.balam.exof.module.service.component.http.RestService;
@@ -71,6 +70,8 @@ public class ServiceGroup {
 		checkInboundAnnotation(method, service);
 		checkOutboundAnnotation(method, service);
 
+		ServiceInfoDao.insertLoadedService(service.getHost().getClass().toString(),
+				serviceName, serviceName.equals(groupId) ? "" : groupId, method.toString());
 		group.put(groupId, service);
 	}
 
@@ -112,15 +113,21 @@ public class ServiceGroup {
 	private class DefaultMaker implements ServiceMaker {
 		@Override
 		public void make(Annotation annotation, Method serviceMethod, boolean isInternal) throws Exception {
-			if (annotation.annotationType() == Service.class) {
+			if (Service.class.equals(annotation.annotationType())) {
 				Service serviceAnn = (Service) annotation;
-				String groupId = checkGroupId(serviceAnn.groupId());
-
-				if (group.containsKey(groupId)) {
-					throw new ServiceLoadException("groupId is duplicated. method: " + serviceMethod);
+				String name = TreeServiceNodeMaker.standardizeServiceName(serviceAnn.name());
+				if (name.isEmpty()) {
+					name = TreeServiceNodeMaker.standardizeServiceName(serviceAnn.value());
 				}
 
-				createService(groupId, serviceMethod, isInternal, null);
+				if (serviceName.equals(name)) {
+					String groupId = checkGroupId(serviceAnn.groupId());
+					createService(groupId, serviceMethod, isInternal, null);
+				}
+			} else if (Services.class.equals(annotation.annotationType())) {
+				for (Service service : ((Services) annotation).value()) {
+					this.make(service, serviceMethod, isInternal);
+				}
 			}
 		}
 	}
@@ -128,37 +135,39 @@ public class ServiceGroup {
 	private class RestMaker implements ServiceMaker {
 		@Override
 		public void make(Annotation annotation, Method serviceMethod, boolean isInternal) throws Exception {
-			if (annotation.annotationType() == RestService.class) {
+			if (RestService.class.equals(annotation.annotationType())) {
 				RestService serviceAnn = (RestService) annotation;
-				String groupId = checkGroupId(serviceAnn.method().name());
 
-				if (group.containsKey(groupId)) {
-					throw new ServiceLoadException("groupId is duplicated. method: " + serviceMethod);
+				if (serviceName.equals(TreeServiceNodeMaker.standardizeServiceName(serviceAnn.name()))) {
+					String groupId = checkGroupId(serviceAnn.method().name());
+					createService(groupId, serviceMethod, isInternal, serviceWrapper -> {
+						switch (serviceAnn.method()) {
+							case POST:
+								serviceWrapper.addInbound(HttpMethodFilter.POST);
+								break;
+							case GET:
+								serviceWrapper.addInbound(HttpMethodFilter.GET);
+								break;
+							case PUT:
+								serviceWrapper.addInbound(HttpMethodFilter.PUT);
+								break;
+							case DELETE:
+								serviceWrapper.addInbound(HttpMethodFilter.DELETE);
+								break;
+							case PATCH:
+								serviceWrapper.addInbound(HttpMethodFilter.PATCH);
+								break;
+							default:
+								LoggerFactory.getLogger(RestMaker.class).error("not supported method. {}", serviceAnn.method());
+						}
+
+						serviceWrapper.addInbound(new QueryStringToMap());
+					});
 				}
-
-				createService(groupId, serviceMethod, isInternal, serviceWrapper -> {
-					switch (serviceAnn.method()) {
-						case POST:
-							serviceWrapper.addInbound(HttpMethodFilter.POST);
-							break;
-						case GET:
-							serviceWrapper.addInbound(HttpMethodFilter.GET);
-							break;
-						case PUT:
-							serviceWrapper.addInbound(HttpMethodFilter.PUT);
-							break;
-						case DELETE:
-							serviceWrapper.addInbound(HttpMethodFilter.DELETE);
-							break;
-						case PATCH:
-							serviceWrapper.addInbound(HttpMethodFilter.PATCH);
-							break;
-						default:
-							LoggerFactory.getLogger(RestMaker.class).error("not supported method. {}", serviceAnn.method());
-					}
-
-					serviceWrapper.addInbound(new QueryStringToMap());
-				});
+			} else if (RestServices.class.equals(annotation.annotationType())) {
+				for (RestService service : ((RestServices) annotation).value()) {
+					this.make(service, serviceMethod, isInternal);
+				}
 			}
 		}
 	}

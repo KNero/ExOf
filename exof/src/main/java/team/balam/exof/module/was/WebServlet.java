@@ -1,6 +1,8 @@
 package team.balam.exof.module.was;
 
 import io.netty.util.internal.StringUtil;
+import org.apache.ibatis.ognl.ObjectMethodAccessor;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.ExternalClassLoader;
@@ -12,6 +14,7 @@ import team.balam.exof.module.service.ServiceWrapper;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 
 /**
  * ExofRequestFilter 를 사용해 주세요.
@@ -21,6 +24,7 @@ public class WebServlet extends HttpServlet {
 	private static final Logger LOG  = LoggerFactory.getLogger(WebServlet.class);
 
 	private ServicePathExtractor servicePathExtractor;
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	@Override
 	public void init() {
@@ -97,7 +101,18 @@ public class WebServlet extends HttpServlet {
 
 		long start = System.currentTimeMillis();
 
-		service.call(serviceObject);
+		Object response = service.call(serviceObject);
+
+		if (response != null) {
+			PrintWriter out = resp.getWriter();
+
+			if (response instanceof String) {
+				out.write((String) response);
+				out.flush();
+			} else {
+				JSON_MAPPER.writeValue(out, response);
+			}
+		}
 
 		if(LOG.isInfoEnabled()) {
 			long end = System.currentTimeMillis();

@@ -1,37 +1,24 @@
 package team.balam.exof.container.console;
 
 import io.netty.util.internal.StringUtil;
-import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.Constant;
 import team.balam.exof.ExternalClassLoader;
 import team.balam.exof.container.SchedulerManager;
 import team.balam.exof.db.ListenerDao;
+import team.balam.exof.db.LoadedServiceDto;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.environment.DynamicSetting;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.environment.vo.DynamicSettingVo;
-import team.balam.exof.environment.vo.PortInfo;
-import team.balam.exof.environment.vo.SchedulerInfo;
-import team.balam.exof.environment.vo.ServiceDirectoryInfo;
-import team.balam.exof.environment.vo.ServiceVariable;
+import team.balam.exof.environment.vo.*;
 import team.balam.exof.module.listener.RequestContext;
-import team.balam.exof.module.service.DirectoryTreeNode;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.ServiceProvider;
-import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.ServiceDirectory;
-import team.balam.exof.module.service.component.http.RestService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 class ConsoleService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -60,33 +47,20 @@ class ConsoleService {
 	public Object getServiceList(Map<String, Object> param) {
 		String findServicePath = (String) param.get(Command.Key.SERVICE_PATH);
 
-		Map<String, HashMap<String, Object>> result = this.getAllServiceInfo();
-		Map<String, Object> realResult = new HashMap<>();
-
-		if (!StringUtil.isNullOrEmpty(findServicePath)) {
-			result.forEach((key, value) -> {
-				if (value.toString().contains(findServicePath)) {
-					realResult.put(key, value);
-				}
-			});
+		Map<String, HashMap<String, Object>> result = this.getServiceList(findServicePath);
+		if (result.isEmpty()) {
+			return Command.NO_DATA_RESPONSE;
 		} else {
 			return result;
 		}
-
-		if (realResult.isEmpty()) {
-			return Command.NO_DATA_RESPONSE;
-		} else {
-			return realResult;
-		}
 	}
 
-	private Map<String, HashMap<String, Object>> getAllServiceInfo() {
+	private Map<String, HashMap<String, Object>> getServiceList(String searchWord) {
 		Map<String, HashMap<String, Object>> serviceList = new HashMap<>();
 
 		List<ServiceDirectoryInfo> directoryInfoList = ServiceInfoDao.selectServiceDirectory();
 		directoryInfoList.forEach(directoryInfo -> {
 			HashMap<String, Object> serviceMap = new HashMap<>();
-			serviceList.put(directoryInfo.getPath(), serviceMap);
 
 			Map<String, Object> serviceVariableMap = this.makeServiceVariableMap(directoryInfo.getPath());
 			serviceMap.put(EnvKey.Service.SERVICE_VARIABLE, serviceVariableMap);
@@ -100,19 +74,20 @@ class ConsoleService {
 				List<Map<String, String>> serviceInfoList = new ArrayList<>();
 				serviceMap.put("services", serviceInfoList);
 
-				for (Class serviceAnnotation : DirectoryTreeNode.Builder.SERVICE_NAME_GETTER.keySet()) {
-					Set<Method> services = ReflectionUtils.getAllMethods(directoryClass, ReflectionUtils.withAnnotation(serviceAnnotation));
-
-					for (Method method : services) {
+				List<LoadedServiceDto> list = ServiceInfoDao.selectServiceFrom(directoryClass.toString());
+				list.forEach(dto -> {
+					if (StringUtil.isNullOrEmpty(searchWord) ||
+							(serviceDirectoryAnn.path() + Constant.SERVICE_SEPARATE + dto.getServiceName()).contains(searchWord)) {
 						Map<String, String> info = new LinkedHashMap<>();
+						info.put("service name", dto.getServiceName());
+						info.put("service group", dto.getServiceGroupId());
+						info.put("method", dto.getMethod());
 						serviceInfoList.add(info);
-
-						String serviceName = DirectoryTreeNode.Builder.extractServiceName(serviceAnnotation, method);
-						info.put("service name", serviceName);
-						info.put("method", method.getName());
-
-						setServiceAnnotationInfo(info, serviceAnnotation, method, directoryInfo.getPath() + Constant.SERVICE_SEPARATE + serviceName);
 					}
+				});
+
+				if (!serviceInfoList.isEmpty()) {
+					serviceList.put(directoryInfo.getPath(), serviceMap);
 				}
 			} catch (ClassNotFoundException e) {
 				this.logger.error("class not found : " + directoryInfo.getClassName(), e);
@@ -131,24 +106,6 @@ class ConsoleService {
 		}
 
 		return variables;
-	}
-
-	private static void setServiceAnnotationInfo(Map<String, String> info, Class annotation, Method method, String servicePath) {
-		if (annotation.equals(Service.class)) {
-			Service ann = method.getAnnotation(Service.class);
-			info.put("path", servicePath);
-			if (!ann.groupId().isEmpty()) {
-				info.put("groupId", ann.groupId());
-			}
-
-			if (!ann.schedule().isEmpty()) {
-				info.put("schedule", ann.schedule());
-			}
-		} else if (annotation.equals(RestService.class)) {
-			RestService ann = method.getAnnotation(RestService.class);
-			info.put("path", servicePath);
-			info.put("http method", ann.method().name());
-		}
 	}
 
 	public Object getScheduleList(Map<String, Object> param) {

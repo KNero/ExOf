@@ -1,6 +1,5 @@
 package team.balam.exof.container.console.client.executor;
 
-import io.netty.util.internal.StringUtil;
 import team.balam.exof.container.console.Command;
 import team.balam.exof.container.console.ServiceList;
 import team.balam.exof.container.console.client.Client;
@@ -45,14 +44,8 @@ class InfoGetter
 					List<Object> services = (List<Object>) info.get("services");
 					for (Object serviceInfo : services) {
 						Map<String, String> m = (Map<String, String>) serviceInfo;
-
-						if (StringUtil.isNullOrEmpty(servicePath)) {
-							m.forEach((k, v) -> System.out.println("\t" + k + ": " + v));
-							System.out.println();
-						} else if (m.get("path").contains(servicePath)) {
-							m.forEach((k, v) -> System.out.println("\t" + k + ": " + v));
-							System.out.println();
-						}
+						m.forEach((k, v) -> System.out.println("\t" + k + ": " + v));
+						System.out.println();
 					}
 				});
 			}, null);
