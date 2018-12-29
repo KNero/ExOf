@@ -185,7 +185,7 @@ public class DirectoryTreeNode {
 				if (goalNode.serviceGroup == null) {
 					goalNode.serviceGroup = service;
 				} else {
-					throw new ServiceAlreadyExistsException(service.toString());
+					goalNode.serviceGroup.merge(service);
 				}
 			}
 		}

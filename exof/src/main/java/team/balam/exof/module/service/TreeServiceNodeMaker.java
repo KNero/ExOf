@@ -9,29 +9,7 @@ import team.balam.exof.module.service.component.http.RestService;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class TreeServiceNodeMaker {
-//    public static final Map<Class, Function<Method, String>> SERVICE_NAME_GETTER = new HashMap<>();
-//    static {
-//        SERVICE_NAME_GETTER.put(Service.class, method ->  {
-//            Service serviceAnnotation = method.getAnnotation(Service.class);
-//            String serviceName = "";
-//
-//            if (!serviceAnnotation.value().isEmpty()) {
-//                serviceName = serviceAnnotation.value();
-//            }
-//
-//            if (!serviceAnnotation.name().isEmpty()) {
-//                serviceName = serviceAnnotation.name();
-//            }
-//
-//            return serviceName;
-//        });
-//        SERVICE_NAME_GETTER.put(RestService.class, method -> {
-//            RestService serviceAnnotation = method.getAnnotation(RestService.class);
-//            return serviceAnnotation.name();
-//        });
-//    }
-
+class TreeServiceNodeMaker {
     private TreeServiceNodeMaker() {
 
     }
@@ -107,16 +85,7 @@ public class TreeServiceNodeMaker {
         return list;
     }
 
-//    public static String extractServiceName(Class serviceAnnotation, Method method) {
-//        Function<Method, String> serviceNameGetter = SERVICE_NAME_GETTER.get(serviceAnnotation);
-//        if (serviceNameGetter != null) {
-//            return serviceNameGetter.apply(method);
-//        } else {
-//            throw new IllegalArgumentException("Not supported annotation. " + serviceAnnotation);
-//        }
-//    }
-
-    public static String standardizeServiceName(String serviceName) {
+    static String standardizeServiceName(String serviceName) {
         if (serviceName.isEmpty()) {
             return "";
         }

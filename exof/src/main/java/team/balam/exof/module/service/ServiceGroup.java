@@ -1,5 +1,6 @@
 package team.balam.exof.module.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.module.service.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@Slf4j
 public class ServiceGroup {
 	private String serviceName;
 	private Object serviceDirectoryHost;
@@ -101,9 +103,23 @@ public class ServiceGroup {
 		}
 	}
 
+	void merge(ServiceGroup other) {
+		for (String otherGroup: other.group.keySet()) {
+			for (String myGroup : group.keySet()) {
+				if (myGroup.equals(otherGroup)) {
+					log.error("Fail merge service group.",
+							new ServiceAlreadyExistsException("class: " + other.serviceDirectoryHost.getClass() +
+									", service group: " + otherGroup + ", service name: " + other.serviceName));
+				}
+			}
+
+			group.put(otherGroup, other.group.get(otherGroup));
+		}
+	}
+
 	@Override
 	public String toString() {
-		return "class: " + serviceDirectoryHost.getClass() + ", service name: " + serviceName;
+		return "class: " + serviceDirectoryHost.getClass() + ", service group: " + group + ", service name: " + serviceName;
 	}
 
 	private interface ServiceMaker {
