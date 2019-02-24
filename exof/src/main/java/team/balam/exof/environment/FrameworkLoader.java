@@ -21,8 +21,13 @@ public class FrameworkLoader implements Loader {
     public void load(String _envPath) throws LoadEnvException {
         FileInputStream frameworkFile = null;
 
+        File file = new File(_envPath + "/framework.yaml");
+        if (!file.exists() || file.length() == 0) {
+            log.warn("file not found or contents is empty. {}", file.getAbsolutePath());
+            return;
+        }
+
         try {
-            File file = new File(_envPath + "/" + "framework.yaml");
             log.info("Loading framework.yaml. {}", file.getAbsoluteFile());
 
             frameworkFile = new FileInputStream(file);
@@ -30,6 +35,11 @@ public class FrameworkLoader implements Loader {
             Yaml yamlParser = new Yaml();
             Map<String, ?> root = (Map<String, ?>) yamlParser.load(frameworkFile);
             Map<String, ?> fw = (Map<String, ?>) root.get(EnvKey.Framework.FRAMEWORK);
+
+            if (fw == null || fw.keySet().isEmpty()) {
+                log.info("file contents is empty. {}", file.getAbsolutePath());
+                return;
+            }
 
             fw.keySet().forEach(_key -> {
                 if (EnvKey.Framework.SCHEDULER.equals(_key)) {

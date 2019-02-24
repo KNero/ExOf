@@ -12,18 +12,22 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
-public class ListenerLoader implements Loader
-{
+public class ListenerLoader implements Loader {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
 	public void load(String _envPath) throws LoadEnvException
 	{
 		String filePath = _envPath + "/listener.xml";
+		File listenerFile = new File(filePath);
+		if (!listenerFile.exists() || listenerFile.length() == 0) {
+			logger.warn("file not found or contents is empty. {}", listenerFile.getAbsolutePath());
+			return;
+		}
 		
 		try {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document doc = builder.parse(new File(filePath));
+			Document doc = builder.parse(listenerFile);
 			
 			Node listenerNode = doc.getFirstChild();
 			if(this._equalsNodeName(listenerNode, EnvKey.Listener.LISTENER)) {
@@ -41,7 +45,7 @@ public class ListenerLoader implements Loader
 								if (portChildNode.getNodeType() == Node.ELEMENT_NODE) {
 									String className = this.findAttribute(portChildNode, EnvKey.Listener.CLASS);
 									if (className.isEmpty()) {
-										this.logger.error("Class is empty. {}", portChildNode.getNodeName());
+										logger.error("Class is empty. {}", portChildNode.getNodeName());
 									} else {
 										if (this._equalsNodeName(portChildNode, EnvKey.Listener.SESSION_HANDLER)) {
 											ListenerDao.insertChildNode(port, EnvKey.Listener.SESSION_HANDLER, EnvKey.Listener.CLASS, className);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-<!-- 
+<!--
 poolMaximumIdleConnections : 유휴상태에서 최대 커넥션 수
 poolMaximumCheckoutTime : 최대 커넥션 획득 시간(ms)
 poolPingEnabled : 커넥션이 살아있는지 ping 테스트 여부
@@ -27,7 +27,7 @@ poolTimeToWait : 사용된 커넥션을 기다리는 시간
 			</dataSource>
 		</environment>
 	</environments-->
-	
+
 	<mappers>
 		<!--mapper resource="org/mybatis/example/BlogMapper.xml" /-->
 	</mappers>

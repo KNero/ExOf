@@ -90,7 +90,7 @@ public class ServiceWrapperImpl implements ServiceWrapper {
 		try {
 			result = this.method.invoke(this.host, methodParameter);
 		} catch (InvocationTargetException e) {
-			if (e.getCause() instanceof Exception) {
+			if (e.getCause() != null) {
 				throw (Exception) e.getCause();
 			} else {
 				throw e;

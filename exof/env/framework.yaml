@@ -1,11 +1,11 @@
 framework :
    container :
       #- a.b.c.Test
-      
+
    autoReload :
       scheduler : yes
       serviceVariable : yes
-   
+
    scheduler :
       org.quartz.scheduler.instanceName : SchedulerInit
       org.quartz.threadPool.threadCount : 5
@@ -13,6 +13,6 @@ framework :
       org.quartz.threadPool.class : org.quartz.simpl.SimpleThreadPool
       org.quartz.scheduler.instanceId : AUTO
       org.quartz.jobStore.misfireThreshold : 60000
-   
+
    external :
       test : abcde

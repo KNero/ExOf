@@ -13,11 +13,7 @@
     <repositories>
         <repository>
             <id>KNero-mvn-repo</id>
-            <url>https://raw.github.com/KNero/SQLite-Helper/mvn-repo</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
+            <url>https://github.com/KNero/repository/raw/master/maven</url>
         </repository>
     </repositories>
 
@@ -142,14 +138,6 @@
 			<scope>provided</scope>
 		</dependency>
     </dependencies>
-
-    <distributionManagement>
-        <repository>
-            <id>internal.repo</id>
-            <name>Temporary Staging Repository</name>
-            <url>file://${project.build.directory}/mvn-repo</url>
-        </repository>
-    </distributionManagement>
 	
 	<build>
         <plugins>

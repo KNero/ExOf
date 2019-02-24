@@ -31,16 +31,18 @@ public class HttpMethodFilter implements Inbound {
 
     @Override
     public void execute(ServiceObject serviceObject) throws InboundExecuteException {
-    	if (serviceObject.getRequest() instanceof HttpRequest) {
-		    HttpRequest request = (HttpRequest) serviceObject.getRequest();
+        Object originalRequest = serviceObject.getRequest();
+
+    	if (originalRequest instanceof HttpRequest) {
+		    HttpRequest request = (HttpRequest) originalRequest;
 		    if (!this.method.equals(request.method())) {
 			    FullHttpResponse response = HttpResponseBuilder.buildNotImplemented("Http method is must " + this.method.name());
 			    RequestContext.writeAndFlushResponse(response);
 
 			    throw this.throwException(serviceObject.getServicePath());
 		    }
-	    } else if (serviceObject.getRequest() instanceof HttpServletRequest) {
-    		HttpServletRequest request = (HttpServletRequest) serviceObject.getRequest();
+	    } else if (originalRequest instanceof HttpServletRequest) {
+    		HttpServletRequest request = (HttpServletRequest) originalRequest;
     		if (!this.method.name().equals(request.getMethod())) {
     			HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
     			try {

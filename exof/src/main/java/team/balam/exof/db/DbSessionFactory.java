@@ -9,6 +9,7 @@ import team.balam.exof.environment.LoadEnvException;
 import team.balam.exof.environment.MyBatisLoader;
 import team.balam.exof.environment.SystemSetting;
 
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -78,18 +79,20 @@ public class DbSessionFactory
 		return this.getSqlSessionFactory(_datasource).openSession(_isAutoCommit);
 	}
 	
-	public void loadSqlSessionFactory(String _datasource)
-	{
+	public void loadSqlSessionFactory(String _datasource) {
 		MyBatisLoader loader = new MyBatisLoader();
 		String home = SystemSetting.getFramework(EnvKey.HOME);
-		
-		try
-		{
-			SqlSessionFactory factory = loader.loadSqlSessionFactory(home + "/env", _datasource);
-			this.factoryMap.put(_datasource, factory);
+
+		File config = new File(home + "/env/mybatis-config.xml");
+		if (!config.exists() || config.length() == 0) {
+			logger.error("resource is not exists. {}", config.getAbsolutePath());
+			return;
 		}
-		catch(LoadEnvException e)
-		{
+		
+		try {
+			SqlSessionFactory factory = loader.loadSqlSessionFactory(config.getAbsoluteFile(), _datasource);
+			this.factoryMap.put(_datasource, factory);
+		} catch (LoadEnvException e) {
 			this.logger.error("Can not load sqlSessionFactory", e);
 		}
 	}

@@ -2,7 +2,7 @@
 <listener>
 	<port number="3001" type="console"/>
     <port number="3002" type="deploy" id="test" password="S0p8q/ylzIXELzui1jrVlA=="/>
-	
+
 	<port number="2000" maxLength="2000" description="for maven build">
         <sessionHandler class="team.balam.exof.test.TestSessionHandler"/>
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.NullDelimiterStringCodec"/>
@@ -14,13 +14,13 @@
         <channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
         <messageTransform class="team.balam.exof.module.listener.handler.transform.HttpTransform"/>
     </port>
-	
+
 	<port type="jetty" http="8080" https="8081" maxIdleTime="30000" requestHeaderSize="8192"
 		keystorePath="./env/keystore.jks"
 		keystorePassword="test123"
-		sslContextClass="team.balam.exof.module.was.SimpleSslContextFactory" 
+		sslContextClass="team.balam.exof.module.was.SimpleSslContextFactory"
 		descriptor="./webapp/WEB-INF/web.xml" resourceBase="./webapp" contextPath="/"/>
-	
+
 	<!--<port number="2000" ssl="yes" certificatePath="C:/Users/kwonsm/Desktop/keyutil_example.com.crt"
 									privateKeyPath="C:/Users/kwonsm/Desktop/keyutil_example.com.key" maxLength="8000">
 		<channelHandler class="team.balam.exof.module.listener.handler.codec.HttpServerCodec"/>
