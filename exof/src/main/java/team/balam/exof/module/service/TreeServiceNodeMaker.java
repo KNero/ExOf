@@ -1,7 +1,7 @@
 package team.balam.exof.module.service;
 
 import team.balam.exof.Constant;
-import team.balam.exof.module.service.annotation.RestServices;
+import team.balam.exof.module.service.component.http.RestServices;
 import team.balam.exof.module.service.annotation.Service;
 import team.balam.exof.module.service.annotation.Services;
 import team.balam.exof.module.service.component.http.RestService;

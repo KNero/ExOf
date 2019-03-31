@@ -1,7 +1,5 @@
 package team.balam.exof.module.service.component.http;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import org.eclipse.jetty.http.HttpMethods;
@@ -45,11 +43,7 @@ public class QueryStringToMap implements Inbound {
 
 	private void setParameterForNetty(ServiceObject se) {
 		HttpRequest request = (HttpRequest)se.getRequest();
-		if (request.method().name().equals(HttpMethod.POST.name()) && request instanceof FullHttpRequest) {
-			setParameter(se, ((FullHttpRequest) request).content().toString(Charset.forName(this.charset)));
-		} else {
-			setParameter(se, request.uri());
-		}
+		setParameter(se, request.uri());
 	}
 
 	private void setParameterForJetty(ServiceObject se) throws InboundExecuteException {
@@ -93,7 +87,6 @@ public class QueryStringToMap implements Inbound {
 				} else {
 					param.put(key, "");
 				}
-
 			});
 		}
 

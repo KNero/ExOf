@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.db.ServiceInfoDao;
 import team.balam.exof.module.service.annotation.*;
-import team.balam.exof.module.service.component.http.HttpMethodFilter;
-import team.balam.exof.module.service.component.http.QueryStringToMap;
-import team.balam.exof.module.service.component.http.RestService;
+import team.balam.exof.module.service.component.http.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -178,6 +176,10 @@ public class ServiceGroup {
 						}
 
 						serviceWrapper.addInbound(new QueryStringToMap());
+
+						if (!Object.class.equals(serviceAnn.bodyToObject())) {
+						    serviceWrapper.addInbound(new BodyToObject(serviceAnn.bodyToObject()));
+                        }
 					});
 				}
 			} else if (RestServices.class.equals(annotation.annotationType())) {

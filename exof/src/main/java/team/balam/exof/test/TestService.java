@@ -11,7 +11,7 @@ import team.balam.exof.module.service.annotation.ServiceDirectory;
 import team.balam.exof.module.service.annotation.Variable;
 import team.balam.exof.module.service.component.http.HttpGet;
 import team.balam.exof.module.service.component.http.HttpPost;
-import team.balam.exof.module.service.component.http.JsonToMap;
+import team.balam.exof.module.service.component.http.BodyToMap;
 import team.balam.exof.module.service.component.http.QueryStringToMap;
 import team.balam.exof.util.HttpResponseBuilder;
 
@@ -96,7 +96,7 @@ public class TestService {
 	}
 
 	@Service("http-post")
-	@Inbound({HttpPost.class, JsonToMap.class})
+	@Inbound({HttpPost.class, BodyToMap.class})
 	public HttpResponse receiveHttpPost(Map<String, Object> param) {
 		if ("aaaa".equals(param.get("a")) && "BBB".equals(param.get("b")) && new Integer(123).equals(param.get("number")) && "권성민".equals(param.get("name"))) {
 			return HttpResponseBuilder.buildOkMessage("response");
@@ -126,7 +126,7 @@ public class TestService {
 	}
 
 	@Service("receiveHttpPost4Jetty")
-	@Inbound({HttpPost.class, JsonToMap.class})
+	@Inbound({HttpPost.class, BodyToMap.class})
 	public void receiveHttpPost4Jetty(Map<String, Object> param) throws IOException {
 		HttpServletResponse response = RequestContext.get(RequestContext.Key.HTTP_SERVLET_RES);
 

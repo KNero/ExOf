@@ -1,6 +1,4 @@
-package team.balam.exof.module.service.annotation;
-
-import team.balam.exof.module.service.component.http.RestService;
+package team.balam.exof.module.service.component.http;
 
 import java.lang.annotation.*;
 
