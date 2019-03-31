@@ -139,7 +139,7 @@ public class ListenerDao {
 		return selectSpecialPortList(EnvKey.Listener.JETTY);
 	}
 
-	public static List<PortInfo> selectSpecialPortList(String _value) {
+	private static List<PortInfo> selectSpecialPortList(String _value) {
 		String query = "SELECT PORT FROM PORT_ATTRIBUTE WHERE KEY=? AND VALUE=?";
 		Object[] param = new Object[]{EnvKey.Listener.TYPE, _value};
 
@@ -173,15 +173,16 @@ public class ListenerDao {
 	/**
 	 * 특수한 기능을 사용하기 위한 포트를 확인해 준다.
 	 * 특수한 포트가 아닐 경우 ServerPort 에 의해서 오픈된다.
-	 * @return
+	 * @return is special port
 	 */
 	public static boolean isSpecialPort(int _number) {
-		String query = "SELECT COUNT(PORT) AS CNT FROM PORT_ATTRIBUTE WHERE PORT=? AND KEY IN (?, ?)";
-		Object[] param = new Object[]{_number, EnvKey.Listener.TYPE, EnvKey.Listener.JETTY};
+		String query = "SELECT COUNT(PORT) AS CNT FROM PORT_ATTRIBUTE WHERE PORT = ? AND KEY = ? AND VALUE IN (?, ?, ?)";
+		Object[] param = new Object[]{_number, EnvKey.Listener.TYPE,
+				EnvKey.Listener.JETTY, EnvKey.Listener.CONSOLE, EnvKey.Listener.DEPLOY};
 
 		try {
-			List<Map<String, Object>> list = EnvDbHelper.select(query, param);
-			return (Integer) list.get(0).get("cnt") > 0;
+			Map<String, Object> list = EnvDbHelper.selectOne(query, param);
+			return (Integer) list.get("cnt") > 0;
 		} catch (Exception e) {
 			LOGGER.error("Can not get port.", e);
 			return false;
@@ -223,4 +224,16 @@ public class ListenerDao {
 			LOGGER.error("Can not get port info.", e);
 		}
 	}
+
+	public static String getPortType(int portNumber) {
+	    final String query = "SELECT VALUE FROM PORT_ATTRIBUTE WHERE PORT = ? AND KEY = ?";
+	    Object[] param = new Object[]{portNumber, EnvKey.Listener.TYPE};
+
+	    try {
+            return (String) EnvDbHelper.selectOne(query, param).get("value");
+        } catch (Exception e) {
+            LOGGER.error("Fail to get port type.", e);
+            return "";
+        }
+    }
 }

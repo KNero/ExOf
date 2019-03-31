@@ -4,8 +4,7 @@ import team.balam.exof.Constant;
 import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
 
-public class PortInfo
-{
+public class PortInfo {
 	private int number;
 	private boolean isNull;
 
@@ -23,7 +22,7 @@ public class PortInfo
 		return number;
 	}
 
-	public boolean isNull() {
+	public final boolean isNull() {
 		return isNull;
 	}
 
@@ -35,10 +34,13 @@ public class PortInfo
 		return ListenerDao.selectChildAttribute(this.number, EnvKey.Listener.CHANNEL_HANDLER, EnvKey.Listener.CLASS);
 	}
 
-
 	public String getMessageTransform() {
 		return ListenerDao.selectChildAttribute(this.number, EnvKey.Listener.MESSAGE_TRANSFORM, EnvKey.Listener.CLASS);
 	}
+
+	public String getType() {
+	    return ListenerDao.getPortType(this.number);
+    }
 
 	public boolean isSpecial() {
 		return ListenerDao.isSpecialPort(this.number);

@@ -27,14 +27,14 @@ public class Listener implements Module
 	}
 	
 	@Override
-	public void start() throws Exception {
+	public void start() {
 		List<PortInfo> portNumberList = ListenerDao.selectPortList();
 		portNumberList.forEach(info -> {
 			if (info.isSpecial()) {
 				return;
 			}
 
-			ServerPort serverPort = new ServerPort(info);
+			ServerPort serverPort = new ServerPort(convertEmbeddedListener(info));
 			this.serverPortList.add(serverPort);
 
 			try {
@@ -49,8 +49,19 @@ public class Listener implements Module
 		});
 	}
 
+	private PortInfo convertEmbeddedListener(PortInfo portInfo) {
+	    int portNumber = portInfo.getNumber();
+	    String type = portInfo.getType();
+
+	    if (EnvKey.Listener.HTTP.equals(type)) {
+	        return new HttpPortInfo(portNumber);
+        } else {
+	        return portInfo;
+        }
+    }
+
 	@Override
-	public void stop() throws Exception {
+	public void stop() {
 		this.serverPortList.forEach(_info -> {
 			try {
 				_info.close();

@@ -70,8 +70,8 @@ public class ListenerLoader implements Loader {
 
 	/**
 	 * jetty 설정의 경우 http 혹은 https 로 읽어 온다.
-	 * @param _node
-	 * @return
+	 * @param _node xml element node
+	 * @return port number
 	 */
 	private int findNumber(Node _node) {
 		String value = this.findAttribute(_node, EnvKey.Listener.NUMBER);

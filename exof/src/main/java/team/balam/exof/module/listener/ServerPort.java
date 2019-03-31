@@ -38,8 +38,7 @@ public class ServerPort extends ChannelInitializer<SocketChannel> {
 	private ChannelHandlerArray channelHandlerArray;
 	private RequestServiceHandler requestHandler;
 	
-	ServerPort(PortInfo _info)
-	{
+	ServerPort(PortInfo _info) {
 		this.portInfo = _info;
 	}
 	
