@@ -1,23 +1,14 @@
 package team.balam.exof.util;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.*;
+import org.codehaus.jackson.map.ObjectMapper;
+import team.balam.exof.module.listener.RequestContext;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.Map;
-
-import org.codehaus.jackson.map.ObjectMapper;
-
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
-import team.balam.exof.module.listener.RequestContext;
 
 public class HttpResponseBuilder
 {

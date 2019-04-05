@@ -1,8 +1,7 @@
 package team.balam.exof.module.was;
 
 import io.netty.util.internal.StringUtil;
-import org.apache.ibatis.ognl.ObjectMethodAccessor;
-import org.codehaus.jackson.map.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.ExternalClassLoader;
@@ -15,20 +14,23 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 
 /**
- * ExofRequestFilter 를 사용해 주세요.
+ * {@link team.balam.exof.module.was.ExofRequestFilter} 를 사용해 주세요.
  */
+@Slf4j
 @Deprecated
 public class WebServlet extends HttpServlet {
 	private static final Logger LOG  = LoggerFactory.getLogger(WebServlet.class);
 
 	private ServicePathExtractor servicePathExtractor;
-	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+	private boolean isPrintHeaderLog;
 
 	@Override
 	public void init() {
-		setServicePathExtractor(this.getInitParameter("servicePathExtractor"));
+		isPrintHeaderLog = "yes".equals(this.getInitParameter("printHeaderLog"));
+	    setServicePathExtractor(this.getInitParameter("servicePathExtractor"));
 	}
 
 	void setServicePathExtractor(String servicePathExtractorClassName) {
@@ -93,6 +95,11 @@ public class WebServlet extends HttpServlet {
 		RequestContext.set(RequestContext.Key.SERVICE_OBJECT, serviceObject);
 
 		ServiceWrapper service = ServiceProvider.lookup(serviceObject);
+
+        if (isPrintHeaderLog) {
+            printHeaderLog(req);
+        }
+
 		if (service.isInternal()) {
 			LOG.error("Service is internal. path:{}, class:{}", servicePath, service.getHost());
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not call internal service.");
@@ -101,22 +108,36 @@ public class WebServlet extends HttpServlet {
 
 		long start = System.currentTimeMillis();
 
-		Object response = service.call(serviceObject);
+        callService(service, serviceObject, resp);
 
-		if (response != null) {
-			PrintWriter out = resp.getWriter();
-
-			if (response instanceof String) {
-				out.write((String) response);
-				out.flush();
-			} else {
-				JSON_MAPPER.writeValue(out, response);
-			}
-		}
-
-		if(LOG.isInfoEnabled()) {
-			long end = System.currentTimeMillis();
-			LOG.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
-		}
+        long end = System.currentTimeMillis();
+        LOG.info("Service[{}] is completed. Elapsed : {} ms", servicePath, end - start);
 	}
+
+	private static void printHeaderLog(HttpServletRequest request) {
+        StringBuilder header = new StringBuilder();
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String name = headerNames.nextElement();
+            header.append(name).append(": ").append(request.getHeader(name)).append("\n");
+        }
+
+        log.info("HTTP Request Headers\n{} {} {}\n{}", request.getMethod(), request.getRequestURI(), request.getProtocol(), header);
+    }
+
+    private static void callService(ServiceWrapper service, ServiceObject serviceObject,  HttpServletResponse resp) throws Exception {
+        Object response = service.call(serviceObject);
+
+        if (response != null) {
+            PrintWriter out = resp.getWriter();
+
+            if (response instanceof String) {
+                out.write((String) response);
+                out.flush();
+            } else {
+                log.warn("The return type that you can send in response is only String.");
+            }
+        }
+    }
 }

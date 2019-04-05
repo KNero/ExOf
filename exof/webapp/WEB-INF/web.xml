@@ -13,8 +13,8 @@
         <filter-name>exofRequestFilter</filter-name>
         <filter-class>team.balam.exof.module.was.ExofRequestFilter</filter-class>
         <init-param>
-            <param-name>servicePathExtractor</param-name>
-            <param-value>team.balam.exof.module.was.SimpleRequestLogger</param-value>
+            <param-name>printHeaderLog</param-name>
+            <param-value>yes</param-value>
         </init-param>
     </filter>
     <filter-mapping>

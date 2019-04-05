@@ -6,7 +6,6 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
@@ -28,7 +27,6 @@ public class BodyToObject implements Inbound {
 	private static final Logger LOG = LoggerFactory.getLogger(BodyToObject.class);
 	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 	static {
-	    JSON_MAPPER.configure(DeserializationConfig.Feature.AUTO_DETECT_SETTERS, false);
 	    JSON_MAPPER.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
     }
 

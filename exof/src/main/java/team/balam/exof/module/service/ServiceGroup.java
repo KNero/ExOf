@@ -176,6 +176,7 @@ public class ServiceGroup {
 						}
 
 						serviceWrapper.addInbound(new QueryStringToMap());
+						serviceWrapper.addOutbound(new ResponseToJson());
 
 						if (!Object.class.equals(serviceAnn.bodyToObject())) {
 						    serviceWrapper.addInbound(new BodyToObject(serviceAnn.bodyToObject()));
