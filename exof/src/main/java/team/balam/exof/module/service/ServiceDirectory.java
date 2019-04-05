@@ -129,7 +129,7 @@ class ServiceDirectory {
 					} else if (fieldType.equals(List.class)) {
 						field.set(host, serviceVariables.get(field.getName()));
 					} else {
-						LOG.error("This type can not be set. ServiceDirectory:{}, Field type:{}",
+						LOG.error("### This type can not be set. ServiceDirectory:{}, Field type:{}",
 								dirInfo.getPath(), fieldType);
 					}
 				} catch (IllegalAccessException e) {
@@ -147,14 +147,14 @@ class ServiceDirectory {
 					ServiceWrapper serviceWrapper = ServiceProvider.lookup(new ServiceObject(servicePath));
 					field.set(host, serviceWrapper);
 				} catch (ServiceNotFoundException e) {
-					LOG.error("Can not find service. {}", servicePath);
+					LOG.error("Can not find service. {}", servicePath, e);
 				}
 			} else {
-				LOG.error("Field's service annotation is must have full service path. ServiceDirectory:{}, Field:{}",
+				LOG.error("### Field's service annotation is must have full service path. ServiceDirectory:{}, Field:{}",
 						this.dirPath, field.getName());
 			}
 		} else {
-			LOG.error("This type can not be set. service path:{}, Field type:{}", servicePath, fieldType);
+			LOG.error("### This type can not be set. service path:{}, Field type:{}", servicePath, fieldType);
 		}
 	}
 
@@ -164,7 +164,7 @@ class ServiceDirectory {
 			field.setAccessible(true);
 			field.set(host, directory.getHost());
 		} else {
-			LOG.error("ServiceDirectory is not exists. path:{}", serviceDirectoryPath);
+			LOG.error("### ServiceDirectory is not exists.", new ServiceDirectoryNotFoundException("path: " + serviceDirectoryPath));
 		}
 	}
 	

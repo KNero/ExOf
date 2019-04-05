@@ -21,8 +21,7 @@
 		sslContextClass="team.balam.exof.module.was.SimpleSslContextFactory"
 		descriptor="./webapp/WEB-INF/web.xml" resourceBase="./webapp" contextPath="/"/>
 
-	<port number="9090" type="http" ssl="yes" certificatePath="C:/Users/kwonsm/Desktop/keyutil_example.com.crt"
-          privateKeyPath="C:/Users/kwonsm/Desktop/keyutil_example.com.key" maxLength="8000"/>
+	<port number="9090" type="http"/>
 
 	<!--<port number="2000" ssl="yes" certificatePath="C:/Users/kwonsm/Desktop/keyutil_example.com.crt"
 									privateKeyPath="C:/Users/kwonsm/Desktop/keyutil_example.com.key" maxLength="8000">
