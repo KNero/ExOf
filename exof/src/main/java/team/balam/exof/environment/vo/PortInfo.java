@@ -1,5 +1,6 @@
 package team.balam.exof.environment.vo;
 
+import io.netty.util.internal.StringUtil;
 import team.balam.exof.Constant;
 import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
@@ -72,9 +73,21 @@ public class PortInfo {
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 		str.append(ListenerDao.selectAllPortAttribute(this.number));
-		str.append("\nSession Handler : ").append(this.getSessionHandler());
-		str.append("\nChannel Handler : ").append(this.getChannelHandler());
-		str.append("\nMessage Transform : ").append(this.getMessageTransform());
+
+		String sessionHandler = this.getSessionHandler();
+		if (!StringUtil.isNullOrEmpty(sessionHandler)) {
+			str.append("\nSession Handler : ").append(sessionHandler);
+		}
+
+		String channelHandler = this.getChannelHandler();
+		if (!StringUtil.isNullOrEmpty(channelHandler)) {
+			str.append("\nChannel Handler : ").append(channelHandler);
+		}
+
+		String messageTransform = this.getMessageTransform();
+		if (!StringUtil.isNullOrEmpty(messageTransform)) {
+			str.append("\nMessage Transform : ").append(messageTransform);
+		}
 		
 		return str.toString();
 	}

@@ -1,15 +1,19 @@
 package team.balam.exof.module.was;
 
+import io.netty.util.internal.StringUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import team.balam.exof.ExternalClassLoader;
-import team.balam.exof.db.ListenerDao;
 import team.balam.exof.environment.EnvKey;
-import team.balam.exof.module.Module;
 import team.balam.exof.environment.vo.PortInfo;
+import team.balam.exof.module.Module;
+
+import javax.servlet.DispatcherType;
+import java.io.File;
+import java.util.EnumSet;
 
 public class JettyModule implements Module {
 	private PortInfo portInfo;
@@ -47,9 +51,26 @@ public class JettyModule implements Module {
 			webapp.setResourceBase(this.portInfo.getAttribute(EnvKey.Listener.RESOURCE_BASE));
 			webapp.setContextPath(this.portInfo.getAttribute(EnvKey.Listener.CONTEXT_PATH));
 
+			addFilter(webapp);
+
 			this.server.setHandler(webapp);
 			this.server.start();
 		}
+	}
+
+	private void addFilter(WebAppContext webapp) throws Exception {
+		String tempDir = portInfo.getAttribute(EnvKey.Listener.TEMP_DIRECTORY);
+		if (StringUtil.isNullOrEmpty(tempDir)) {
+			throw new Exception("jetty port " + EnvKey.Listener.TEMP_DIRECTORY + " is empty.");
+		}
+
+		MultiPartFilter.deleteFiles = true;
+		MultiPartFilter.tempdir = new File(tempDir);
+		webapp.addFilter(MultiPartFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+
+		EnumSet<DispatcherType> dispatcherTypes =
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.ASYNC);
+		webapp.addFilter(ExofRequestFilter.class, "/*", dispatcherTypes);
 	}
 
 	private void addHttp(int port, int maxIdleTime, int headerSize) {

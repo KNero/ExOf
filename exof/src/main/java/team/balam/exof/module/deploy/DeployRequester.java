@@ -28,8 +28,8 @@ import java.nio.charset.Charset;
 public class DeployRequester {
 	private Logger logger = LoggerFactory.getLogger(DeployRequester.class);
 
-	public static final String DEPLOY_ID = "deploy_id";
-	public static final String DEPLOY_PASSWORD = "deploy_password";
+	static final String DEPLOY_ID = "deploy_id";
+	static final String DEPLOY_PASSWORD = "deploy_password";
 
 	private String host;
 	private int port;
@@ -64,7 +64,7 @@ public class DeployRequester {
 
 		try {
 			HttpPostRequestEncoder requestEncoder = new HttpPostRequestEncoder(request, true);
-			requestEncoder.addBodyFileUpload("library", file, "application/octet-stream", false);
+			requestEncoder.addBodyFileUpload("library", file, HttpHeaderValues.APPLICATION_OCTET_STREAM.toString(), false);
 
 			this.sender.connect(this.host, this.port);
 			this.sender.send(requestEncoder.finalizeRequest());

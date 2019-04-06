@@ -4,18 +4,13 @@ import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.module.listener.RequestContext;
-import team.balam.exof.module.service.annotation.Inbound;
-import team.balam.exof.module.service.annotation.Outbound;
-import team.balam.exof.module.service.annotation.Service;
-import team.balam.exof.module.service.annotation.ServiceDirectory;
-import team.balam.exof.module.service.annotation.Variable;
-import team.balam.exof.module.service.component.http.HttpGet;
-import team.balam.exof.module.service.component.http.HttpPost;
-import team.balam.exof.module.service.component.http.BodyToMap;
-import team.balam.exof.module.service.component.http.QueryStringToMap;
+import team.balam.exof.module.service.annotation.*;
+import team.balam.exof.module.service.component.http.*;
 import team.balam.exof.util.HttpResponseBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -158,4 +153,16 @@ public class TestService {
 
 	@Service("wild2/{2}/2")
 	public void testWildcard2_2() {}
+
+	@RestService(name = "/receive-file", method = HttpMethod.POST)
+    public void receiveFile(HttpServletRequest request) {
+        logger.info("request : {}", request);
+
+        File file = (File) request.getAttribute("file");
+        String fileName = request.getParameter("file");
+        String hidden = request.getParameter("hidden");
+
+        logger.info("hidden value: {}", hidden);
+        logger.info("file name: {}, size: {}", fileName, file.length());
+    }
 }

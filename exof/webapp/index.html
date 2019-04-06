@@ -15,7 +15,7 @@
 
             $.ajax({
                 method : "GET",
-                url : "/api/test/receiveHttpGet4Jetty",
+                url : "/test/receiveHttpGet4Jetty",
                 data : data,
                 success : function(_res) {
                     alert(_res);
@@ -36,7 +36,10 @@
 
             $.ajax({
                 method : "POST",
-                url : "/api/test/receiveHttpPost4Jetty",
+                url : "/test/receiveHttpPost4Jetty",
+                headers: {
+                    "content-type": 'application/json'
+                },
                 data : JSON.stringify(data),
                 //dataType : 'json',
                 success : function(_res) {
@@ -55,6 +58,13 @@
 <div align="center">
     <button onclick="get()">GET</button>
     <button onclick="post()">POST</button>
+</div>
+<div align="center">
+    <form action="/test/receive-file" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="hidden" value="HH"/>
+        <input name="file" type="file"/>
+        <button type="submit">send file</button>
+    </form>
 </div>
 </body>
 </html>

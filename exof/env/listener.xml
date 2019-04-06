@@ -16,10 +16,10 @@
     </port>
 
 	<port type="jetty" http="8080" https="8081" maxIdleTime="30000" requestHeaderSize="8192"
-		keystorePath="./env/keystore.jks"
-		keystorePassword="test123"
-		sslContextClass="team.balam.exof.module.was.SimpleSslContextFactory"
-		descriptor="./webapp/WEB-INF/web.xml" resourceBase="./webapp" contextPath="/"/>
+          tempDirectory="./target"
+          descriptor="./webapp/WEB-INF/web.xml" resourceBase="./webapp" contextPath="/"
+          keystorePath="./env/keystore.jks" keystorePassword="test123"
+          sslContextClass="team.balam.exof.module.was.SimpleSslContextFactory"/>
 
 	<port number="9090" type="http"/>
 

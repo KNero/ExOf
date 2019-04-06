@@ -2,17 +2,14 @@ package team.balam.exof.module.service.component.http;
 
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
-import org.eclipse.jetty.http.HttpMethods;
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import team.balam.exof.module.service.ServiceObject;
 import team.balam.exof.module.service.component.Inbound;
 import team.balam.exof.module.service.component.InboundExecuteException;
-import team.balam.exof.util.StreamUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -52,24 +49,14 @@ public class QueryStringToMap implements Inbound {
 		}
 
 		HttpServletRequest request = ((HttpServletRequest)se.getRequest());
-		String queryString = "";
+		String queryString = request.getQueryString();
 
-		if (request.getMethod().equals(HttpMethods.POST)) {
+		if (!StringUtil.isNullOrEmpty(queryString)) {
 			try {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				StreamUtil.write(request.getInputStream(), out);
-				queryString = "?" + out.toString();
-			} catch (IOException e) {
-				LOG.error("Can't read request body.", e);
+				setParameter(se, URLDecoder.decode("?" + queryString, this.charset));
+			} catch (UnsupportedEncodingException var4) {
+				LOG.error("Encoding is unsupported. " + this.charset, var4);
 			}
-		} else {
-			queryString = "?" + request.getQueryString();
-		}
-
-		try {
-			setParameter(se, URLDecoder.decode(queryString, this.charset));
-		} catch (UnsupportedEncodingException var4) {
-			LOG.error("Encoding is unsupported. " + this.charset, var4);
 		}
 	}
 

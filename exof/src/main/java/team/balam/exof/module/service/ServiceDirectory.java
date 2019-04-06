@@ -151,10 +151,10 @@ class ServiceDirectory {
 				}
 			} else {
 				LOG.error("### Field's service annotation is must have full service path. ServiceDirectory:{}, Field:{}",
-						this.dirPath, field.getName());
+						this.dirPath, field.getName(), new ServiceNotFoundException("path is empty."));
 			}
 		} else {
-			LOG.error("### This type can not be set. service path:{}, Field type:{}", servicePath, fieldType);
+			LOG.error("### This type can not be set. service path:{}, Field type:{}", servicePath, fieldType, new Exception("check @Service annotation class variable"));
 		}
 	}
 

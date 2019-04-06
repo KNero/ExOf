@@ -59,7 +59,9 @@ public interface EnvKey {
 
 		String LENGTH_OFFSET = "lengthOffset";
 		String LENGTH_SIZE = "lengthSize";
-		
+
+		String TEMP_DIRECTORY = "tempDirectory";
+		String MAX_FILE_SIZE = "maxFileSize";
 		String SSL = "ssl";
 		String CERTIFICATE_PATH = "certificatePath";
 		String PRIVATE_KEY_PATH = "privateKeyPath";
