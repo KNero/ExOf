@@ -27,7 +27,7 @@ CLI를 사용한 서버 정보 검색 및 설정
 ```xml
 <repositories>
     <repository>
-        <id>KNero-mvn-repo</id>
+        <id>knero-mvn-repo</id>
         <url>https://github.com/KNero/repository/raw/master/maven</url>
     </repository>
 </repositories>
