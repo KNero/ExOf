@@ -6,6 +6,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -51,7 +52,13 @@ public class ServerPort extends ChannelInitializer<SocketChannel> {
 	    initChannelHandler();
 	    initRequestServiceHandler();
 
-		this.bossGroup = new NioEventLoopGroup();
+	    try {
+			this.bossGroup = new EpollEventLoopGroup();
+			log.info(">> Server type is EPOLL");
+		} catch (ExceptionInInitializerError e) {
+	    	this.bossGroup = new NioEventLoopGroup();
+	    	log.info(">> Server type is NIO");
+		}
 		
 		int defaultWorkerSize = Runtime.getRuntime().availableProcessors() + 1;
 		int workerSize = this.portInfo.getAttributeToInt(EnvKey.Listener.WORKER_SIZE, defaultWorkerSize);
